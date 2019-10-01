@@ -162,9 +162,6 @@ export default {
         }
     })
   }),
-  mounted (){
-     
-},
   methods: {
     getProfilePhoto() {
       let photo = "storage/profile_photo/" + this.user.profile.photo;
