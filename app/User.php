@@ -6,10 +6,13 @@ namespace App;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Overtrue\LaravelFollow\Traits\CanFollow;
+use Overtrue\LaravelFollow\Traits\CanBeFollowed;
+use Overtrue\LaravelFollow\Traits\CanLike;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, Notifiable, CanFollow, CanBeFollowed, CanLike;
 
     /**
      * The attributes that are mass assignable.
@@ -41,5 +44,10 @@ class User extends Authenticatable
     //Profile Method
     public function profile(){
         return $this->hasOne(Profile::class);
+    }
+
+    //Posts Method
+    public function posts(){
+        return $this->hasMany(Post::class, 'author_id');
     }
 }

@@ -19,6 +19,11 @@ import Vue2Filters from 'vue2-filters'
 import moment from 'moment';
 import VueCroppie from 'vue-croppie';
 import 'croppie/croppie.css' // import the croppie css manually
+import store from './store';
+import VueCarousel from 'vue-carousel';
+
+// Vue Carousel
+Vue.use(VueCarousel);
 
 // Crop Image Plug in
 Vue.use(VueCroppie);
@@ -89,6 +94,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 const app = new Vue({
     el: '#app',
     router: Routes,
+    store,
     render: h => h(App),
     vuetify: new Vuetify({
         theme: {
@@ -101,6 +107,7 @@ const app = new Vue({
                     info: '#2196F3',
                     success: '#4CAF50',
                     warning: '#FFC107',
+                    danger: '#f30f0f',
                 },
                 dark: {
                     primary: '#07fd5f',
@@ -110,6 +117,7 @@ const app = new Vue({
                     info: '#2196F3',
                     success: '#4CAF50',
                     warning: '#FFC107',
+                    danger: '#f30f0f',
                 }
     	    }
     	},

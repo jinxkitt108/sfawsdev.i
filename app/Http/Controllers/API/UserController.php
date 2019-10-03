@@ -21,7 +21,7 @@ class UserController extends Controller
         $this->middleware('auth:api');
     }
 
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -35,6 +35,25 @@ class UserController extends Controller
     public function current()
     {
         return auth('api')->user();
+    }
+    public function findExperts()
+    {
+        $user = auth('api')->user();
+        $experts = User::where('type', 'Expert')->where('id', '!=', $user->id)->latest()->paginate();
+        foreach ($experts as $expert) {
+            $expert->profile;
+        }
+        //     if (auth('api')->user()->isFollowing($expert)) {
+        //         $expert['isFollowing'] = true;
+        //     } else {
+        //         $expert['isFollowing'] = false;
+        //     }
+        //     $followings = $expert->followings()->get()->count();
+        //     $followers = $expert->followers()->get()->count();
+        //     $expert['followings'] = $followings;
+        //     $expert['followers'] = $followers;
+        // }
+        return $experts;
     }
 
     /**
@@ -67,8 +86,8 @@ class UserController extends Controller
 
     public function uniqueEmail(Request $request, $value)
     {
-        
-         return  User::where('email', $value);
+
+        return  User::where('email', $value);
     }
 
     /**
@@ -95,11 +114,11 @@ class UserController extends Controller
 
         $this->validate($request, [
             'name' => 'required|string|max:191',
-            'username' => 'required|string|max:191|unique:users,username,'.$user->id,
-            'email' => 'required|string|email|max:191|unique:users,email,'.$user->id,
+            'username' => 'required|string|max:191|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:191|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8'
         ]);
-        if(!empty($request->password)){
+        if (!empty($request->password)) {
             $request->merge(['password' => Hash::make($request['password'])]);
         }
         $user->update($request->all());
@@ -117,7 +136,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         //Delete the user
-        $user->delete(); 
+        $user->delete();
         return ['message' => 'User Deleted'];
     }
 }

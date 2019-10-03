@@ -6,11 +6,11 @@
 
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app clipped>
+    <v-navigation-drawer v-model="drawer" width="240" app clipped>
       <v-list dense>
         <v-list-item>
           <v-list-item-avatar>
-            <img :src="getProfilePhoto()" alt="Avatar">
+            <img :src="getProfilePhoto()" alt="Avatar" />
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{user.name | capitalize}}</v-list-item-title>
@@ -33,47 +33,48 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item>
 
-        <v-list-group dark prepend-icon="fas fa-cogs">
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-store</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Market</v-list-item-title>
+        </v-list-item>
+
+        <v-list-group dark prepend-icon="mdi-cogs">
           <template v-slot:activator>
             <v-list-item-title>Management</v-list-item-title>
           </template>
           <v-list-item to="/users">
-            <v-list-item-title>Users</v-list-item-title>
+            <v-list-item-title class="ml-10">Users</v-list-item-title>
             <v-list-item-icon>
-              <v-icon>fas fa-users</v-icon>
+              <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
           </v-list-item>
         </v-list-group>
 
         <v-list-item v-if="this.$vuetify.theme.dark" @click="themeLight">
           <v-list-item-icon>
-            <v-icon>fas fa-tint</v-icon>
+            <v-icon>mdi-compare</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Light Theme</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-else @click="themeDark">
           <v-list-item-icon>
-            <v-icon>fas fa-tint</v-icon>
+            <v-icon>mdi-compare</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Dark Theme</v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="logout">
           <v-list-item-icon>
-            <v-icon>fas fa-times</v-icon>
+            <v-icon class="red--text">mdi-logout</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Log Out</v-list-item-title>
+          <v-list-item-title class="red--text">Log Out</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-navigation-drawer
-      v-model="drawerRight"
-      width="200px"
-      app
-      clipped
-      right
-    >
+    <v-navigation-drawer v-model="drawerRight" width="200px" app clipped right>
       <v-list dense>
         <v-list-item @click.stop="right = !right">
           <v-list-item-action>
@@ -112,9 +113,9 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer> -->
+    </v-navigation-drawer>-->
 
-    <v-app-bar app clipped-right clipped-left  color="secondary">
+    <v-app-bar app clipped-right clipped-left color="secondary">
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>
         <a href="/" class="brand-link text-white">
@@ -122,16 +123,18 @@
         </a>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
-      <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight"><v-icon class="text--accent">mdi-bell</v-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon center>
+        <v-icon>mdi-magnify</v-icon>
+      </v-app-bar-nav-icon>
+      <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
+        <v-icon class="text--accent">mdi-bell</v-icon>
+      </v-app-bar-nav-icon>
     </v-app-bar>
 
     <!-- Sizes your content based upon application components -->
     <v-content>
-      <!-- Provides the application the proper gutter -->
-      <v-container fluid>
         <!-- If using vue-router -->
         <router-view></router-view>
-      </v-container>
     </v-content>
 
     <v-footer app>
@@ -141,7 +144,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     source: String
@@ -150,16 +152,16 @@ export default {
     drawer: null,
     drawerRight: null,
     right: false,
-    user: new Form ({
-        name: '',
-        type: '',
-        username: '',
-        email: '',
-        password: '',
-        profile : {
-            bio: '',
-          photo: '',
-        }
+    user: new Form({
+      name: "",
+      type: "",
+      username: "",
+      email: "",
+      password: "",
+      profile: {
+        bio: "",
+        photo: ""
+      }
     })
   }),
   methods: {
@@ -173,28 +175,28 @@ export default {
       });
     },
     themeLight() {
-        this.$vuetify.theme.dark = false;  
-         axios.put("api/theme", {
+      this.$vuetify.theme.dark = false;
+      axios.put("api/theme", {
         theme: false
-      })
+      });
     },
     themeDark() {
-      this.$vuetify.theme.dark = true;  
-       axios.put("api/theme", {
+      this.$vuetify.theme.dark = true;
+      axios.put("api/theme", {
         theme: true
-      })
+      });
     }
   },
   created() {
-     Fire.$on('updateProfile',() => {
-       axios.get("api/profile").then(({ data }) => {
-            this.user.fill(data) 
-          }); 
-     });
-        axios.get("api/profile").then(({ data }) => {
-            this.user.fill(data)
-            this.$vuetify.theme.dark = this.user.profile.theme
-        }); 
+    Fire.$on("updateProfile", () => {
+      axios.get("api/profile").then(({ data }) => {
+        this.user.fill(data);
+      });
+    });
+    axios.get("api/profile").then(({ data }) => {
+      this.user.fill(data);
+      this.$vuetify.theme.dark = this.user.profile.theme;
+    });
   }
 };
 </script>

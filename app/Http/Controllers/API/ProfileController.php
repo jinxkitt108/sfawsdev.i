@@ -72,6 +72,7 @@ class ProfileController extends Controller
     public function profile(Request $request)
     {
         $user = auth('api')->user();
+        $profile = Profile::where('user_id', $user->id);
         $this->validate($request, [
             'name' => 'required|string|max:191',
             'username' => 'required|string|max:191|unique:users,username,'.$user->id,
@@ -82,6 +83,7 @@ class ProfileController extends Controller
             $request->merge(['password' => Hash::make($request['password'])]);
         }
         $user->update($request->all());
+        $profile->update(['bio'=> $request->profile["bio"]]);
         return ['message' => 'Info updated!'];
     }
 
