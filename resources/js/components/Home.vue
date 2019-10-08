@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-toolbar dark color="teal">
+    <v-toolbar dark color="primary">
       <v-toolbar-title>Search:</v-toolbar-title>
       <v-text-field
         @click="searchMode"
@@ -32,7 +32,7 @@
                 <span class="text--primary mr-3">Followers {{expert.followers}}</span>
                 <span class="text--primary">Followings {{expert.followings}}</span>
                 <br />
-                <v-btn v-if="expert.isFollowing" @click="toggleFollow(expert.id)" small rounded outlined color="primary">Unfollow</v-btn>
+                <v-btn v-if="expert.isFollowing" @click="toggleFollow(expert.id)" small rounded outlined >Unfollow</v-btn>
                 <v-btn v-else @click="toggleFollow(expert.id)" small rounded color="primary">Follow</v-btn>
               </v-card-text>
             </v-card>

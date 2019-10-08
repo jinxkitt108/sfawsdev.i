@@ -2816,9 +2816,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     source: String
@@ -62288,7 +62285,7 @@ var render = function() {
     [
       _c(
         "v-toolbar",
-        { attrs: { dark: "", color: "teal" } },
+        { attrs: { dark: "", color: "primary" } },
         [
           _c("v-toolbar-title", [_vm._v("Search:")]),
           _vm._v(" "),
@@ -62390,8 +62387,7 @@ var render = function() {
                                           attrs: {
                                             small: "",
                                             rounded: "",
-                                            outlined: "",
-                                            color: "primary"
+                                            outlined: ""
                                           },
                                           on: {
                                             click: function($event) {
@@ -63675,7 +63671,7 @@ var render = function() {
             app: "",
             "clipped-right": "",
             "clipped-left": "",
-            color: "secondary"
+            color: "primary"
           }
         },
         [
@@ -63701,13 +63697,6 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "flex-grow-1" }),
-          _vm._v(" "),
-          _c(
-            "v-app-bar-nav-icon",
-            { attrs: { center: "" } },
-            [_c("v-icon", [_vm._v("mdi-magnify")])],
-            1
-          ),
           _vm._v(" "),
           _c(
             "v-app-bar-nav-icon",
@@ -118894,12 +118883,12 @@ function () {
             if (this.user.type === 'admin' || this.user.type === 'author') {
                 return true;
             }
-          }
+         }
         isAuthorOrUser() {
             if (this.user.type === 'user' || this.user.type === 'author') {
                 return true;
             }
-          }
+         }
         */
 
   }]);
@@ -119041,7 +119030,7 @@ var app = new Vue({
           danger: '#f30f0f'
         },
         dark: {
-          primary: '#07fd5f',
+          primary: '#009688',
           secondary: '#0A4D22',
           accent: '#fff',
           error: '#FF5252',

@@ -25,7 +25,18 @@ class PostController extends Controller
      */
     public function index()
     {
-        return $user = auth('api')->user()->posts()->latest()->paginate(5);
+        $user = auth('api')->user();
+        $userIds = $user->followings()->pluck('id')->toArray();
+        $posts = Post::whereIn('author_id', $userIds)->orWhere('author_id', $user->id)->orderBy('created_at', 'DESC')->get();
+        foreach($posts as $post){
+            
+            if($post->author_id === $user->id){
+                $post['authorize'] = true;
+            } else {
+                $post['authorize'] = false;
+            }
+        }
+        return $posts;
     }
 
     /**
@@ -54,12 +65,14 @@ class PostController extends Controller
         else {
             $name = '';
         }
-        return  Post::create([
+        Post::create([
             'author_id' => auth('api')->user()->id,
             'title' => $request['title'],
             'content' => $request['content'],
             'cover_image' => $name
         ]);
+
+        return ['message' => 'Success!'];
     }
 
     /**

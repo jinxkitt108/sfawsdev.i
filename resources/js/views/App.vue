@@ -115,7 +115,7 @@
       </v-list>
     </v-navigation-drawer>-->
 
-    <v-app-bar app clipped-right clipped-left color="secondary">
+    <v-app-bar app clipped-right clipped-left color="primary">
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>
         <a href="/" class="brand-link text-white">
@@ -123,9 +123,6 @@
         </a>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
-      <v-app-bar-nav-icon center>
-        <v-icon>mdi-magnify</v-icon>
-      </v-app-bar-nav-icon>
       <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
         <v-icon class="text--accent">mdi-bell</v-icon>
       </v-app-bar-nav-icon>

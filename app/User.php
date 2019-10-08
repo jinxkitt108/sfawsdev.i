@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'type', 'username', 'email', 'password',
+        'name', 'type', 'username', 'email', 'password'
     ];
 
     /**
@@ -41,13 +41,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $with = ['profile'];
+
     //Profile Method
-    public function profile(){
+    public function profile()
+    {
         return $this->hasOne(Profile::class);
     }
 
     //Posts Method
-    public function posts(){
-        return $this->hasMany(Post::class, 'author_id');
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }
