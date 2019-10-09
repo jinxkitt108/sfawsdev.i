@@ -42,17 +42,16 @@ class UserController extends Controller
         $experts = User::where('type', 'Expert')->where('id', '!=', $user->id)->latest()->paginate();
         foreach ($experts as $expert) {
             $expert->profile;
+            $followers = $expert->followers()->get()->count();
+            $followings = $expert->followings()->get()->count();
+            $expert['followers'] = $followers;
+            $expert['followings'] = $followings;
+            if($user->isFollowing($expert)){
+                $expert['isFollowing'] = true;
+                } else {
+                $expert['isFollowing'] = false;    
+                }
         }
-        //     if (auth('api')->user()->isFollowing($expert)) {
-        //         $expert['isFollowing'] = true;
-        //     } else {
-        //         $expert['isFollowing'] = false;
-        //     }
-        //     $followings = $expert->followings()->get()->count();
-        //     $followers = $expert->followers()->get()->count();
-        //     $expert['followings'] = $followings;
-        //     $expert['followers'] = $followers;
-        // }
         return $experts;
     }
 

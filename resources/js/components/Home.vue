@@ -13,23 +13,28 @@
         solo-inverted
       ></v-text-field>
     </v-toolbar>
-    <v-card v-if="!search">
-      <v-card-title>Suggested for you</v-card-title>
+    <v-card v-if="search">
+      <v-card-title class="subtitle-1">Suggested for you</v-card-title>
       <v-card-text>
         <carousel :per-page="4">
-          <slide v-for="expert in experts" :key="expert.id">
+          <slide v-for="expert in experts" :key="expert.id" class="pa-2">
             <v-card>
               <img
                 :src="'storage/profile_photo/' + expert.profile.photo"
                 alt="avatar"
-                style="max-width: 150px"
+                style="max-width: 200px"
               />
-              <v-card-title class="subtitle-1 mb-0">{{expert.name | capitalize}}</v-card-title>
-              <v-card-text class="mt-0">{{expert.type}}</v-card-text>
-              <v-flex>
-                <v-btn small>Follow</v-btn>
-                <v-btn small>Message</v-btn>
-              </v-flex>
+              <v-card-text>
+                <span class="subtitle-2 text--primary">{{expert.name | capitalize}}</span>
+                <br />
+                <span class="small text--primary">{{expert.type}}</span>
+                <br />
+                <span class="text--primary mr-3">Followers {{expert.followers}}</span>
+                <span class="text--primary">Followings {{expert.followings}}</span>
+                <br />
+                <v-btn v-if="expert.isFollowing" @click="toggleFollow(expert.id)" small rounded outlined color="primary">Unfollow</v-btn>
+                <v-btn v-else @click="toggleFollow(expert.id)" small rounded color="primary">Follow</v-btn>
+              </v-card-text>
             </v-card>
           </slide>
         </carousel>
@@ -117,6 +122,21 @@ export default {
     };
   },
   methods: {
+    toggleFollow(id) {
+      let reference = $(this);
+      axios
+        .post("api/follow", {
+          user_id: id
+        })
+        .then(response => {
+          this.loadExperts();
+          this.loadPosts();
+          Toast.fire({
+            type: "success",
+            title: "Successful!"
+          });
+        });
+    },
     loadExperts() {
       axios.get("api/experts").then(({ data }) => (this.experts = data.data));
     },

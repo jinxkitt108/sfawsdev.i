@@ -94,7 +94,9 @@ class ProfileController extends Controller
         $user = auth('api')->user()->profile;
         $currentPhoto = $user->photo;
         $name = time().'.' . explode('/', explode(':', substr($request->profile["photo"], 0, strpos($request->profile["photo"], ';')))[1])[1];
-
+        if(!is_dir('storage/profile_photo/')) {
+            mkdir('storage/profile_photo/');
+        }
             \Image::make($request->profile["photo"])->save(public_path('storage/profile_photo/').$name);
             $request->merge(['photo' => $name]);
 

@@ -1975,6 +1975,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     console.log("Component mounted.");
@@ -1997,12 +2002,29 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     };
   },
   methods: {
-    loadExperts: function loadExperts() {
+    toggleFollow: function toggleFollow(id) {
       var _this = this;
+
+      var reference = $(this);
+      axios.post("api/follow", {
+        user_id: id
+      }).then(function (response) {
+        _this.loadExperts();
+
+        _this.loadPosts();
+
+        Toast.fire({
+          type: "success",
+          title: "Successful!"
+        });
+      });
+    },
+    loadExperts: function loadExperts() {
+      var _this2 = this;
 
       axios.get("api/experts").then(function (_ref) {
         var data = _ref.data;
-        return _this.experts = data.data;
+        return _this2.experts = data.data;
       });
     },
     searchMode: function searchMode() {
@@ -2013,15 +2035,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.tags = _toConsumableArray(this.tags);
     },
     loadPosts: function loadPosts() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get("api/post").then(function (_ref2) {
         var data = _ref2.data;
-        return _this2.posts = data;
+        return _this3.posts = data;
       });
     },
     coverImage: function coverImage(file) {
-      var _this3 = this;
+      var _this4 = this;
 
       var image = file.target.files[0];
       console.log(image);
@@ -2029,7 +2051,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       reader.onloadend = function (image) {
         //console.log('RESULT', reader.result)
-        _this3.postForm.cover_image = reader.result;
+        _this4.postForm.cover_image = reader.result;
       };
 
       reader.readAsDataURL(image);
@@ -2038,7 +2060,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       $("#cover_photo").click();
     },
     createPost: function createPost() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.$Progress.start();
       axios.post("api/post", {
@@ -2052,9 +2074,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           title: "Post successfully"
         });
 
-        _this4.$Progress.finish();
+        _this5.$Progress.finish();
       })["catch"](function () {
-        _this4.$Progress.fail();
+        _this5.$Progress.fail();
       });
       this.postForm.reset();
     }
@@ -62286,11 +62308,13 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      !_vm.search
+      _vm.search
         ? _c(
             "v-card",
             [
-              _c("v-card-title", [_vm._v("Suggested for you")]),
+              _c("v-card-title", { staticClass: "subtitle-1" }, [
+                _vm._v("Suggested for you")
+              ]),
               _vm._v(" "),
               _c(
                 "v-card-text",
@@ -62301,13 +62325,13 @@ var render = function() {
                     _vm._l(_vm.experts, function(expert) {
                       return _c(
                         "slide",
-                        { key: expert.id },
+                        { key: expert.id, staticClass: "pa-2" },
                         [
                           _c(
                             "v-card",
                             [
                               _c("img", {
-                                staticStyle: { "max-width": "150px" },
+                                staticStyle: { "max-width": "200px" },
                                 attrs: {
                                   src:
                                     "storage/profile_photo/" +
@@ -62317,29 +62341,82 @@ var render = function() {
                               }),
                               _vm._v(" "),
                               _c(
-                                "v-card-title",
-                                { staticClass: "subtitle-1 mb-0" },
+                                "v-card-text",
                                 [
-                                  _vm._v(
-                                    _vm._s(_vm._f("capitalize")(expert.name))
-                                  )
-                                ]
-                              ),
-                              _vm._v(" "),
-                              _c("v-card-text", { staticClass: "mt-0" }, [
-                                _vm._v(_vm._s(expert.type))
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "v-flex",
-                                [
-                                  _c("v-btn", { attrs: { small: "" } }, [
-                                    _vm._v("Follow")
+                                  _c(
+                                    "span",
+                                    { staticClass: "subtitle-2 text--primary" },
+                                    [
+                                      _vm._v(
+                                        _vm._s(
+                                          _vm._f("capitalize")(expert.name)
+                                        )
+                                      )
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("br"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "span",
+                                    { staticClass: "small text--primary" },
+                                    [_vm._v(_vm._s(expert.type))]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("br"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "span",
+                                    { staticClass: "text--primary mr-3" },
+                                    [
+                                      _vm._v(
+                                        "Followers " + _vm._s(expert.followers)
+                                      )
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("span", { staticClass: "text--primary" }, [
+                                    _vm._v(
+                                      "Followings " + _vm._s(expert.followings)
+                                    )
                                   ]),
                                   _vm._v(" "),
-                                  _c("v-btn", { attrs: { small: "" } }, [
-                                    _vm._v("Message")
-                                  ])
+                                  _c("br"),
+                                  _vm._v(" "),
+                                  expert.isFollowing
+                                    ? _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            small: "",
+                                            rounded: "",
+                                            outlined: "",
+                                            color: "primary"
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.toggleFollow(expert.id)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Unfollow")]
+                                      )
+                                    : _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            small: "",
+                                            rounded: "",
+                                            color: "primary"
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.toggleFollow(expert.id)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Follow")]
+                                      )
                                 ],
                                 1
                               )
@@ -118817,12 +118894,12 @@ function () {
             if (this.user.type === 'admin' || this.user.type === 'author') {
                 return true;
             }
-         }
+          }
         isAuthorOrUser() {
             if (this.user.type === 'user' || this.user.type === 'author') {
                 return true;
             }
-         }
+          }
         */
 
   }]);

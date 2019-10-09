@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Post;
+use App\User;
 
-class PostController extends Controller
+class FollowController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -25,7 +25,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return $user = auth('api')->user()->posts()->latest()->paginate(5);
+        //
     }
 
     /**
@@ -36,30 +36,10 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-       
-        $this->validate($request, [
-            'title' => 'required',
-            'content' => 'required',
-            'cover_image' => 'nullable',
-        ]);
-
-        if($request->cover_image){
-            $name = time().'.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
-            $dir = 'storage/cover_photo/';
-            if(!is_dir($dir)) {
-                mkdir($dir);
-            }
-            \Image::make($request->cover_image)->save(public_path('storage/cover_photo/').$name);
-        }
-        else {
-            $name = '';
-        }
-        return  Post::create([
-            'author_id' => auth('api')->user()->id,
-            'title' => $request['title'],
-            'content' => $request['content'],
-            'cover_image' => $name
-        ]);
+        //Toggle Follow
+        $user = User::find($request->user_id);
+        $follow= auth('api')->user()->toggleFollow($user);
+        return $follow;
     }
 
     /**

@@ -24,6 +24,9 @@ Route::get('currentUser', 'API\UserController@current');
 Route::get('email', 'API\UserController@uniqueEmail');
 Route::get('experts', 'API\UserController@findExperts');
 
+//Follow Routes
+Route::apiResources(['follow' => 'API\FollowController']);
+
 //Profile Routes 
 Route::apiResources(['profile' => 'API\ProfileController']);
 Route::put('profile', 'API\ProfileController@profile');
