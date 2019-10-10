@@ -65,14 +65,12 @@ class PostController extends Controller
         else {
             $name = '';
         }
-        Post::create([
+        return Post::create([
             'author_id' => auth('api')->user()->id,
             'title' => $request['title'],
             'content' => $request['content'],
             'cover_image' => $name
         ]);
-
-        return ['message' => 'Success!'];
     }
 
     /**
@@ -106,6 +104,18 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::findOrFail($id);
+        //$comment = Comment::where('post_id', $id);
+        $currentCover = $post->cover_image;
+        $cover_image = public_path('storage/cover_photo/').$currentCover;
+            if($currentCover != 'noimage.jpg'){
+                @unlink($cover_image);
+            } else {
+
+            }
+        //Delete the post
+        $post->delete();
+        //$comment->delete();
+        return ['message' => 'Post Deleted'];
     }
 }

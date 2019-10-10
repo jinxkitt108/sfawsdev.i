@@ -1980,6 +1980,110 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     console.log("Component mounted.");
@@ -1991,6 +2095,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   data: function data() {
     return {
       search: false,
+      dialog: false,
       posts: {},
       experts: {},
       tags: "",
@@ -2002,16 +2107,47 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     };
   },
   methods: {
-    toggleFollow: function toggleFollow(id) {
+    deletePost: function deletePost(id) {
       var _this = this;
+
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "teal",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(function (result) {
+        // Send request to the server
+        if (result.value) {
+          _this.postForm["delete"]("api/post/" + id).then(function () {
+            Toast.fire({
+              type: "success",
+              title: "Post Deleted!"
+            });
+
+            _this.loadPosts();
+          })["catch"](function () {
+            Swal.fire({
+              type: "error",
+              title: "Oops...",
+              text: "Something went wrong!"
+            });
+          });
+        }
+      });
+    },
+    toggleFollow: function toggleFollow(id) {
+      var _this2 = this;
 
       var reference = $(this);
       axios.post("api/follow", {
         user_id: id
       }).then(function (response) {
-        _this.loadExperts();
+        _this2.loadExperts();
 
-        _this.loadPosts();
+        _this2.loadPosts();
 
         Toast.fire({
           type: "success",
@@ -2020,11 +2156,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       });
     },
     loadExperts: function loadExperts() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get("api/experts").then(function (_ref) {
         var data = _ref.data;
-        return _this2.experts = data.data;
+        return _this3.experts = data.data;
       });
     },
     searchMode: function searchMode() {
@@ -2035,15 +2171,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.tags = _toConsumableArray(this.tags);
     },
     loadPosts: function loadPosts() {
-      var _this3 = this;
+      var _this4 = this;
 
       axios.get("api/post").then(function (_ref2) {
         var data = _ref2.data;
-        return _this3.posts = data;
+        return _this4.posts = data;
       });
     },
     coverImage: function coverImage(file) {
-      var _this4 = this;
+      var _this5 = this;
 
       var image = file.target.files[0];
       console.log(image);
@@ -2051,7 +2187,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       reader.onloadend = function (image) {
         //console.log('RESULT', reader.result)
-        _this4.postForm.cover_image = reader.result;
+        _this5.postForm.cover_image = reader.result;
       };
 
       reader.readAsDataURL(image);
@@ -2060,7 +2196,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       $("#cover_photo").click();
     },
     createPost: function createPost() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.$Progress.start();
       axios.post("api/post", {
@@ -2074,9 +2210,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           title: "Post successfully"
         });
 
-        _this5.$Progress.finish();
+        _this6.$Progress.finish();
       })["catch"](function () {
-        _this5.$Progress.fail();
+        _this6.$Progress.fail();
       });
       this.postForm.reset();
     }
@@ -62597,9 +62733,426 @@ var render = function() {
               ])
             ],
             1
-          )
+          ),
+      _vm._v(" "),
+      _vm._l(_vm.posts, function(post) {
+        return _c(
+          "v-card",
+          { key: post.id, staticClass: "mt-4" },
+          [
+            _c(
+              "v-list-item",
+              [
+                _c("v-list-item-avatar", { attrs: { color: "grey" } }, [
+                  _c("img", {
+                    attrs: {
+                      src: "storage/profile_photo/" + post.author.profile.photo,
+                      alt: "Profile Photo"
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c(
+                  "v-list-item-content",
+                  [
+                    _c("v-list-item-title", { staticClass: "headline" }, [
+                      _vm._v(_vm._s(post.title))
+                    ]),
+                    _vm._v(" "),
+                    _c("v-list-item-subtitle", [
+                      _vm._v(
+                        "\n          by " +
+                          _vm._s(_vm._f("capitalize")(post.author.name)) +
+                          "\n          "
+                      ),
+                      _c("span", { staticClass: "small ml-2" }, [
+                        _vm._v("(" + _vm._s(post.author.type) + ")")
+                      ]),
+                      _vm._v(" "),
+                      _c("span", { staticClass: "float-right" }, [
+                        _vm._v(
+                          "Posted " +
+                            _vm._s(_vm._f("postDate")(post.created_at))
+                        )
+                      ])
+                    ])
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "v-container",
+              [
+                _c(
+                  "v-row",
+                  [
+                    _c(
+                      "v-col",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: post.cover_image,
+                            expression: "post.cover_image"
+                          }
+                        ],
+                        attrs: { sm: "6" }
+                      },
+                      [
+                        _c("v-img", {
+                          attrs: {
+                            src: "storage/cover_photo/" + post.cover_image,
+                            height: "250"
+                          }
+                        })
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "v-col",
+                      [
+                        _c("v-card-text", [
+                          _c("p", [_vm._v(_vm._s(post.content))])
+                        ])
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "v-card-actions",
+                  [
+                    _c("v-btn", { attrs: { text: "" } }, [_vm._v("View")]),
+                    _vm._v(" "),
+                    _c("v-btn", { attrs: { text: "" } }, [_vm._v("Comment")]),
+                    _vm._v(" "),
+                    _c(
+                      "v-btn",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: post.authorize,
+                            expression: "post.authorize"
+                          }
+                        ],
+                        attrs: { text: "", color: "primary" },
+                        on: {
+                          click: function($event) {
+                            _vm.dialog = true
+                          }
+                        }
+                      },
+                      [_vm._v("[Edit]")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "v-dialog",
+                      {
+                        attrs: {
+                          fullscreen: "",
+                          "hide-overlay": "",
+                          transition: "dialog-bottom-transition",
+                          scrollable: ""
+                        },
+                        model: {
+                          value: _vm.dialog,
+                          callback: function($$v) {
+                            _vm.dialog = $$v
+                          },
+                          expression: "dialog"
+                        }
+                      },
+                      [
+                        _c(
+                          "v-card",
+                          { attrs: { tile: "" } },
+                          [
+                            _c(
+                              "v-toolbar",
+                              {
+                                attrs: {
+                                  flat: "",
+                                  dark: "",
+                                  color: "primary",
+                                  height: "50px"
+                                }
+                              },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    attrs: { icon: "", dark: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.dialog = false
+                                      }
+                                    }
+                                  },
+                                  [_c("v-icon", [_vm._v("mdi-close")])],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("v-toolbar-title", [_vm._v("Settings")]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "flex-grow-1" }),
+                                _vm._v(" "),
+                                _c(
+                                  "v-toolbar-items",
+                                  [
+                                    _c(
+                                      "v-btn",
+                                      {
+                                        attrs: { dark: "", text: "" },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.dialog = false
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Save")]
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("v-menu", {
+                                  attrs: {
+                                    bottom: "",
+                                    right: "",
+                                    "offset-y": ""
+                                  },
+                                  scopedSlots: _vm._u(
+                                    [
+                                      {
+                                        key: "activator",
+                                        fn: function(ref) {
+                                          var on = ref.on
+                                          return [
+                                            _c(
+                                              "v-btn",
+                                              _vm._g(
+                                                {
+                                                  attrs: { dark: "", icon: "" }
+                                                },
+                                                on
+                                              ),
+                                              [
+                                                _c("v-icon", [
+                                                  _vm._v("mdi-dots-vertical")
+                                                ])
+                                              ],
+                                              1
+                                            )
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    null,
+                                    true
+                                  )
+                                })
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "v-card-text",
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "ma-2",
+                                    attrs: { color: "primary", dark: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.dialog2 = !_vm.dialog2
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("Open Dialog 2")]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "v-tooltip",
+                                  {
+                                    attrs: { right: "" },
+                                    scopedSlots: _vm._u(
+                                      [
+                                        {
+                                          key: "activator",
+                                          fn: function(ref) {
+                                            var on = ref.on
+                                            return [
+                                              _c(
+                                                "v-btn",
+                                                _vm._g(
+                                                  { staticClass: "ma-2" },
+                                                  on
+                                                ),
+                                                [_vm._v("Tool Tip Activator")]
+                                              )
+                                            ]
+                                          }
+                                        }
+                                      ],
+                                      null,
+                                      true
+                                    )
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                Tool Tip\n              "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "v-list",
+                                  {
+                                    attrs: { "three-line": "", subheader: "" }
+                                  },
+                                  [
+                                    _c("v-subheader", [
+                                      _vm._v("User Controls")
+                                    ]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-list-item",
+                                      [
+                                        _c(
+                                          "v-list-item-content",
+                                          [
+                                            _c("v-list-item-title", [
+                                              _vm._v("Content filtering")
+                                            ]),
+                                            _vm._v(" "),
+                                            _c("v-list-item-subtitle", [
+                                              _vm._v(
+                                                "Set the content filtering level to restrict apps that can be downloaded"
+                                              )
+                                            ])
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-list-item",
+                                      [
+                                        _c(
+                                          "v-list-item-content",
+                                          [
+                                            _c("v-list-item-title", [
+                                              _vm._v("Password")
+                                            ]),
+                                            _vm._v(" "),
+                                            _c("v-list-item-subtitle", [
+                                              _vm._v(
+                                                "Require password for purchase or use password to restrict purchase"
+                                              )
+                                            ])
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("v-divider")
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticStyle: { flex: "1 1 auto" } })
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "v-btn",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: post.authorize,
+                            expression: "post.authorize"
+                          }
+                        ],
+                        attrs: { text: "", color: "danger" },
+                        on: {
+                          click: function($event) {
+                            return _vm.deletePost(post.id)
+                          }
+                        }
+                      },
+                      [_vm._v("[Delete]")]
+                    ),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "flex-grow-1" }),
+                    _vm._v(" "),
+                    _c(
+                      "v-btn",
+                      { attrs: { icon: "" } },
+                      [_c("v-icon", [_vm._v("mdi-leaf")])],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "v-btn",
+                      { attrs: { icon: "" } },
+                      [_c("v-icon", [_vm._v("mdi-share-variant")])],
+                      1
+                    )
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c("v-textarea", {
+                  attrs: {
+                    outlined: "",
+                    rows: "1",
+                    name: "input-7-4",
+                    label: "Type comment.."
+                  }
+                }),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "text-right" },
+                  [
+                    _c("v-btn", { attrs: { color: "primary" } }, [
+                      _vm._v("Post")
+                    ])
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        )
+      })
     ],
-    1
+    2
   )
 }
 var staticRenderFns = []

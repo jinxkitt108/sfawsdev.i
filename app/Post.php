@@ -10,7 +10,7 @@ class Post extends Model
     protected $table = 'posts';
     // Fields
     protected $fillable = [
-        'author_id', 'title', 'body', 'cover_image'
+        'author_id', 'title', 'content', 'cover_image'
     ];
     // Primary Key
     public $primaryKey = 'id';
