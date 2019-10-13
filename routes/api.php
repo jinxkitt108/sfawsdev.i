@@ -24,8 +24,10 @@ Route::get('currentUser', 'API\UserController@current');
 Route::get('email', 'API\UserController@uniqueEmail');
 Route::get('experts', 'API\UserController@findExperts');
 
-//Follow Routes
+//Follow and Commend Routes
 Route::apiResources(['follow' => 'API\FollowController']);
+Route::post('commend', 'API\FollowController@commend');
+Route::post('agree', 'API\FollowController@agree');
 
 //Profile Routes 
 Route::apiResources(['profile' => 'API\ProfileController']);
@@ -35,3 +37,6 @@ Route::put('theme', 'API\ProfileController@addTheme');
 
 //POST ROUTES
 Route::apiResources(['post' => 'API\PostController']);
+
+//Comment ROUTES
+Route::apiResources(['comment' => 'API\CommentController']);

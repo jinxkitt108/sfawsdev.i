@@ -246,6 +246,7 @@ export default {
             "success"
           );
           this.$Progress.finish();
+          Fire.$emit("updateProfile");
           this.close()
           this.loadUsers();
         })

@@ -4,13 +4,11 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\User;
-use App\Post;
 use App\Comment;
 
-class FollowController extends Controller
+class CommentController extends Controller
 {
-    /**
+     /**
      * Create a new controller instance.
      *
      * @return void
@@ -38,26 +36,14 @@ class FollowController extends Controller
      */
     public function store(Request $request)
     {
-        //Toggle Follow
-        $user = User::find($request->user_id);
-        $follow= auth('api')->user()->toggleFollow($user);
-        return $follow;
-    }
-
-    public function commend(Request $request)
-    {
-        //Toggle Commend
-        $post = Post::find($request->post_id);
-        $commend= auth('api')->user()->toggleLike($post);
-        return $commend;
-    }
-
-    public function agree(Request $request)
-    {
-        //Toggle Agree
-        $comment = Comment::find($request->comment_id);
-        $agree= auth('api')->user()->toggleLike($comment);
-        return $agree;
+        $this->validate($request, [
+            'content' => 'required'
+        ]);
+        return Comment::create([
+            'author_id' => auth('api')->user()->id,
+            'post_id' =>  $request['post_id'],
+            'content' => $request['content']
+        ]);
     }
 
     /**
@@ -91,6 +77,10 @@ class FollowController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $comment = Comment::findOrFail($id);
+
+        //Delete the post
+        $comment->delete(); 
+        return ['message' => 'Comment Deleted'];
     }
 }

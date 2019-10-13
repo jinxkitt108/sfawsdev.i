@@ -40,10 +40,9 @@
                                 @enderror
                             </div>
                         </div>
-
                         <div class="form-group row">
                             <div class="col-md-6">
-                                <label for="name">{{ __('Username') }}</label>
+                                <label for="username">{{ __('Username') }}</label>
                                 <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" autofocus>
                                 @error('username')
                                 <span class="invalid-feedback" role="alert">

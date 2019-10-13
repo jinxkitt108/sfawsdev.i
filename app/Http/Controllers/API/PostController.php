@@ -29,11 +29,26 @@ class PostController extends Controller
         $userIds = $user->followings()->pluck('id')->toArray();
         $posts = Post::whereIn('author_id', $userIds)->orWhere('author_id', $user->id)->orderBy('created_at', 'DESC')->get();
         foreach($posts as $post){
-            
             if($post->author_id === $user->id){
                 $post['authorize'] = true;
             } else {
                 $post['authorize'] = false;
+            }
+            if($user->hasLiked($post)){
+               $post['commend'] = true;
+            }
+            $commends = $post->likers()->count();
+            $post['commends'] = $commends;
+            $comments = $post->comments;
+            foreach($comments as $comment){
+                if($comment->author_id === $user->id){
+                    $comment['authorize'] = true;
+                } else {
+                    $comment['authorize'] = false;
+                }
+                if($user->hasLiked($comment)){
+                    $comment['agree'] = true;
+                 }
             }
         }
         return $posts;
@@ -65,12 +80,14 @@ class PostController extends Controller
         else {
             $name = '';
         }
-        return Post::create([
+
+        $post = Post::create([
             'author_id' => auth('api')->user()->id,
             'title' => $request['title'],
             'content' => $request['content'],
-            'cover_image' => $name
+            'cover_image' => $name,
         ]);
+        return $post->attachTags($request['tags']);
     }
 
     /**
@@ -93,7 +110,31 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $post = Post::findOrFail($id);
+        $this->validate($request, [
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+        $currentCover = $post->cover_image;
+        if($request->cover_image !=  $currentCover){
+            if($request->cover_image == ""){
+                    //Remove cover image
+            } else {
+                // Upload new cover image
+            $name = time().'.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
+
+            \Image::make($request->cover_image)->save(public_path('storage/cover_photo/').$name);
+            $request->merge(['cover_image' => $name]);
+            }
+            $cover_image = public_path('storage/cover_photo/').$currentCover;
+            if(file_exists($cover_image)){
+                @unlink($cover_image);
+            } 
+        }
+
+        // Update Post
+        $post->update($request->all());
+        return ['message' => 'Info updated!'];
     }
 
     /**
@@ -105,7 +146,7 @@ class PostController extends Controller
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
-        //$comment = Comment::where('post_id', $id);
+        $comment = Comment::where('post_id', $id);
         $currentCover = $post->cover_image;
         $cover_image = public_path('storage/cover_photo/').$currentCover;
             if($currentCover != 'noimage.jpg'){
@@ -115,7 +156,7 @@ class PostController extends Controller
             }
         //Delete the post
         $post->delete();
-        //$comment->delete();
+        $comment->delete();
         return ['message' => 'Post Deleted'];
     }
 }

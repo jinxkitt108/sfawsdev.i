@@ -6,11 +6,11 @@
 
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" width="240" app clipped>
+    <v-navigation-drawer v-model="drawer" width="250" app clipped>
       <v-list dense>
         <v-list-item>
           <v-list-item-avatar>
-            <img :src="getProfilePhoto()" alt="Avatar" />
+            <img :src="getProfilePhoto()" alt="Avatar" class="border-primary" />
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{user.name | capitalize}}</v-list-item-title>
@@ -74,7 +74,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawerRight" width="200px" app clipped right>
+    <v-navigation-drawer v-model="drawerRight" width="250px" app clipped right>
       <v-list dense>
         <v-list-item @click.stop="right = !right">
           <v-list-item-action>
@@ -86,42 +86,25 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <!-- <v-navigation-drawer >
-      <template v-slot:prepend>
-        <v-list-item two-line>
-          <v-list-item-avatar>
-            <img src="images/profile_photo/profile.png">
-          </v-list-item-avatar>
 
-          <v-list-item-content>
-            <v-list-item-title>Jane Smith</v-list-item-title>
-            <v-list-item-subtitle>Logged In</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </template>
-
-      <v-divider></v-divider>
-
-      <v-list dense>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-notification</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>Notification</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>-->
-
-    <v-app-bar app clipped-right clipped-left color="primary">
+    <v-app-bar app clipped-right clipped-left dark color="primary">
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>
+      <v-toolbar-title class="ml-0 pl-0">
         <a href="/" class="brand-link text-white">
           <i class="fas fa-seedling text-white"></i>SFAWS
         </a>
       </v-toolbar-title>
+      <div class="flex-grow-1"></div>
+        <v-text-field
+          @click="searchMode"
+          cache-items
+          hide-no-data
+          hide-details
+          flat
+          label="What are you looking for?"
+          append-icon="mdi-magnify"
+          solo-inverted
+        ></v-text-field>
       <div class="flex-grow-1"></div>
       <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
         <v-icon class="text--accent">mdi-bell</v-icon>
@@ -129,9 +112,9 @@
     </v-app-bar>
 
     <!-- Sizes your content based upon application components -->
-    <v-content>
-        <!-- If using vue-router -->
-        <router-view></router-view>
+    <v-content>   
+      <!-- If using vue-router -->
+      <router-view></router-view>
     </v-content>
 
     <v-footer app>
@@ -162,6 +145,9 @@ export default {
     })
   }),
   methods: {
+    searchMode(){
+      this.$router.push('/search')
+    },
     getProfilePhoto() {
       let photo = "storage/profile_photo/" + this.user.profile.photo;
       return photo;
@@ -190,6 +176,8 @@ export default {
         this.user.fill(data);
       });
     });
+  },
+  mounted() {
     axios.get("api/profile").then(({ data }) => {
       this.user.fill(data);
       this.$vuetify.theme.dark = this.user.profile.theme;

@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use \Spatie\Tags\HasTags;
+use Overtrue\LaravelFollow\Traits\CanBeLiked;
 
 class Post extends Model
 {
+    use HasTags, CanBeLiked;
     // Table Name
     protected $table = 'posts';
     // Fields
@@ -22,7 +25,7 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    // public function comments(){
-    //     return $this->hasMany(Comment::class)->orderBy('updated_at', 'asc');
-    // }
+    public function comments(){
+         return $this->hasMany(Comment::class)->orderBy('updated_at', 'asc');
+   }
 }

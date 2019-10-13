@@ -120,10 +120,7 @@ const app = new Vue({
                     danger: '#f30f0f',
                 }
     	    }
-    	},
-        icons: {
-            iconfont: 'fa4'
-        }
+    	}
     })
 });
 
