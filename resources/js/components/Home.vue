@@ -91,19 +91,29 @@
             </v-card-text>
           </v-col>
         </v-row>
-        <v-card-actions>
-          <v-btn text>View</v-btn>
-          <v-btn text @click="toggleComment(post.id)">
-            Comment
-            <span v-show="post.comments.length > 0">s</span>
-            ({{post.comments.length}})
-          </v-btn>
-          <v-btn
+        <p>
+          <a class="link-black text-sm mr-2">
+            <i class="fas fa-leaf mr-1"></i> Spread
+          </a>
+          <a
+            v-if="post.commend"
+            @click="toggleCommend(post.id)"
+            class="link-black text-sm mr-2 text-success"
+          >
+            <strong>
+              <i class="fas fa-check mr-1"></i>Commended
+            </strong>
+          </a>
+          <a v-else @click="toggleCommend(post.id)" class="link-black text-sm mr-2 text-success">
+            <i class="fas fa-thumbs-up mr-1"></i>Commend
+          </a>
+          <a
             v-show="post.authorize"
-            text
-            color="primary"
             @click="dialog = true; postForm.fill(post)"
-          >[Edit]</v-btn>
+            class="link-black text-sm mr-2"
+          >Edit</a>
+
+          <!-- DIALOG FOR EDITING POST -->
           <v-dialog v-model="dialog" width="600">
             <v-card tile>
               <v-toolbar dark color="primary">
@@ -165,16 +175,16 @@
               <div style="flex: 1 1 auto;"></div>
             </v-card>
           </v-dialog>
-          <v-btn v-show="post.authorize" text color="danger" @click="deletePost(post.id)">[Delete]</v-btn>
-          <div class="flex-grow-1"></div>
-          <v-btn v-if="post.commend" text color="primary" @click="toggleCommend(post.id)">
-            <v-icon>mdi-check</v-icon>Commended
-          </v-btn>
-          <v-btn v-else text @click="toggleCommend(post.id)">Commend</v-btn>
-          <v-btn text>
-            <v-icon>mdi-leaf</v-icon>Spread
-          </v-btn>
-        </v-card-actions>
+          
+          <a v-show="post.authorize" @click="deletePost(post.id)" class="link-black text-sm text-danger">Delete</a>
+          <span class="float-right">
+            <a @click="toggleComment(post.id)" class="link-black text-sm">
+              <i class="fas fa-comments mr-1"></i>
+              <span>Comments</span>
+              ({{post.comments.length}})
+            </a>
+          </span>
+        </p>
         <div class="comment-section" :id="'CS-' + post.id">
           <div class="card border-0 shadow-none" v-for="comment in post.comments" :key="comment.id">
             <div class="media ma-3 mb-0">
@@ -210,14 +220,8 @@
                   <i class="fas fa-check"></i> Agreed
                 </strong>
               </button>
-              <button
-                v-else
-                @click="agreeComment(comment.id)"
-                class="small mr-3"
-              >
-                <strong>
-                  Agree
-                </strong>
+              <button v-else @click="agreeComment(comment.id)" class="small mr-3">
+                <strong>Agree</strong>
               </button>
               <button
                 v-show="comment.authorize"
@@ -283,8 +287,8 @@ export default {
     };
   },
   methods: {
-    agreeComment(comment_id){
-       axios
+    agreeComment(comment_id) {
+      axios
         .post("api/agree", {
           comment_id: comment_id
         })

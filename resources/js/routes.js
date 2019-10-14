@@ -7,6 +7,7 @@ Vue.use(VueRouter)
 let routes = [
     { path: '/home', component: require('./components/Home.vue').default },
     { path: '/profile', component: require('./components/Profile.vue').default },
+    { path: '/marketplace', component: require('./components/Marketplace.vue').default },
     { path: '/users', component: require('./components/Users.vue').default },
     { path: '/search', component: require('./components/Search.vue').default },
 ]

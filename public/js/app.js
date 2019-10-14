@@ -2147,6 +2147,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     console.log("Component mounted.");
@@ -2362,6 +2366,40 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.postForm.reset();
       this.tags = "";
     }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Marketplace.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Marketplace.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mounted: function mounted() {
+    console.log("Component mounted.");
   }
 });
 
@@ -62965,46 +63003,49 @@ var render = function() {
                 ),
                 _vm._v(" "),
                 _c(
-                  "v-card-actions",
+                  "p",
                   [
-                    _c("v-btn", { attrs: { text: "" } }, [_vm._v("View")]),
+                    _c("a", { staticClass: "link-black text-sm mr-2" }, [
+                      _c("i", { staticClass: "fas fa-leaf mr-1" }),
+                      _vm._v(" Spread\n        ")
+                    ]),
                     _vm._v(" "),
-                    _c(
-                      "v-btn",
-                      {
-                        attrs: { text: "" },
-                        on: {
-                          click: function($event) {
-                            return _vm.toggleComment(post.id)
-                          }
-                        }
-                      },
-                      [
-                        _vm._v("\n          Comment\n          "),
-                        _c(
-                          "span",
+                    post.commend
+                      ? _c(
+                          "a",
                           {
-                            directives: [
-                              {
-                                name: "show",
-                                rawName: "v-show",
-                                value: post.comments.length > 0,
-                                expression: "post.comments.length > 0"
+                            staticClass: "link-black text-sm mr-2 text-success",
+                            on: {
+                              click: function($event) {
+                                return _vm.toggleCommend(post.id)
                               }
-                            ]
+                            }
                           },
-                          [_vm._v("s")]
-                        ),
-                        _vm._v(
-                          "\n          (" +
-                            _vm._s(post.comments.length) +
-                            ")\n        "
+                          [
+                            _c("strong", [
+                              _c("i", { staticClass: "fas fa-check mr-1" }),
+                              _vm._v("Commended\n          ")
+                            ])
+                          ]
                         )
-                      ]
-                    ),
+                      : _c(
+                          "a",
+                          {
+                            staticClass: "link-black text-sm mr-2 text-success",
+                            on: {
+                              click: function($event) {
+                                return _vm.toggleCommend(post.id)
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fas fa-thumbs-up mr-1" }),
+                            _vm._v("Commend\n        ")
+                          ]
+                        ),
                     _vm._v(" "),
                     _c(
-                      "v-btn",
+                      "a",
                       {
                         directives: [
                           {
@@ -63014,7 +63055,7 @@ var render = function() {
                             expression: "post.authorize"
                           }
                         ],
-                        attrs: { text: "", color: "primary" },
+                        staticClass: "link-black text-sm mr-2",
                         on: {
                           click: function($event) {
                             _vm.dialog = true
@@ -63022,7 +63063,7 @@ var render = function() {
                           }
                         }
                       },
-                      [_vm._v("[Edit]")]
+                      [_vm._v("Edit")]
                     ),
                     _vm._v(" "),
                     _c(
@@ -63263,7 +63304,7 @@ var render = function() {
                     ),
                     _vm._v(" "),
                     _c(
-                      "v-btn",
+                      "a",
                       {
                         directives: [
                           {
@@ -63273,57 +63314,39 @@ var render = function() {
                             expression: "post.authorize"
                           }
                         ],
-                        attrs: { text: "", color: "danger" },
+                        staticClass: "link-black text-sm text-danger",
                         on: {
                           click: function($event) {
                             return _vm.deletePost(post.id)
                           }
                         }
                       },
-                      [_vm._v("[Delete]")]
+                      [_vm._v("Delete")]
                     ),
                     _vm._v(" "),
-                    _c("div", { staticClass: "flex-grow-1" }),
-                    _vm._v(" "),
-                    post.commend
-                      ? _c(
-                          "v-btn",
-                          {
-                            attrs: { text: "", color: "primary" },
-                            on: {
-                              click: function($event) {
-                                return _vm.toggleCommend(post.id)
-                              }
+                    _c("span", { staticClass: "float-right" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "link-black text-sm",
+                          on: {
+                            click: function($event) {
+                              return _vm.toggleComment(post.id)
                             }
-                          },
-                          [
-                            _c("v-icon", [_vm._v("mdi-check")]),
-                            _vm._v("Commended\n        ")
-                          ],
-                          1
-                        )
-                      : _c(
-                          "v-btn",
-                          {
-                            attrs: { text: "" },
-                            on: {
-                              click: function($event) {
-                                return _vm.toggleCommend(post.id)
-                              }
-                            }
-                          },
-                          [_vm._v("Commend")]
-                        ),
-                    _vm._v(" "),
-                    _c(
-                      "v-btn",
-                      { attrs: { text: "" } },
-                      [
-                        _c("v-icon", [_vm._v("mdi-leaf")]),
-                        _vm._v("Spread\n        ")
-                      ],
-                      1
-                    )
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fas fa-comments mr-1" }),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Comments")]),
+                          _vm._v(
+                            "\n            (" +
+                              _vm._s(post.comments.length) +
+                              ")\n          "
+                          )
+                        ]
+                      )
+                    ])
                   ],
                   1
                 ),
@@ -63454,13 +63477,7 @@ var render = function() {
                                       }
                                     }
                                   },
-                                  [
-                                    _c("strong", [
-                                      _vm._v(
-                                        "\n                Agree\n              "
-                                      )
-                                    ])
-                                  ]
+                                  [_c("strong", [_vm._v("Agree")])]
                                 ),
                             _vm._v(" "),
                             _c(
@@ -63541,6 +63558,61 @@ var render = function() {
       })
     ],
     2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0&":
+/*!**************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0& ***!
+  \**************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "container" },
+    [
+      _c(
+        "v-toolbar",
+        [
+          _c("v-toolbar-title", { staticClass: "font-weight-black" }, [
+            _vm._v("Marketplace")
+          ]),
+          _vm._v(" "),
+          _c("v-spacer"),
+          _vm._v(" "),
+          _c(
+            "v-toolbar-items",
+            [
+              _c("v-btn", { attrs: { text: "" } }, [_vm._v("Arables")]),
+              _vm._v(" "),
+              _c("v-btn", { attrs: { text: "" } }, [_vm._v("Crops")]),
+              _vm._v(" "),
+              _c("v-btn", { attrs: { text: "" } }, [_vm._v("Mixed")]),
+              _vm._v(" "),
+              _c("v-btn", { attrs: { text: "" } }, [_vm._v("Sell on SFAWS")])
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
   )
 }
 var staticRenderFns = []
@@ -64604,6 +64676,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-list-item",
+                { attrs: { to: "/marketplace" } },
                 [
                   _c(
                     "v-list-item-icon",
@@ -64611,7 +64684,7 @@ var render = function() {
                     1
                   ),
                   _vm._v(" "),
-                  _c("v-list-item-title", [_vm._v("Market")])
+                  _c("v-list-item-title", [_vm._v("Sfaws Marketplace")])
                 ],
                 1
               ),
@@ -120373,6 +120446,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/Marketplace.vue":
+/*!*************************************************!*\
+  !*** ./resources/js/components/Marketplace.vue ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Marketplace.vue?vue&type=template&id=09fe67b0& */ "./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0&");
+/* harmony import */ var _Marketplace_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Marketplace.vue?vue&type=script&lang=js& */ "./resources/js/components/Marketplace.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Marketplace_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/Marketplace.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/Marketplace.vue?vue&type=script&lang=js&":
+/*!**************************************************************************!*\
+  !*** ./resources/js/components/Marketplace.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Marketplace_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./Marketplace.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Marketplace.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Marketplace_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0&":
+/*!********************************************************************************!*\
+  !*** ./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0& ***!
+  \********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./Marketplace.vue?vue&type=template&id=09fe67b0& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Marketplace.vue?vue&type=template&id=09fe67b0&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Marketplace_vue_vue_type_template_id_09fe67b0___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/Profile.vue":
 /*!*********************************************!*\
   !*** ./resources/js/components/Profile.vue ***!
@@ -120602,6 +120744,9 @@ var routes = [{
 }, {
   path: '/profile',
   component: __webpack_require__(/*! ./components/Profile.vue */ "./resources/js/components/Profile.vue")["default"]
+}, {
+  path: '/marketplace',
+  component: __webpack_require__(/*! ./components/Marketplace.vue */ "./resources/js/components/Marketplace.vue")["default"]
 }, {
   path: '/users',
   component: __webpack_require__(/*! ./components/Users.vue */ "./resources/js/components/Users.vue")["default"]

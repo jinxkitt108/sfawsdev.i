@@ -33,11 +33,11 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <v-list-item to="/marketplace">
           <v-list-item-icon>
             <v-icon>mdi-store</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Market</v-list-item-title>
+          <v-list-item-title>Sfaws Marketplace</v-list-item-title>
         </v-list-item>
 
         <v-list-group dark prepend-icon="mdi-cogs">

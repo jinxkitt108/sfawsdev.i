@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container-fluid" style="background-image: url(storage/app_photos/Farming.jpg); background-size: cover; padding-bottom: 110px">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
+        <div class="col-md-7">
+            <div class="card mt-2">
                 <div class="card-header text-white" style="background-color: #009688"><h3>{{ __('Login') }}</h3></div>
 
                 <div class="card-body">
