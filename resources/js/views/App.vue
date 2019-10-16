@@ -9,8 +9,8 @@
     <v-navigation-drawer v-model="drawer" width="250" app clipped>
       <v-list dense>
         <v-list-item>
-          <v-list-item-avatar>
-            <img :src="getProfilePhoto()" alt="Avatar" class="border-primary" />
+          <v-list-item-avatar size="50">
+              <img class="img-circle img-bordered border-success" :src="getProfilePhoto()" alt="Avatar" />
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{user.name | capitalize}}</v-list-item-title>
@@ -33,11 +33,18 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item>
 
+        <v-list-item to="/mystore">
+          <v-list-item-icon>
+            <v-icon>mdi-storefront</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>My Store</v-list-item-title>
+        </v-list-item>
+
         <v-list-item to="/marketplace">
           <v-list-item-icon>
             <v-icon>mdi-store</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Sfaws Marketplace</v-list-item-title>
+          <v-list-item-title>SFAWS Market</v-list-item-title>
         </v-list-item>
 
         <v-list-group dark prepend-icon="mdi-cogs">
@@ -95,16 +102,18 @@
         </a>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
-        <v-text-field
-          @click="searchMode"
-          cache-items
-          hide-no-data
-          hide-details
-          flat
-          label="What are you looking for?"
-          append-icon="mdi-magnify"
-          solo-inverted
-        ></v-text-field>
+      <v-text-field
+        v-model="search"
+        @click="searchMode"
+        @keyup.enter="searchit"
+        cache-items
+        hide-no-data
+        hide-details
+        flat
+        label="What are you looking for?"
+        append-icon="mdi-magnify"
+        solo-inverted
+      ></v-text-field>
       <div class="flex-grow-1"></div>
       <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
         <v-icon class="text--accent">mdi-bell</v-icon>
@@ -112,7 +121,7 @@
     </v-app-bar>
 
     <!-- Sizes your content based upon application components -->
-    <v-content>   
+    <v-content>
       <!-- If using vue-router -->
       <router-view></router-view>
     </v-content>
@@ -129,6 +138,7 @@ export default {
     source: String
   },
   data: () => ({
+    search: "",
     drawer: null,
     drawerRight: null,
     right: false,
@@ -145,8 +155,11 @@ export default {
     })
   }),
   methods: {
-    searchMode(){
-      this.$router.push('/search')
+    searchMode() {
+      this.$router.push("/search");
+    },
+    searchit() {
+      Fire.$emit("searching", this.search);
     },
     getProfilePhoto() {
       let photo = "storage/profile_photo/" + this.user.profile.photo;

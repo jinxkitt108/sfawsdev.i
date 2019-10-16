@@ -23,6 +23,7 @@ Route::apiResources(['user' => 'API\UserController']);
 Route::get('currentUser', 'API\UserController@current');
 Route::get('email', 'API\UserController@uniqueEmail');
 Route::get('experts', 'API\UserController@findExperts');
+Route::get('searchUser', 'API\UserController@search');
 
 //Follow and Commend Routes
 Route::apiResources(['follow' => 'API\FollowController']);

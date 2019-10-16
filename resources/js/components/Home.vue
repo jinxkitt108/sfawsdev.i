@@ -64,8 +64,12 @@
     </v-card>
     <v-card v-for="post in posts" :key="post.id" class="mt-4">
       <v-list-item>
-        <v-list-item-avatar color="grey">
-          <img :src="'storage/profile_photo/' + post.author.profile.photo" alt="Profile Photo" />
+        <v-list-item-avatar size="50">
+          <img
+            class="img-circle img-bordered border-success"
+            :src="'storage/profile_photo/' + post.author.profile.photo"
+            alt="Profile Photo"
+          />
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="headline">{{post.title}}</v-list-item-title>
@@ -105,7 +109,7 @@
             </strong>
           </a>
           <a v-else @click="toggleCommend(post.id)" class="link-black text-sm mr-2 text-success">
-            <i class="fas fa-thumbs-up mr-1"></i>Commend
+            Commend
           </a>
           <a
             v-show="post.authorize"
@@ -175,8 +179,12 @@
               <div style="flex: 1 1 auto;"></div>
             </v-card>
           </v-dialog>
-          
-          <a v-show="post.authorize" @click="deletePost(post.id)" class="link-black text-sm text-danger">Delete</a>
+
+          <a
+            v-show="post.authorize"
+            @click="deletePost(post.id)"
+            class="link-black text-sm text-danger"
+          >Delete</a>
           <span class="float-right">
             <a @click="toggleComment(post.id)" class="link-black text-sm">
               <i class="fas fa-comments mr-1"></i>
@@ -188,11 +196,13 @@
         <div class="comment-section" :id="'CS-' + post.id">
           <div class="card border-0 shadow-none" v-for="comment in post.comments" :key="comment.id">
             <div class="media ma-3 mb-0">
-              <img
-                class="direct-chat-img"
-                :src="'storage/profile_photo/' + comment.author.profile.photo"
-                alt="Message User Image"
-              />
+              <v-avatar size="45">
+                <img
+                  class="img-circle img-bordered border-success"
+                  :src="'storage/profile_photo/' + comment.author.profile.photo"
+                  alt="Message User Image"
+                />
+              </v-avatar>
               <div
                 class="media-body ml-2 pa-3"
                 style="background-color: #f1f1f1; border-radius: 15px"
@@ -204,12 +214,7 @@
                 <span class="mt-0" style="font-size: 15px">{{comment.content}}</span>
               </div>
             </div>
-            <div class="text-left mt-0" style="margin-left: 60px">
-              <button
-                v-show="comment.authorize"
-                @click="editComment(comment.id)"
-                class="small mr-3"
-              >Edit</button>
+            <div class="text-left mt-0" style="margin-left: 65px">
               <button
                 v-if="comment.agree"
                 @click="agreeComment(comment.id)"
@@ -223,6 +228,11 @@
               <button v-else @click="agreeComment(comment.id)" class="small mr-3">
                 <strong>Agree</strong>
               </button>
+              <button
+                v-show="comment.authorize"
+                @click="editComment(comment.id)"
+                class="small mr-3"
+              >Edit</button>
               <button
                 v-show="comment.authorize"
                 @click="deleteComment(comment.id)"

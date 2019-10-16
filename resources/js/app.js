@@ -110,14 +110,7 @@ const app = new Vue({
                     danger: '#f30f0f',
                 },
                 dark: {
-                    primary: '#009688',
-                    secondary: '#0A4D22',
-                    accent: '#fff',
-                    error: '#FF5252',
-                    info: '#2196F3',
-                    success: '#4CAF50',
-                    warning: '#FFC107',
-                    danger: '#f30f0f',
+                    primary: '#000',
                 }
     	    }
     	}

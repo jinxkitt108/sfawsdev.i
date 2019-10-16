@@ -32,6 +32,35 @@ class UserController extends Controller
         return User::latest()->paginate();
     }
 
+    public function search()
+    {
+        $current_user = auth('api')->user();
+        if ($search = \Request::get('q')) {
+            $users = User::where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orwhere('email', 'LIKE', "%$search%")
+                    ->orwhere('type', 'LIKE', "%$search%");
+            })->paginate(5);
+        } 
+        foreach($users as $user) {
+            $followers = $user->followers()->get()->count();
+            $followings = $user->followings()->get()->count();
+            $user['followers'] = $followers;
+            $user['followings'] = $followings;
+            if ($current_user->isFollowing($user)) {
+                $user['isFollowing'] = true;
+            } else {
+                $user['isFollowing'] = false;
+            }
+            if($current_user->id === $user->id){
+                $user['current_user'] = true;
+            } else {
+                $user['current_user'] = false;
+            }
+        }
+        return $users;
+    }
+
     public function current()
     {
         return auth('api')->user();
@@ -46,11 +75,11 @@ class UserController extends Controller
             $followings = $expert->followings()->get()->count();
             $expert['followers'] = $followers;
             $expert['followings'] = $followings;
-            if($user->isFollowing($expert)){
+            if ($user->isFollowing($expert)) {
                 $expert['isFollowing'] = true;
-                } else {
-                $expert['isFollowing'] = false;    
-                }
+            } else {
+                $expert['isFollowing'] = false;
+            }
         }
         return $experts;
     }
