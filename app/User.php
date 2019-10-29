@@ -41,7 +41,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $with = ['profile'];
+    protected $with = ['profile', 'store'];
+
+    //Profile Method
+    public function store()
+    {
+        return $this->hasOne(Store::class, 'owner_id');
+    }
 
     //Profile Method
     public function profile()

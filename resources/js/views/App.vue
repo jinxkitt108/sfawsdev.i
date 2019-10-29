@@ -94,7 +94,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app clipped-right clipped-left dark color="primary">
+    <v-app-bar app clipped-right clipped-left dark color="secondary">
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-0">
         <a href="/" class="brand-link text-white">

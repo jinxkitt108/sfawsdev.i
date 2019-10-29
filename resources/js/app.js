@@ -21,6 +21,11 @@ import VueCroppie from 'vue-croppie';
 import 'croppie/croppie.css' // import the croppie css manually
 import store from './store';
 import VueCarousel from 'vue-carousel';
+import vueCountryRegionSelect from 'vue-country-region-select';
+
+// VUE COUNTRY LIST
+Vue.use(vueCountryRegionSelect);
+
 
 // Vue Carousel
 Vue.use(VueCarousel);

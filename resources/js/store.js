@@ -11,10 +11,14 @@ export default new Vuex.Store({
     mutations: {
         loadUsers(state, users){
             state.users.push(users.data)
+        },
+        search(state, users) {
+          state.users = users
         }
     },
 
     getters: {
+        users: state => state.users,
         usersCount: state => {
            return state.users.length
         }

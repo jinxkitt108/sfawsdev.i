@@ -3,33 +3,35 @@
     <v-card v-if="searchMode">
       <v-card-title class="font-weight-bold mb-2 pa-3">People</v-card-title>
       <v-card-text v-for="user in users.data" :key="user.id">
-        <div class="d-flex flex-row">
-          <v-avatar class="profile mr-3" color="grey" size="150" tile>
-            <v-img :src="'storage/profile_photo/' + user.profile.photo"></v-img>
-          </v-avatar>
-          <div class="d-flex flex-column">
+        <v-row>
+          <v-col cols="12" md="3">
+            <v-avatar class="profile mr-3" color="grey" size="150" tile>
+              <v-img :src="'storage/profile_photo/' + user.profile.photo"></v-img>
+            </v-avatar>
+          </v-col>
+          <v-col cols="12" md="4">
             <span class="subtitle-1 text--primary">{{user.name | capitalize}}</span>
+            <v-spacer></v-spacer>
             <span class="small text--primary">{{user.type}}</span>
-            <span class="text--primary mr-3">Followers <strong> {{user.followers}}</strong></span>
-            <span class="text--primary">Followings <strong>{{user.followings}}</strong></span>
+            <v-spacer></v-spacer>
+            <span class="text--primary mr-3">
+              Followers
+              <strong>{{user.followers}}</strong>
+            </span>
+            <span class="text--primary">
+              Followings
+              <strong>{{user.followings}}</strong>
+            </span><br>
             <v-btn
-              v-if="user.isFollowing"
+              :id="'follow-' + user.id"
+              v-show="!user.current_user"
               @click="toggleFollow(user.id)"
-              small
               rounded
-              outlined
-            >Unfollow</v-btn>
-            <v-btn
-              v-if="user.isFollowing"
-              @click="toggleFollow(user.id)"
+              :class="{'primary': !user.isFollowing}"
               small
-              rounded
-              outlined
-              style="display: none"
-            >Unfollow</v-btn>
-            <v-btn v-show="!user.current_user" v-else @click="toggleFollow(user.id)" small rounded color="primary">Follow</v-btn>
-          </div>
-        </div>
+            >{{user.isFollowing ? 'Unfollow' : 'Follow'}}</v-btn>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
     <v-card v-else>
@@ -52,13 +54,12 @@
                 <span class="text--primary">Followings {{expert.followings}}</span>
                 <br />
                 <v-btn
-                  v-if="expert.isFollowing"
+                  :id="'follow-' + expert.id"
                   @click="toggleFollow(expert.id)"
-                  small
                   rounded
-                  outlined
-                >Unfollow</v-btn>
-                <v-btn v-else @click="toggleFollow(expert.id)" small rounded color="primary">Follow</v-btn>
+                  :class="{'primary': !expert.isFollowing}"
+                  small
+                >{{expert.isFollowing ? 'Unfollow' : 'Follow'}}</v-btn>
               </v-card-text>
             </v-card>
           </slide>
@@ -86,7 +87,8 @@ export default {
       axios
         .get("api/searchUser?q=" + query)
         .then(data => {
-          this.users = data.data;
+          this.$store.commit("search", data.data);
+          this.users = this.$store.getters.users;
         })
         .catch(() => {});
     });
@@ -103,6 +105,15 @@ export default {
           user_id: id
         })
         .then(response => {
+          if (response.data.attached.length) {
+            $("#follow-" + id)
+              .text("Unfollow")
+              .removeClass("primary");
+          } else {
+            $("#follow-" + id)
+              .text("Follow")
+              .addClass("primary");
+          }
           this.loadExperts();
           Toast.fire({
             type: "success",

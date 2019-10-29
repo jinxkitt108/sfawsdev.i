@@ -3,7 +3,7 @@
     <v-card color="basil">
       <v-card-title>
         <h1 class="font-weight-bold basil--text">Shop
-        <v-btn outlined absolute right to="/buildStore">
+        <v-btn small outlined absolute right class="text-decoration-none" to="/buildStore">
           <v-icon class="mr-2">mdi-storefront</v-icon>Build a Store
         </v-btn>
         </h1>
@@ -79,10 +79,6 @@
 <script>
 export default {
   data: () => ({
-    rules: [
-      value =>
-        !value || value.size < 6000000 || "Image size should be less than 6 MB!"
-    ],
     currentItem: "tab-Web",
     items: ["Crops", "Veges", "Fruits", "Supplies"],
     more: ["News", "Maps", "Books", "Flights", "Apps"],

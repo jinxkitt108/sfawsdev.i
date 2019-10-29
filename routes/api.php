@@ -36,8 +36,16 @@ Route::put('profile', 'API\ProfileController@profile');
 Route::put('photo', 'API\ProfileController@updatePhoto');
 Route::put('theme', 'API\ProfileController@addTheme');
 
+//Store Routes
+Route::apiResources(['store' => 'API\StoreController']);
+Route::put('storephoto', 'API\StoreController@updatePhoto');
+
+//Product Routes
+Route::apiResources(['product' => 'API\ProductController']);
+
 //POST ROUTES
 Route::apiResources(['post' => 'API\PostController']);
 
 //Comment ROUTES
 Route::apiResources(['comment' => 'API\CommentController']);
+

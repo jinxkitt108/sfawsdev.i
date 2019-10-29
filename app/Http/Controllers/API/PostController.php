@@ -67,7 +67,7 @@ class PostController extends Controller
         $this->validate($request, [
             'title' => 'required',
             'content' => 'required',
-            'cover_image' => 'nullable',
+            'cover_image' => 'nullable'
         ]);
 
         if($request->cover_image){
@@ -88,7 +88,7 @@ class PostController extends Controller
             'content' => $request['content'],
             'cover_image' => $name,
         ]);
-        return $post->attachTags($request['tags']);
+        return $post;
     }
 
     /**

@@ -108,9 +108,11 @@
               <i class="fas fa-check mr-1"></i>Commended
             </strong>
           </a>
-          <a v-else @click="toggleCommend(post.id)" class="link-black text-sm mr-2 text-success">
-            Commend
-          </a>
+          <a
+            v-else
+            @click="toggleCommend(post.id)"
+            class="link-black text-sm mr-2 text-success"
+          >Commend</a>
           <a
             v-show="post.authorize"
             @click="dialog = true; postForm.fill(post)"
