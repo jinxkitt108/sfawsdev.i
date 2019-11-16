@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product;
+use stdClass;
 
 class ProductController extends Controller
 {
@@ -15,7 +16,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = auth('api')->user()->store->products;
+        return $products;
     }
 
     /**
@@ -26,29 +28,44 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        if(!is_dir('storage/product_photo/')) {
+        if (!is_dir('storage/product_photo/')) {
             mkdir('storage/product_photo/');
         }
-            foreach($request->photos as $photo){
-                $url = trim( $photo['url'], 'blob:');
-                $image = file_get_contents($url);
-                $img = str_replace('data:image/png;base64,', '', $image);
-            }
-            
-            return $image ;
-        // $store = Store::create([
-        //     'store_id' => auth('api')->user()->store->id,
-        //     'name' => $request['name'],
-        //     'category' => $request['country'],
-        //     'stocks' => $request['stocks'],
-        //     'unit' => $request['unit'],
-        //     'price' => $request['price'],
-        //     'measure' => $request['measure'],
-        //     'description' => $request['description'],
-        //     'photos' => $request['photos'],
-        //     'public' => $request['public'],
-        // ]);
-        
+
+        $store_id = auth('api')->user()->store->id;
+        $images = [];
+        foreach ($request['files'] as $file) {
+            $name = 'store-' . $store_id . '-' . uniqid() . '.' . explode('/', explode(':', substr($file['url'], 0, strpos($file['url'], ';')))[1])[1];
+            // Resized image
+            $img = \Image::make($file['url']);
+            $img->resize(500, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            // Canvas image
+            $canvas = \Image::canvas(500, 500);
+            $canvas->insert($img, 'center');
+            $canvas->save(public_path('storage/product_photo/') . $name);
+            $app = app();
+            $object = $app->make('stdClass');
+            $object->file = $name;
+            array_push($images, $object);
+        }
+
+        $store = Product::create([
+            'store_id' => $store_id,
+            'name' => $request['name'],
+            'category' => $request['category'],
+            'stocks' => $request['stocks'],
+            'unit' => $request['unit'],
+            'price' => $request['price'],
+            'description' => $request['description'],
+            'photos' => $images,
+            'public' => $request['public'],
+        ]);
+
+        return $store;
+
+
     }
 
     /**

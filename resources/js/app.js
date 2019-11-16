@@ -4,28 +4,28 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+require("./bootstrap");
 
-window.Vue = require('vue');
+window.Vue = require("vue");
 //Sweetalerts
-window.Swal = require('sweetalert2');
-import Vuetify from 'vuetify';
-import Routes from '@/js/routes.js';
-import App from '@/js/views/App';
-import { Form, HasError, AlertError } from 'vform';
-import Vuelidate from 'vuelidate'
-import VueProgressBar from 'vue-progressbar'
-import Vue2Filters from 'vue2-filters'
-import moment from 'moment';
-import VueCroppie from 'vue-croppie';
-import 'croppie/croppie.css' // import the croppie css manually
-import store from './store';
-import VueCarousel from 'vue-carousel';
-import vueCountryRegionSelect from 'vue-country-region-select';
+window.Swal = require("sweetalert2");
+import Vuetify from "vuetify";
+import Routes from "@/js/routes.js";
+import App from "@/js/views/App";
+import { Form, HasError, AlertError } from "vform";
+import Vuelidate from "vuelidate";
+import VueProgressBar from "vue-progressbar";
+import Vue2Filters from "vue2-filters";
+import moment from "moment";
+import VueCroppie from "vue-croppie";
+import "croppie/croppie.css"; // import the croppie css manually
+import store from "./store";
+import VueCarousel from "vue-carousel";
+import vueCountryRegionSelect from "vue-country-region-select";
+import { Ripple } from "vuetify/lib/directives";
 
 // VUE COUNTRY LIST
 Vue.use(vueCountryRegionSelect);
-
 
 // Vue Carousel
 Vue.use(VueCarousel);
@@ -34,24 +34,24 @@ Vue.use(VueCarousel);
 Vue.use(VueCroppie);
 
 // Front-end Access Control
-import Gate from './Gate';
+import Gate from "./Gate";
 Vue.prototype.$gate = new Gate(window.user);
 
 //Global Filters
-Vue.use(Vue2Filters)
-Vue.filter('createdDate', function(created) {
-    return moment(created).format('MMMM D, YYYY');
+Vue.use(Vue2Filters);
+Vue.filter("createdDate", function(created) {
+    return moment(created).format("MMMM D, YYYY");
 });
-Vue.filter('postDate', function(created) {
-    return moment(created).format('lll');
+Vue.filter("postDate", function(created) {
+    return moment(created).format("lll");
 });
 
 // Progress Bar
 Vue.use(VueProgressBar, {
-    color: 'rgb(143, 255, 199)',
-    failedColor: 'red',
-    height: '4px'
-})
+    color: "rgb(143, 255, 199)",
+    failedColor: "red",
+    height: "4px"
+});
 
 // Fire an event
 window.Fire = new Vue();
@@ -59,23 +59,27 @@ window.Fire = new Vue();
 //Toast
 const Toast = Swal.mixin({
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000
-})
+});
 window.Toast = Toast;
 
-
 // Vuelidate
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 // VUE FORM
 window.Form = Form;
-Vue.component(HasError.name, HasError)
-Vue.component(AlertError.name, AlertError)
+Vue.component(HasError.name, HasError);
+Vue.component(AlertError.name, AlertError);
 
 // VUETIFY
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+    // other stuff
+    directives: {
+        Ripple
+    }
+});
 
 /**
  * The following block of code may be used to automatically register your
@@ -88,7 +92,10 @@ Vue.use(Vuetify)
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component(
+    "example-component",
+    require("./components/ExampleComponent.vue").default
+);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -97,28 +104,28 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  */
 
 const app = new Vue({
-    el: '#app',
+    el: "#app",
     router: Routes,
     store,
     render: h => h(App),
     vuetify: new Vuetify({
         theme: {
-    	    themes: {
+            themes: {
                 light: {
-                    primary: '#0A4D22',
-                    secondary: '#0A4D22',
-                    accent: '#000',
-                    error: '#FF5252',
-                    info: '#2196F3',
-                    success: '#4CAF50',
-                    warning: '#FFC107',
-                    danger: '#f30f0f',
+                    primary: "#0A4D22",
+                    secondary: "#0A4D22",
+                    accent: "#000",
+                    error: "#FF5252",
+                    info: "#2196F3",
+                    success: "#4CAF50",
+                    warning: "#FFC107",
+                    danger: "#f30f0f"
                 },
                 dark: {
-                    primary: '#000',
+                    primary: "#42d405"
                 }
-    	    }
-    	}
+            }
+        }
     })
 });
 

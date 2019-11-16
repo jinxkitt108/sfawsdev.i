@@ -57,7 +57,7 @@
           </v-chip>
           <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
           <v-btn @click="createPost" outlined absolute bottom right>
-            <v-icon>mdi-post</v-icon>Advertise
+            Advertise
           </v-btn>
         </form>
       </v-card-text>
@@ -82,13 +82,13 @@
       </v-list-item>
       <v-container>
         <v-row>
-          <v-col v-show="post.cover_image" sm="6">
+          <v-col v-if="post.cover_image" sm="6">
             <v-img :src="'storage/cover_photo/' + post.cover_image" height="250"></v-img>
           </v-col>
           <v-col>
             <v-card-text class="mt-0 pt-0">
               <p>
-                <strong>Commends:</strong>
+                <strong>Commends</strong>
                 <span class="text-danger">({{post.commends}})</span>
               </p>
               <p>{{post.content}}</p>
@@ -97,7 +97,7 @@
         </v-row>
         <p>
           <a class="link-black text-sm mr-2">
-            <i class="fas fa-leaf mr-1"></i> Spread
+            <i class="fas fa-leaf mr-1"></i>Spread
           </a>
           <a
             v-if="post.commend"
@@ -196,7 +196,11 @@
           </span>
         </p>
         <div class="comment-section" :id="'CS-' + post.id">
-          <div class="card border-0 shadow-none" v-for="comment in post.comments" :key="comment.id">
+          <div
+            class="card border-0 shadow-none bg-transparent"
+            v-for="comment in post.comments"
+            :key="comment.id"
+          >
             <div class="media ma-3 mb-0">
               <v-avatar size="45">
                 <img
@@ -205,16 +209,13 @@
                   alt="Message User Image"
                 />
               </v-avatar>
-              <div
-                class="media-body ml-2 pa-3"
-                style="background-color: #f1f1f1; border-radius: 15px"
-              >
+              <v-card-text>
                 <p class="mb-0">
                   <strong>{{comment.author.name | capitalize}}</strong>
                   <span class="small float-right">{{comment.created_at | postDate}}</span>
                 </p>
                 <span class="mt-0" style="font-size: 15px">{{comment.content}}</span>
-              </div>
+              </v-card-text>
             </div>
             <div class="text-left mt-0" style="margin-left: 65px">
               <button
@@ -232,11 +233,6 @@
               </button>
               <button
                 v-show="comment.authorize"
-                @click="editComment(comment.id)"
-                class="small mr-3"
-              >Edit</button>
-              <button
-                v-show="comment.authorize"
                 @click="deleteComment(comment.id)"
                 class="small mr-3"
               >Delete</button>
@@ -244,7 +240,7 @@
           </div>
         </div>
         <v-form :id="'F-' + post.id" @submit.prevent="createComment(post.id)">
-          <div class="input-group">
+           <div class="input-group">
             <input
               type="text"
               :id="'C-'+ post.id"
@@ -295,10 +291,18 @@ export default {
         post_id: "",
         user_id: "",
         body: ""
-      })
+      }),
     };
   },
+
+  computed: {
+    
+  },
+
   methods: {
+    toggleMarker() {
+      this.marker = !this.marker;
+    },
     agreeComment(comment_id) {
       axios
         .post("api/agree", {

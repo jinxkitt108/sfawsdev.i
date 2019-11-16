@@ -6,6 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    protected $fillable = [
+        'store_id', 'name', 'category', 'unit', 'stocks', 'price', 'description', 'photos', 'public'
+    ];
+
+    protected $casts =[
+        'photos' => 'array',
+    ];
+
+    public function getPriceAttribute($price) {
+        return round($price, 2);
+    }
+
     public function store(){
         return $this->belongsTo(Store::class);
     }
