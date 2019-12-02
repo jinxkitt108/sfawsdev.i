@@ -17,17 +17,42 @@
         </v-btn>
       </h2>
     </v-card-title>
-    <v-card tile v-if="store">
-      <v-img height="100%" src="storage/store_photo/store_cover.png">
+    <v-card flat tile v-if="store">
+      <div v-show="coverCroppie">
+        <vue-croppie
+          ref="coverCroppieRef"
+          :enableOrientation="true"
+          :viewport="{ width: 819, height: 262, type: 'square' }"
+          :boundary="{ width: 819, height: 262 }"
+          :enableResize="false"
+          :showZoomer="false"
+        ></vue-croppie>
+        <div class="text-center">
+          <v-btn class="mt-1" color="success" small @click="coverCropSave">Change</v-btn>
+          <v-btn class="mt-1" color="danger" small @click="cancelCrop">Cancel</v-btn>
+        </div>
+      </div>
+      <v-img class="cover" :src="'storage/store_cover/' + mystore.cover">
+        <template v-slot:placeholder>
+          <v-row class="fill-height ma-0" align="center" justify="center">
+            <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+          </v-row>
+        </template>
+        <input ref="coverUpload" id="cover" type="file" @change="setUpCover" hidden />
         <v-row align="end" class="fill-height">
           <v-col align-self="start" class="pa-4 ml-2" cols="12">
             <v-avatar class="profile" size="164" tile>
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+                </v-row>
+              </template>
               <img class="avatar" :src="getStorePhoto()" />
               <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
               <v-btn
                 class="avatar"
                 @click="browseImage"
-                color="grey"
+                color="grey lighten-1"
                 fab
                 small
                 absolute
@@ -51,26 +76,51 @@
             </v-avatar>
           </v-col>
           <v-col class="py-0">
-            <v-list-item color="rgba(0, 0, 0, .4)" dark>
+            <v-list-item two-line dark>
               <v-list-item-content>
                 <v-list-item-title class="title">{{mystore.name}}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ mystore.street + '|'}}
+                  <span
+                    class="small"
+                  >{{ mystore.city + ', ' + mystore.country}}</span>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </v-col>
         </v-row>
+        <v-btn
+          class="cover"
+          rounded
+          color="grey lighten-1"
+          @click="browseCover"
+          absolute
+          bottom
+          right
+        >
+          <v-icon>mdi-camera</v-icon>
+        </v-btn>
       </v-img>
-      <v-tabs centered v-model="tab">
-        <v-tab>Catalog</v-tab>
-        <v-tab>Products</v-tab>
-        <v-tab>New Product</v-tab>
-        <v-tab>Sales & Order</v-tab>
-        <v-tab>Settings</v-tab>
+      <v-tabs show-arrows centered v-model="tab">
+        <v-tabs-slider></v-tabs-slider>
+        <v-tab>Store Info</v-tab>
+        <v-tab>
+          Products (
+          <span>{{products.length}}</span>)
+        </v-tab>
+        <v-tab>Management</v-tab>
+        <v-tab>
+          <v-icon>mdi-settings</v-icon>
+        </v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item>
           <v-container>
             <v-card flat>
+              <v-card-title class="font-weight-black subtitle-1">ABOUT</v-card-title>
               <v-card-text>{{mystore.description}}</v-card-text>
+              <v-card-title class="font-weight-black subtitle-1">FEATURED</v-card-title>
+              <v-card-text></v-card-text>
             </v-card>
           </v-container>
         </v-tab-item>
@@ -89,16 +139,7 @@
                         class="font-weight-bold red--text"
                       >₱ {{product.price}}/{{product.unit}}</v-list-item-title>
                       <v-list-item-title>{{product.name}}</v-list-item-title>
-                      <v-list-item-subtitle>
-                        <v-rating
-                          :value="4.5"
-                          color="amber"
-                          dense
-                          half-increments
-                          readonly
-                          size="14"
-                        ></v-rating>
-                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>Stocks ({{product.stocks + ' ' + product.unit}})</v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
                 </v-card>
@@ -107,111 +148,178 @@
           </v-container>
         </v-tab-item>
         <v-tab-item>
-          <v-card-text>
-            <v-form ref="form" @submit.prevent="addProduct">
-              <v-text-field
-                :rules="[v => !!v || 'Name is required']"
-                v-model="newProduct.name"
-                label="Name"
-                small
-                required
-              ></v-text-field>
-              <div class="d-flex flex-row">
-                <v-select
-                  v-model="newProduct.category"
-                  :items="category"
-                  :rules="[v => !!v || 'Category is required']"
-                  label="Category"
-                  class="mr-3"
-                  required
-                ></v-select>
-                <v-text-field
-                  type="number"
-                  :rules="[v => !!v || 'Stocks is required']"
-                  v-model="newProduct.stocks"
-                  label="Stocks"
-                  class="mr-3"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  :rules="[v => !!v || 'Unit is required']"
-                  v-model="newProduct.unit"
-                  label="Unit"
-                  hint="Ex. kg, sack, box, or any applicable"
-                  class="mr-3"
-                  required
-                ></v-text-field>
-              </div>
-              <div class="d-flex flex-row w-50">
-                <v-text-field
-                  :rules="[v => !!v || 'Price is required']"
-                  v-model="newProduct.price"
-                  label="Price"
-                  prefix="₱"
-                  :suffix="'/' + newProduct.unit"
-                  class="mr-3"
-                  required
-                ></v-text-field>
-              </div>
-              <v-textarea
-                v-model="newProduct.description"
-                outlined
-                name="input-7-4"
-                label="Product Description"
-              ></v-textarea>
-              <v-file-input
-                ref="uploadFileReference"
-                @change="uploadFileReference"
-                :rules="[v => !!v || 'Photo is required']"
-                chips
-                multiple
-                accept="image/png, image/jpeg, image/bmp"
-                placeholder="Pick photos"
-                prepend-icon="mdi-camera"
-                label="Product Photos"
-              ></v-file-input>
-              <v-flex flex-wrap>
-                <template v-show="newProduct.files">
-                  <div class="row">
-                    <v-col
-                      cols="3"
-                      sm="2"
-                      class="d-flex child-flex"
-                      v-for="(file, index) in newProduct.files"
-                      :key="index"
-                    >
-                      <v-hover v-slot:default="{ hover }">
-                        <v-card
-                          :elevation="hover ? 12 : 2"
-                          :class="{ 'on-hover': hover }"
-                          flat
-                          tile
-                          class="d-flex"
+          <v-container>
+            <v-data-table
+              :loading="products.data"
+              loading-text="Loading.. Please wait"
+              :headers="headers"
+              :items="products"
+              item-key="name"
+              :search="search"
+              class="elevation-1"
+            >
+              <template v-slot:top>
+                <v-toolbar flat>
+                  <v-toolbar-title>Product List</v-toolbar-title>
+                  <v-divider class="mx-4" inset vertical></v-divider>
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                  <v-spacer></v-spacer>
+                  <v-dialog v-model="dialog" max-width="700px">
+                    <template v-slot:activator="{ on }">
+                      <v-btn outlined color="primary" class="mb-2" v-on="on">
+                        <v-icon left>mdi-plus</v-icon>New Product
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>{{ editMode ? 'Edit Product Details' : 'New Product Details'}}</v-card-title>
+                      <v-card-text>
+                        <v-form
+                          ref="form"
+                          @submit.prevent=" editMode ? updateProduct() : addProduct()"
                         >
-                          <v-img class="grey lighten-2" :src="file.url">
-                            <div class="align-self-center">
-                              <v-btn :class="{ 'show-btns': hover }" color="transparent" icon>
-                                <v-icon
-                                  :class="{ 'show-btns': hover }"
-                                  color="transparent"
-                                  @click="deletePhoto(file)"
-                                >mdi-delete</v-icon>
-                              </v-btn>
-                            </div>
-                          </v-img>
-                        </v-card>
-                      </v-hover>
-                    </v-col>
-                  </div>
-                </template>
-              </v-flex>
-              <v-checkbox v-model="newProduct.public" label="Show to public?" required></v-checkbox>
-              <v-btn color="primary" type="submit" class="mr-2">Save</v-btn>
-              <v-btn color="error" @click="reset">Reset Form</v-btn>
-            </v-form>
-          </v-card-text>
+                          <v-text-field
+                            :rules="[v => !!v || 'Name is required']"
+                            v-model="newProduct.name"
+                            label="Name"
+                            small
+                            required
+                          ></v-text-field>
+                          <div class="d-flex flex-row">
+                            <v-select
+                              v-model="newProduct.category"
+                              :items="category"
+                              :rules="[v => !!v || 'Category is required']"
+                              label="Category"
+                              class="mr-3"
+                              required
+                            ></v-select>
+                            <v-text-field
+                              type="number"
+                              :rules="[v => !!v || 'Stocks is required']"
+                              v-model="newProduct.stocks"
+                              label="Stocks"
+                              class="mr-3"
+                              required
+                            ></v-text-field>
+                            <v-text-field
+                              :rules="[v => !!v || 'Unit is required']"
+                              v-model="newProduct.unit"
+                              label="Unit"
+                              hint="Ex. kg, sack, box, or any applicable"
+                              class="mr-3"
+                              required
+                            ></v-text-field>
+                          </div>
+                          <div class="d-flex flex-row w-50">
+                            <v-text-field
+                              :rules="[v => !!v || 'Price is required']"
+                              v-model="newProduct.price"
+                              label="Price"
+                              prefix="₱"
+                              :suffix="'/' + newProduct.unit"
+                              class="mr-3"
+                              required
+                            ></v-text-field>
+                          </div>
+                          <v-textarea
+                            v-model="newProduct.description"
+                            outlined
+                            name="input-7-4"
+                            label="Product Description"
+                          ></v-textarea>
+                          <v-file-input
+                            ref="uploadFileReference"
+                            @change="uploadFileReference"
+                            :rules="[v => !!v || 'Photo is required']"
+                            chips
+                            multiple
+                            accept="image/png, image/jpeg, image/bmp"
+                            placeholder="Pick photos"
+                            prepend-icon="mdi-camera"
+                            label="Product Photos"
+                          ></v-file-input>
+                          <v-flex flex-wrap>
+                            <template>
+                              <div class="row">
+                                <v-col
+                                  v-if="!photo.remove"
+                                  cols="3"
+                                  md="2"
+                                  class="d-flex child-flex"
+                                  v-for="(photo, index) in newProduct.photos"
+                                  :key="index"
+                                >
+                                  <v-hover v-slot:default="{ hover }">
+                                    <v-card
+                                      :elevation="hover ? 12 : 2"
+                                      :class="{ 'on-hover': hover }"
+                                      flat
+                                      tile
+                                      class="d-flex"
+                                    >
+                                      <v-img
+                                        class="grey lighten-2"
+                                        :src="photo.url ? photo.url : 'storage/product_photo/' + photo.file"
+                                      >
+                                        <div class="align-self-center">
+                                          <v-btn
+                                            :class="{ 'show-btns': hover }"
+                                            color="transparent"
+                                            icon
+                                          >
+                                            <v-icon
+                                              :class="{ 'show-btns': hover }"
+                                              color="transparent"
+                                              @click="deletePhoto(photo)"
+                                            >mdi-delete</v-icon>
+                                          </v-btn>
+                                        </div>
+                                      </v-img>
+                                    </v-card>
+                                  </v-hover>
+                                </v-col>
+                              </div>
+                            </template>
+                          </v-flex>
+                          <v-checkbox v-model="newProduct.public" label="Show to public?" required></v-checkbox>
+                          <v-btn color="primary" type="submit" class="mr-2">Save</v-btn>
+                          <v-btn color="error" @click="reset">Reset Form</v-btn>
+                        </v-form>
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
+                </v-toolbar>
+              </template>
+              <template v-slot:item.photos="{ item }">
+                <v-avatar tile>
+                  <v-img :src="'storage/product_photo/' + item.photos[0].file"></v-img>
+                </v-avatar>
+              </template>
+              <template v-slot:item.stocks="{ item }">
+                <v-chip color="primary">
+                  {{item.stocks}}
+                  <span class="small">({{item.unit}})</span>
+                </v-chip>
+              </template>
+              <template v-slot:item.public="{ item }">
+                <v-checkbox loading small :input-value="item.public" @change="togglePublic(item)"></v-checkbox>
+              </template>
+              <template v-slot:item.created_at="{ item }">
+                <p class="small">{{item.created_at | postDate}}</p>
+              </template>
+              <template v-slot:item.action="{ item }">
+                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+              </template>
+            </v-data-table>
+          </v-container>
         </v-tab-item>
-        <v-tab-item></v-tab-item>
         <v-tab-item>
           <v-container>
             <v-form>
@@ -226,6 +334,7 @@
                     <label for="country">Country</label>
                     <country-select
                       id="country"
+                      :country="mystore.country"
                       class="custom-select bg-transparent accent--text"
                       v-model="mystore.country"
                     />
@@ -237,6 +346,8 @@
                     </label>
                     <region-select
                       id="region"
+                      :country="mystore.country"
+                      :region="mystore.region"
                       class="custom-select bg-transparent accent--text"
                       v-model="mystore.region"
                     />
@@ -295,31 +406,60 @@
 <script>
 export default {
   mounted() {},
+
+  watch: {
+    dialog(val) {
+      !val && this.close();
+    }
+  },
+
   data() {
     return {
+      editMode: false,
+      dialog: false,
+      search: "",
       products: {},
       tab: null,
       store: true,
       croppie: null,
+      coverCroppie: null,
       image: null,
       photo: null,
+      cover: null,
+      headers: [
+        {
+          text: "Name",
+          align: "left",
+          sortable: false,
+          value: "name"
+        },
+        { text: "Image", value: "photos" },
+        { text: "Stocks", value: "stocks" },
+        { text: "Ratings", value: "ratings" },
+        { text: "Public", align: "center", value: "public" },
+        { text: "Date Added", value: "created_at" },
+        { text: "Actions", align: "center", value: "action" }
+      ],
       mystore: new Form({
+        id: "",
         name: "",
         country: "",
         region: "",
         city: "",
         street: "",
         description: "",
-        photo: ""
+        photo: "",
+        cover: ""
       }),
       newProduct: new Form({
+        id: "",
         name: "",
         category: "",
         unit: "",
         stocks: "",
         price: "",
         description: "",
-        files: [],
+        photos: [],
         public: false
       }),
       category: ["Vegetables", "Fruits", "Livestock", "Supplies"]
@@ -327,8 +467,175 @@ export default {
   },
 
   methods: {
+    loadMyStore() {
+      axios.get("api/store").then(({ data }) => {
+        this.mystore.fill(data);
+        if (data) {
+          this.store = true;
+        } else {
+          this.store = false;
+        }
+      });
+    },
+    coverCropSave() {
+      let options = {
+        format: "jpeg",
+        type: "canvas",
+        size: "viewport"
+      };
+      this.$refs.coverCroppieRef
+        .result(options, output => {
+          this.cover = output;
+        })
+        .then(response => {
+          this.cover = response;
+          this.mystore.cover = this.cover;
+          this.$Progress.start();
+          this.mystore
+            .put("api/storeCover")
+            .then(() => {
+              this.loadMyStore();
+              $(".cover").show();
+              this.coverCroppie = false;
+              Swal.fire("Updated!", "Store cover photo changed!", "success");
+              this.$Progress.finish();
+            })
+            .catch(() => {
+              this.$Progress.fail();
+              Swal.fire({
+                type: "error",
+                title: "Oops...",
+                text: "Upload failed."
+              });
+            });
+        });
+    },
+    browseCover() {
+      $("#cover").click();
+    },
+    setUpCover(file) {
+      $(".cover").hide();
+      this.coverCroppie = true;
+      let image = file.target.files[0];
+      // To check if file is an image
+      if (!image.name.match(/.(jpg|jpeg|png|gif)$/i)) {
+        Swal.fire({
+          type: "error",
+          title: "Oops...",
+          text: "That is not an image!"
+        });
+        file.target.value = null;
+        $("#cover").show();
+        return;
+      }
+      let reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = image => {
+        this.image = reader.result;
+        this.$refs.coverCroppieRef.bind({
+          url: this.image
+        });
+      };
+    },
+    togglePublic(item) {
+      axios
+        .put("api/publicProducts", {
+          id: item.id,
+          public: item.public
+        })
+        .then(() => {
+          this.loadProducts();
+          Toast.fire({
+            type: "success",
+            title: "Product privacy changed!"
+          });
+        })
+        .catch(() => {
+          Swal.fire({
+            type: "error",
+            title: "Oops...",
+            text: "Something went wrong!"
+          });
+        });
+    },
+    deleteItem(item) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "teal",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(result => {
+        // Send request to the server
+        if (result.value) {
+          this.newProduct
+            .delete("api/product/" + item.id)
+            .then(() => {
+              Swal.fire("Deleted!", "Product has been deleted.", "success");
+              this.loadProducts();
+            })
+            .catch(() => {
+              Swal.fire({
+                type: "error",
+                title: "Oops...",
+                text: "Something went wrong!"
+              });
+            });
+        }
+      });
+    },
+    updateProduct() {
+      this.$Progress.start();
+      this.newProduct
+        .put("api/product/" + this.newProduct.id)
+        .then(() => {
+          this.$Progress.finish();
+          this.close();
+          Swal.fire({
+            position: "top-end",
+            type: "success",
+            title: "Product updated!",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.loadProducts();
+        })
+        .catch(() => {
+          this.$Progress.fail();
+          Swal.fire({
+            type: "error",
+            title: "Oops...",
+            text: "You are uploading a large file."
+          });
+        });
+    },
+    editItem(item) {
+      this.dialog = true;
+      this.editMode = true;
+      this.newProduct.fill(item);
+    },
     updateStore() {
-
+      this.$Progress.start();
+      this.mystore
+        .put("api/storeInfo")
+        .then(() => {
+          Swal.fire(
+            "Updated!",
+            "Store information has been updated.",
+            "success"
+          );
+          this.$Progress.finish();
+        })
+        .catch(() => {
+          this.$Progress.fail();
+          Swal.fire({
+            type: "error",
+            title: "Oops...",
+            text: "You are uploading a large file."
+          });
+        });
     },
     loadProducts() {
       axios
@@ -338,14 +645,14 @@ export default {
         })
         .catch(() => {});
     },
-    deletePhoto(id) {
-      let index = this.newProduct.files.indexOf(id);
-      console.log(index);
-      this.newProduct.files.splice(index, 1);
+    deletePhoto(photo) {
+      let index = this.newProduct.photos.indexOf(photo);
+      this.newProduct.photos.push({ remove: photo.file });
+      this.newProduct.photos.splice(index, 1);
     },
     uploadFileReference(e) {
       if (!e.length) {
-        this.newProduct.files = [];
+        this.newProduct.photos = [];
       } else {
         this.length = e.length;
         this.showImage(e);
@@ -357,7 +664,7 @@ export default {
           const fileReader = new FileReader();
           const getResult = new Promise(resolve => {
             fileReader.onload = e => {
-              this.newProduct.files.push({
+              this.newProduct.photos.push({
                 id: idx,
                 url: e.target.result
               });
@@ -372,7 +679,7 @@ export default {
       } else {
         const fileReader = new FileReader();
         fileReader.onload = e => {
-          this.newProduct.files.push({
+          this.newProduct.photos.push({
             id: 1,
             url: e.target.result
           });
@@ -387,6 +694,7 @@ export default {
         .then(data => {
           this.$Progress.finish();
           Swal.fire("Success!", "New product has been added.", "success");
+          this.dialog = false;
           this.reset();
           this.loadProducts();
           console.log(data);
@@ -399,6 +707,13 @@ export default {
             text: "Upload failed."
           });
         });
+    },
+    close() {
+      this.dialog = false;
+      this.$refs.form.reset();
+      this.newProduct.public = false;
+      this.editMode = false;
+      this.loadProducts();
     },
     reset() {
       this.$refs.form.reset();
@@ -413,8 +728,11 @@ export default {
     },
     cancelCrop() {
       this.croppie = false;
+      this.coverCroppie = false;
       $(".avatar").show();
+      $(".cover").show();
       this.$refs.fileupload.value = "";
+      this.$refs.coverUpload.value = "";
     },
     cropSave() {
       let options = {
@@ -478,14 +796,7 @@ export default {
   },
 
   created() {
-    axios.get("api/store").then(({ data }) => {
-      this.mystore.fill(data);
-      if (data) {
-        this.store = true;
-      } else {
-        this.store = false;
-      }
-    });
+    this.loadMyStore();
     this.loadProducts();
   }
 };

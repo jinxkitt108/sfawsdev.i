@@ -46,6 +46,10 @@ Vue.filter("postDate", function(created) {
     return moment(created).format("lll");
 });
 
+Vue.filter("sinceDate", function(created) {
+    return moment(created).fromNow();
+});
+
 // Progress Bar
 Vue.use(VueProgressBar, {
     color: "rgb(143, 255, 199)",
@@ -113,16 +117,16 @@ const app = new Vue({
             themes: {
                 light: {
                     primary: "#0A4D22",
-                    secondary: "#0A4D22",
-                    accent: "#000",
-                    error: "#FF5252",
+                    secondary: "#d2d2d2",
                     info: "#2196F3",
                     success: "#4CAF50",
                     warning: "#FFC107",
                     danger: "#f30f0f"
                 },
                 dark: {
-                    primary: "#42d405"
+                    primary: "#fff",
+                    secondary: "#212121",
+                    danger: "#ff3f3f"
                 }
             }
         }

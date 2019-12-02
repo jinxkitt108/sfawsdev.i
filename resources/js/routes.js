@@ -12,6 +12,7 @@ let routes = [
     { path: '/buildstore', component: require('./components/BuildStore.vue').default },
     { path: '/users', component: require('./components/Users.vue').default },
     { path: '/search', component: require('./components/Search.vue').default },
+    { path: '/viewuser/:id',  props: { default: true}, component: require('./components/ViewUser.vue').default },
 ]
 const router = new VueRouter({
     mode: 'history',

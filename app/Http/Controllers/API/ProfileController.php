@@ -27,6 +27,10 @@ class ProfileController extends Controller
     public function index()
     {
         $user = auth('api')->user(); 
+        $followers = $user->followers()->get()->count();
+        $followings = $user->followings()->get()->count();
+        $user['followers'] = $followers;
+        $user['followings'] = $followings;
         return $user;
     }
 

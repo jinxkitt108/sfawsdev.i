@@ -1,117 +1,119 @@
 <template>
-  <v-card>
-    <v-card-title>Admin Panel</v-card-title>
-    <v-card-text>
-      <v-data-table
-        :headers="headers"
-        :items="users.data"
-        :items-per-page="5"
-        sort-by="created_at"
-        sort-desc
-        class="elevation-1"
-      >
-        <template v-slot:top>
-          <v-toolbar flat>
-            <v-toolbar-title>Users Table</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-toolbar-title class="subtitle">Total Users: {{count}}</v-toolbar-title>
+  <v-container>
+    <v-card>
+      <v-card-title>Admin Panel</v-card-title>
+      <v-card-text>
+        <v-data-table
+          :headers="headers"
+          :items="users.data"
+          :items-per-page="5"
+          sort-by="created_at"
+          sort-desc
+          class="elevation-1"
+        >
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-toolbar-title>Users Table</v-toolbar-title>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <v-toolbar-title class="subtitle">Total Users: {{count}}</v-toolbar-title>
 
-            <div class="flex-grow-1"></div>
-            <v-dialog v-model="dialog" max-width="600px">
-              <template v-slot:activator="{ on }">
-                <v-btn @click="newUser()" color="primary" dark class="mb-2">New User</v-btn>
-              </template>
-              <!-- DIALOG FOR ADD/EDIT -->
-              <v-card>
-                <v-card-title>
-                  <span class="headline">{{ formTitle }}</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <form @submit.prevent="editMode ? updateUser() : createUser()">
-                      <v-row>
-                        <v-col cols="12" sm="8" md="8">
-                          <v-text-field
-                            v-model="userForm.name"
-                            label="Name"
-                            :error-messages="nameErrors"
-                            required
-                            @input="$v.userForm.name.$touch()"
-                            @blur="$v.userForm.name.$touch()"
-                            outlined
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="4" md="4">
-                          <v-select
-                            v-model="userForm.type"
-                            :items="['Farmer', 'Supplier', 'Expert', 'Admin']"
-                            label="Type"
-                            :error-messages="typeErrors"
-                            required
-                            @input="$v.userForm.type.$touch()"
-                            @blur="$v.userForm.type.$touch()"
-                            aria-required
-                            outlined
-                          ></v-select>
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-text-field
-                            v-model="userForm.username"
-                            label="Username"
-                            name="username"
-                            counter
-                            :error-messages="usernameErrors"
-                            required
-                            @input="$v.userForm.username.$touch()"
-                            @blur="$v.userForm.username.$touch()"
-                            outlined
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-text-field
-                            v-model="userForm.email"
-                            label="E-mail"
-                            name="email"
-                            :error-messages="emailErrors"
-                            required
-                            @input="$v.userForm.email.$touch()"
-                            @blur="$v.userForm.email.$touch()"
-                            outlined
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-                      <v-text-field
-                        v-model="userForm.password"
-                        label="Password"
-                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                        :type="showPassword ? 'text' : 'password'"
-                        counter
-                        :error-messages="editMode === false ? passwordErrors : ''"
-                        @input="$v.userForm.password.$touch()"
-                        @blur="$v.userForm.password.$touch()"
-                        outlined
-                        @click:append="showPassword = !showPassword"
-                      ></v-text-field>
-                      <v-btn type="submit" color="primary" class="mr-4">submit</v-btn>
-                      <v-btn @click="close">Cancel</v-btn>
-                    </form>
-                  </v-container>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-toolbar>
-        </template>
-        <template v-slot:item.name="{ item }">{{ item.name | capitalize }}</template>
-        <template v-slot:item.created_at="{ item }">{{ item.created_at | createdDate }}</template>
-        <template v-slot:item.action="{ item }">
-          <v-icon class="mr-2 green--text" @click="editUser(item)">mdi-pen</v-icon>
-          <v-icon class="red--text" @click="deleteUser(item)">mdi-delete</v-icon>
-        </template>
-      </v-data-table>
-    </v-card-text>
-  </v-card>
+              <div class="flex-grow-1"></div>
+              <v-dialog v-model="dialog" max-width="600px">
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="newUser()" color="primary" dark class="mb-2">New User</v-btn>
+                </template>
+                <!-- DIALOG FOR ADD/EDIT -->
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <form @submit.prevent="editMode ? updateUser() : createUser()">
+                        <v-row>
+                          <v-col cols="12" sm="8" md="8">
+                            <v-text-field
+                              v-model="userForm.name"
+                              label="Name"
+                              :error-messages="nameErrors"
+                              required
+                              @input="$v.userForm.name.$touch()"
+                              @blur="$v.userForm.name.$touch()"
+                              outlined
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="4" md="4">
+                            <v-select
+                              v-model="userForm.type"
+                              :items="['Farmer', 'Supplier', 'Expert', 'Admin']"
+                              label="Type"
+                              :error-messages="typeErrors"
+                              required
+                              @input="$v.userForm.type.$touch()"
+                              @blur="$v.userForm.type.$touch()"
+                              aria-required
+                              outlined
+                            ></v-select>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="6" md="6">
+                            <v-text-field
+                              v-model="userForm.username"
+                              label="Username"
+                              name="username"
+                              counter
+                              :error-messages="usernameErrors"
+                              required
+                              @input="$v.userForm.username.$touch()"
+                              @blur="$v.userForm.username.$touch()"
+                              outlined
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="6">
+                            <v-text-field
+                              v-model="userForm.email"
+                              label="E-mail"
+                              name="email"
+                              :error-messages="emailErrors"
+                              required
+                              @input="$v.userForm.email.$touch()"
+                              @blur="$v.userForm.email.$touch()"
+                              outlined
+                            ></v-text-field>
+                          </v-col>
+                        </v-row>
+                        <v-text-field
+                          v-model="userForm.password"
+                          label="Password"
+                          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                          :type="showPassword ? 'text' : 'password'"
+                          counter
+                          :error-messages="editMode === false ? passwordErrors : ''"
+                          @input="$v.userForm.password.$touch()"
+                          @blur="$v.userForm.password.$touch()"
+                          outlined
+                          @click:append="showPassword = !showPassword"
+                        ></v-text-field>
+                        <v-btn type="submit" color="primary" class="mr-4">submit</v-btn>
+                        <v-btn @click="close">Cancel</v-btn>
+                      </form>
+                    </v-container>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.name="{ item }">{{ item.name | capitalize }}</template>
+          <template v-slot:item.created_at="{ item }">{{ item.created_at | createdDate }}</template>
+          <template v-slot:item.action="{ item }">
+            <v-icon class="mr-2 green--text" @click="editUser(item)">mdi-pen</v-icon>
+            <v-icon class="red--text" @click="deleteUser(item)">mdi-delete</v-icon>
+          </template>
+        </v-data-table>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 <script>
 import { validationMixin } from "vuelidate";

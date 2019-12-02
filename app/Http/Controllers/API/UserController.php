@@ -126,7 +126,23 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $current_user = auth('api')->user();
+        $user = User::findOrFail($id);
+        $followers = $user->followers()->get()->count();
+        $followings = $user->followings()->get()->count();
+        $user['followers'] = $followers;
+        $user['followings'] = $followings;
+        if($current_user->id === $user->id){
+            $user['current_user'] = true;
+        } else {
+            $user['current_user'] = false;
+        }
+        if ($current_user->isFollowing($user)) {
+            $user['isFollowing'] = true;
+        } else {
+            $user['isFollowing'] = false;
+        }
+        return $user;
     }
 
     /**

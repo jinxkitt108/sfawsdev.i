@@ -1,75 +1,153 @@
 <template>
   <v-container>
-    <v-card tile>
-      <v-img height="100%" src="storage/cover_photo/sample.jpg">
-        <v-row align="end">
-          <v-col align-self="start" class="pa-4 ml-2" cols="12">
-            <v-avatar class="profile" size="164" tile>
-              <img class="avatar" :src="getProfilePhoto()" />
-              <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
-              <v-btn class="avatar" @click="browseImage" color="grey" fab small absolute bottom right>
-                <v-icon>mdi-camera</v-icon>
-              </v-btn>
-              <div class="mt-2" v-show="croppie">
+    <v-tabs show-arrows centered v-model="tab">
+      <v-tabs-slider></v-tabs-slider>
+      <v-tab>Overview</v-tab>
+      <v-tab>Post(12)</v-tab>
+      <v-tab>Videos</v-tab>
+      <v-tab>Achievements</v-tab>
+      <v-tab>
+        <v-icon>mdi-settings</v-icon>
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab">
+      <v-tab-item>
+        <v-container>
+          <v-row style="background-image: linear-gradient(#00ACC1, #00838F, #006064)">
+            <v-col cols="12" md="3" class="text-center">
+              <v-avatar class="avatar" color="cyan" size="164">
+                <v-img
+                  :src="'/storage/profile_photo/' + userForm.profile.photo"
+                  class="img-bordered border-light"
+                >
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
+                <v-btn
+                  class="avatar mb-4"
+                  @click="browseImage"
+                  color="grey lighten-1"
+                  fab
+                  small
+                  absolute
+                  bottom
+                  right
+                >
+                  <v-icon>mdi-camera</v-icon>
+                </v-btn>
+                <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
+              </v-avatar>
+              <v-avatar size="164" v-show="croppie">
                 <vue-croppie
                   ref="croppieRef"
                   :enableOrientation="true"
-                  :viewport="{ width: 164, height: 164, type: 'square' }"
-                  :boundary="{ width: 170, height: 170 }"
+                  :viewport="{ width: 164, height: 164, type: 'circle'}"
+                  :boundary="{ width: 164, height: 164, type: 'circle'}"
                   :enableResize="false"
                   :showZoomer="false"
                 ></vue-croppie>
-                <v-btn class="mt-1" small @click="cropSave">Change</v-btn>
-                <v-btn class="mt-1" small @click="cancelCrop">Cancel</v-btn>
-              </div>
-            </v-avatar>
-          </v-col>
-          <v-col class="py-0">
-            <v-list-item color="rgba(0, 0, 0, .4)" dark>
-              <v-list-item-content>
-                <v-list-item-title class="title">{{userForm.name | capitalize}}</v-list-item-title>
-                <v-list-item-subtitle>{{userForm.type}}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-col>
-        </v-row>
-      </v-img>
-      <v-tabs right color="accent" v-model="tab">
-        <v-tab>Settings</v-tab>
-        <v-tab>Activity</v-tab>
-        <v-tab>Gallery</v-tab>
-      </v-tabs>
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <v-card-title class="title">Basic Info</v-card-title>
-          <form class="pl-5 pr-5 pb-3">
-            <v-container class="border rounded pa-3">
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-card-text>
-                    <v-text-field v-model="userForm.name" label="Name" height="40px"></v-text-field>
-                    <v-text-field v-model="userForm.username" label="Username"></v-text-field>
-                    <v-text-field v-model="userForm.email" label="E-mail" height="40px"></v-text-field>
-                    <v-text-field
-                      v-model="userForm.password"
-                      label="Password (leave empty if not changing)"
-                    ></v-text-field>
-                  </v-card-text>
+                <v-btn small @click="cancelCrop" fab absolute bottom left dark color="danger">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-btn small @click="cropSave" fab absolute bottom right color="success">
+                  <v-icon>mdi-check</v-icon>
+                </v-btn>
+              </v-avatar>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-card dark flat shaped style="background-color: #10383738">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <span class="font-weight-bold headline">{{userForm.name}}</span>
+                      <div class="overline">{{userForm.type}}</div>
+                    </v-list-item-title>
+                    <v-list-item-title>
+                      <p class="small">Member since {{userForm.created_at | sinceDate}}</p>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-card>
+            </v-col>
+            <v-col cols="12" md="5">
+              <v-row no-gutters class="justify-content-center">
+                <v-col cols="4" md="4" class="pr-2">
+                  <v-card dark flat shaped style="background-color: #10383738" class="text-center">
+                    <v-avatar align="center" size="64" tile>
+                      <v-img src="/storage/app_photos/account.png"></v-img>
+                    </v-avatar>
+                    <v-list-item class="text-center">
+                      <v-list-item-content>
+                        <v-list-item-title class="font-weight-bold headline">{{userForm.followers}}</v-list-item-title>
+                        <p class="small">Followers</p>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-card>
                 </v-col>
-                <v-col cols="12" md="6">
-                  <v-textarea outlined name="input-7-4" label="Bio" v-model="userForm.profile.bio"></v-textarea>
+                <v-col cols="4" md="4" class="pr-2">
+                  <v-card dark flat shaped style="background-color: #10383738" class="text-center">
+                    <v-avatar class="mx-auto" size="64" tile>
+                      <v-img src="/storage/app_photos/remission.png"></v-img>
+                    </v-avatar>
+                    <v-list-item class="text-center">
+                      <v-list-item-content>
+                        <v-list-item-title class="font-weight-bold headline">{{userForm.followings}}</v-list-item-title>
+                        <p class="small">Followings</p>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-card>
+                </v-col>
+                <v-col cols="4" md="4">
+                  <v-card dark flat shaped style="background-color: #10383738" class="text-center">
+                    <v-avatar class="mx-auto" size="64" tile>
+                      <v-img src="/storage/app_photos/trophy.png"></v-img>
+                    </v-avatar>
+                    <v-list-item class="text-center">
+                      <v-list-item-content>
+                        <v-list-item-title class="font-weight-bold headline">243</v-list-item-title>
+                        <p class="small">Experience</p>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-card>
                 </v-col>
               </v-row>
-              <v-card-actions>
-                <v-btn color="primary" @click.prevent="updateInfo" type="submit">Update</v-btn>
-              </v-card-actions>
-            </v-container>
-          </form>
-        </v-tab-item>
-        <v-tab-item>asadasdsad</v-tab-item>
-        <v-tab-item>xxxxxxxx</v-tab-item>
-      </v-tabs-items>
-    </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-tab-item>
+      <v-tab-item></v-tab-item>
+      <v-tab-item></v-tab-item>
+      <v-tab-item></v-tab-item>
+      <v-tab-item>
+        <v-card-title class="title">Basic Info</v-card-title>
+        <form class="pl-5 pr-5 pb-3">
+          <v-container class="border rounded pa-3">
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-card-text>
+                  <v-text-field v-model="userForm.name" label="Name" height="40px"></v-text-field>
+                  <v-text-field v-model="userForm.username" label="Username"></v-text-field>
+                  <v-text-field v-model="userForm.email" label="E-mail" height="40px"></v-text-field>
+                  <v-text-field
+                    v-model="userForm.password"
+                    label="Password (leave empty if not changing)"
+                  ></v-text-field>
+                </v-card-text>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-textarea outlined name="input-7-4" label="Bio" v-model="userForm.profile.bio"></v-textarea>
+              </v-col>
+            </v-row>
+            <v-card-actions>
+              <v-btn color="primary" @click.prevent="updateInfo" type="submit">Update</v-btn>
+            </v-card-actions>
+          </v-container>
+        </form>
+      </v-tab-item>
+    </v-tabs-items>
   </v-container>
 </template>
 
@@ -79,12 +157,11 @@ export default {
     console.log("Component mounted.");
   },
   created() {
-    axios.get("api/profile").then(({ data }) => this.userForm.fill(data));
+    this.loadUser();
   },
   data: () => {
     return {
       tab: null,
-      photo: "",
       image: null,
       croppie: false,
       userForm: new Form({
@@ -96,11 +173,16 @@ export default {
         profile: {
           bio: "",
           photo: ""
-        }
+        },
+        followers: null,
+        followings: null
       })
     };
   },
   methods: {
+    loadUser() {
+      axios.get("api/profile").then(({ data }) => this.userForm.fill(data));
+    },
     cancelCrop() {
       this.croppie = false;
       $(".avatar").show();
@@ -117,12 +199,12 @@ export default {
           this.photo = output;
         })
         .then(response => {
-          this.photo = response;
-          this.userForm.profile.photo = this.photo;
+          this.userForm.profile.photo = response;
           this.$Progress.start();
           this.userForm
             .put("api/photo")
             .then(() => {
+              this.loadUser();
               $(".avatar").show();
               this.croppie = false;
               Fire.$emit("updateProfile");
@@ -165,13 +247,6 @@ export default {
           url: this.image
         });
       };
-    },
-    getProfilePhoto() {
-      let photo =
-        this.userForm.profile.photo.length > 200
-          ? this.photo
-          : "storage/profile_photo/" + this.userForm.profile.photo;
-      return photo;
     },
     updateInfo() {
       this.$Progress.start();

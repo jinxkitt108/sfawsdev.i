@@ -12,7 +12,7 @@ class Store extends Model
      * @var array
      */
     protected $fillable = [
-        'owner_id', 'name', 'country', 'region', 'city', 'street', 'description', 'photo'
+        'owner_id', 'name', 'country', 'region', 'city', 'street', 'description', 'photo', 'cover'
     ];
 
     public function owner(){

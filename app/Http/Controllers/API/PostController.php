@@ -29,27 +29,27 @@ class PostController extends Controller
         $user = auth('api')->user();
         $userIds = $user->followings()->pluck('id')->toArray();
         $posts = Post::whereIn('author_id', $userIds)->orWhere('author_id', $user->id)->orderBy('created_at', 'DESC')->get();
-        foreach($posts as $post){
-            if($post->author_id === $user->id){
+        foreach ($posts as $post) {
+            if ($post->author_id === $user->id) {
                 $post['authorize'] = true;
             } else {
                 $post['authorize'] = false;
             }
-            if($user->hasLiked($post)){
-               $post['commend'] = true;
+            if ($user->hasLiked($post)) {
+                $post['commend'] = true;
             }
             $commends = $post->likers()->count();
             $post['commends'] = $commends;
             $comments = $post->comments;
-            foreach($comments as $comment){
-                if($comment->author_id === $user->id){
+            foreach ($comments as $comment) {
+                if ($comment->author_id === $user->id) {
                     $comment['authorize'] = true;
                 } else {
                     $comment['authorize'] = false;
                 }
-                if($user->hasLiked($comment)){
+                if ($user->hasLiked($comment)) {
                     $comment['agree'] = true;
-                 }
+                }
             }
         }
         return $posts;
@@ -63,22 +63,21 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-       
+
         $this->validate($request, [
             'title' => 'required',
             'content' => 'required',
             'cover_image' => 'nullable'
         ]);
 
-        if($request->cover_image){
-            $name = time().'.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
+        if ($request->cover_image) {
+            $name = time() . '.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
             $dir = 'storage/cover_photo/';
-            if(!is_dir($dir)) {
+            if (!is_dir($dir)) {
                 mkdir($dir);
             }
-            \Image::make($request->cover_image)->save(public_path('storage/cover_photo/').$name);
-        }
-        else {
+            \Image::make($request->cover_image)->save(public_path('storage/cover_photo/') . $name);
+        } else {
             $name = '';
         }
 
@@ -98,8 +97,37 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
+    { }
+
+    public function getPost($id)
     {
-        //
+
+        $user = auth('api')->user();
+        $posts = Post::where('author_id', $id)->orderBy('created_at', 'DESC')->get();
+        foreach ($posts as $post) {
+            if ($post->author_id === $user->id) {
+                $post['authorize'] = true;
+            } else {
+                $post['authorize'] = false;
+            }
+            if ($user->hasLiked($post)) {
+                $post['commend'] = true;
+            }
+            $commends = $post->likers()->count();
+            $post['commends'] = $commends;
+            $comments = $post->comments;
+            foreach ($comments as $comment) {
+                if ($comment->author_id === $user->id) {
+                    $comment['authorize'] = true;
+                } else {
+                    $comment['authorize'] = false;
+                }
+                if ($user->hasLiked($comment)) {
+                    $comment['agree'] = true;
+                }
+            }
+        }
+        return $posts;
     }
 
     /**
@@ -117,25 +145,37 @@ class PostController extends Controller
             'content' => 'required',
         ]);
         $currentCover = $post->cover_image;
-        if($request->cover_image !=  $currentCover){
-            if($request->cover_image == ""){
-                    //Remove cover image
+        if ($request->cover_image !=  $currentCover) {
+            if ($request->cover_image == "") {
+                //Remove cover image
             } else {
                 // Upload new cover image
-            $name = time().'.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
+                $name = time() . '.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
 
-            \Image::make($request->cover_image)->save(public_path('storage/cover_photo/').$name);
-            $request->merge(['cover_image' => $name]);
+                \Image::make($request->cover_image)->save(public_path('storage/cover_photo/') . $name);
+                $request->merge(['cover_image' => $name]);
             }
-            $cover_image = public_path('storage/cover_photo/').$currentCover;
-            if(file_exists($cover_image)){
+            $cover_image = public_path('storage/cover_photo/') . $currentCover;
+            if (file_exists($cover_image)) {
                 @unlink($cover_image);
-            } 
+            }
         }
 
         // Update Post
         $post->update($request->all());
         return ['message' => 'Info updated!'];
+    }
+
+    public function search()
+    {
+        $current_user = auth('api')->user();
+        if ($search = \Request::get('q')) {
+            $posts = Post::where(function ($query) use ($search) {
+                $query->where('title', 'LIKE', "%$search%")
+                    ->orwhere('content', 'LIKE', "%$search%");
+            })->paginate(5);
+        }
+        return $posts;
     }
 
     /**
@@ -149,12 +189,10 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
         $comment = Comment::where('post_id', $id);
         $currentCover = $post->cover_image;
-        $cover_image = public_path('storage/cover_photo/').$currentCover;
-            if($currentCover != 'noimage.jpg'){
-                @unlink($cover_image);
-            } else {
-
-            }
+        $cover_image = public_path('storage/cover_photo/') . $currentCover;
+        if ($currentCover != 'noimage.jpg') {
+            @unlink($cover_image);
+        } else { }
         //Delete the post
         $post->delete();
         $comment->delete();

@@ -18,7 +18,7 @@ class StoreController extends Controller
     {
         $this->middleware('auth:api');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -26,8 +26,13 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $store = auth('api')->user()->store; 
+        $store = auth('api')->user()->store;
         return $store;
+    }
+
+    public function showAll()
+    {
+        return Store::latest()->paginate(10);
     }
 
     /**
@@ -90,33 +95,84 @@ class StoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateCover(Request $request)
     {
-        //
+        $store = auth('api')->user()->store;
+        $currentCover = $store->cover;
+        $name = 'store-'.$store->id.'-'.time() . '.' . explode('/', explode(':', substr($request->cover, 0, strpos($request->cover, ';')))[1])[1];
+        if (!is_dir('storage/store_cover/')) {
+            mkdir('storage/store_cover/');
+        }
+        \Image::make($request->cover)->save(public_path('storage/store_cover/') . $name);
+        $request->merge(['cover' => $name]);
+
+        //Deleting current store photo
+        if ($currentCover != 'store_cover.png') {
+            $store_cover = public_path('storage/store_cover/') . $currentCover;
+            if (file_exists($store_cover)) {
+                @unlink($store_cover);
+            }
+        }
+        $store->update($request->all());
+
+        return $name;
     }
 
-    // UPDATING THE PROFILE PHOTO
+    public function storeInfo(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+            'country' => 'required',
+            'region' => 'nullable',
+            'city' => 'required',
+            'street' => 'required',
+            'description' => 'required',
+        ]);
+
+        $store = auth('api')->user()->store;
+
+        $store->update($request->all());
+        return ['message' => 'Store info updated!'];
+    }
+
+    // UPDATING THE STORE PHOTO
     public function updatePhoto(Request $request)
     {
         $store = auth('api')->user()->store;
         $currentPhoto = $store->photo;
-        $name = time().'.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
-        if(!is_dir('storage/store_photo/')) {
+        $name =  'store-'.$store->id.'-'.time() . '.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+        if (!is_dir('storage/store_photo/')) {
             mkdir('storage/store_photo/');
         }
-            \Image::make($request->photo)->save(public_path('storage/store_photo/').$name);
-            $request->merge(['photo' => $name]);
+        \Image::make($request->photo)->save(public_path('storage/store_photo/') . $name);
+        $request->merge(['photo' => $name]);
 
-             //Deleting current store photo
-            if($currentPhoto != 'store.png'){
-                $store_photo = public_path('storage/store_photo/').$currentPhoto;
-                if(file_exists($store_photo)){
-                    @unlink($store_photo);
-                }
+        //Deleting current store photo
+        if ($currentPhoto != 'store.png') {
+            $store_photo = public_path('storage/store_photo/') . $currentPhoto;
+            if (file_exists($store_photo)) {
+                @unlink($store_photo);
             }
+        }
         $store->update($request->all());
 
         return $name;
+    }
+
+    public function search()
+    {
+        $current_user = auth('api')->user();
+        if ($search = \Request::get('q')) {
+            $stores = Store::where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orwhere('country', 'LIKE', "%$search%")
+                    ->orwhere('region', 'LIKE', "%$search%")
+                    ->orwhere('city', 'LIKE', "%$search%")
+                    ->orwhere('street', 'LIKE', "%$search%")
+                    ->orwhere('description', 'LIKE', "%$search%");
+            })->paginate(5);
+        } 
+        return $stores;
     }
 
     /**

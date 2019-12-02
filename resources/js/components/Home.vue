@@ -5,7 +5,7 @@
 </style>
 <template>
   <v-container fluid>
-    <v-card>
+    <v-card flat tile>
       <v-card-text>
         <form>
           <div class="d-flex justify">
@@ -56,9 +56,7 @@
             </v-avatar>Location
           </v-chip>
           <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
-          <v-btn @click="createPost" outlined absolute bottom right>
-            Advertise
-          </v-btn>
+          <v-btn @click="createPost" outlined absolute bottom right>Advertise</v-btn>
         </form>
       </v-card-text>
     </v-card>
@@ -86,13 +84,10 @@
             <v-img :src="'storage/cover_photo/' + post.cover_image" height="250"></v-img>
           </v-col>
           <v-col>
-            <v-card-text class="mt-0 pt-0">
-              <p>
-                <strong>Commends</strong>
-                <span class="text-danger">({{post.commends}})</span>
-              </p>
-              <p>{{post.content}}</p>
-            </v-card-text>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold subtitle-2">COMMENDS ({{post.commends}})</v-list-item-title>
+            </v-list-item>
+            <p>{{post.content}}</p>
           </v-col>
         </v-row>
         <p>
@@ -102,7 +97,7 @@
           <a
             v-if="post.commend"
             @click="toggleCommend(post.id)"
-            class="link-black text-sm mr-2 text-success"
+            class="link-black text-sm mr-2 primary--text"
           >
             <strong>
               <i class="fas fa-check mr-1"></i>Commended
@@ -111,7 +106,7 @@
           <a
             v-else
             @click="toggleCommend(post.id)"
-            class="link-black text-sm mr-2 text-success"
+            class="link-black text-sm mr-2 primary--text"
           >Commend</a>
           <a
             v-show="post.authorize"
@@ -201,6 +196,7 @@
             v-for="comment in post.comments"
             :key="comment.id"
           >
+            <v-divider></v-divider>
             <div class="media ma-3 mb-0">
               <v-avatar size="45">
                 <img
@@ -212,7 +208,7 @@
               <v-card-text>
                 <p class="mb-0">
                   <strong>{{comment.author.name | capitalize}}</strong>
-                  <span class="small float-right">{{comment.created_at | postDate}}</span>
+                  <span class="small float-right">{{comment.created_at | sinceDate}}</span>
                 </p>
                 <span class="mt-0" style="font-size: 15px">{{comment.content}}</span>
               </v-card-text>
@@ -240,7 +236,7 @@
           </div>
         </div>
         <v-form :id="'F-' + post.id" @submit.prevent="createComment(post.id)">
-           <div class="input-group">
+          <div class="input-group">
             <input
               type="text"
               :id="'C-'+ post.id"
@@ -276,11 +272,13 @@ export default {
   },
   data() {
     return {
+      isActive: false,
       dialog: false,
       posts: {},
       tags: "",
       postForm: new Form({
         id: "",
+        rating: null,
         title: "",
         content: "",
         cover_image: "",
@@ -291,18 +289,13 @@ export default {
         post_id: "",
         user_id: "",
         body: ""
-      }),
+      })
     };
   },
 
-  computed: {
-    
-  },
+  computed: {},
 
   methods: {
-    toggleMarker() {
-      this.marker = !this.marker;
-    },
     agreeComment(comment_id) {
       axios
         .post("api/agree", {

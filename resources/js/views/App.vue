@@ -10,11 +10,17 @@
       <v-list dense>
         <v-list-item>
           <v-list-item-avatar size="50">
-              <img class="img-circle img-bordered border-success" :src="getProfilePhoto()" alt="Avatar" />
+            <v-img
+              class="img-circle img-bordered border-success"
+              :src="'storage/profile_photo/' + user.profile.photo"
+              alt="Avatar"
+            ></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title>{{user.name | capitalize}}</v-list-item-title>
-            <v-list-item-subtitle>{{user.type}}</v-list-item-subtitle>
+            <v-list-item-title>
+              <span>{{user.name}}</span>
+              <div class="overline">{{user.type}}</div>
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -94,7 +100,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app clipped-right clipped-left dark color="secondary">
+    <v-app-bar app clipped-right clipped-left dark color="teal darken-4">
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-0">
         <a href="/" class="brand-link text-white">
@@ -157,13 +163,10 @@ export default {
   methods: {
     searchMode() {
       this.$router.push("/search");
+      Fire.$emit("searchMode", this.search);
     },
     searchit() {
       Fire.$emit("searching", this.search);
-    },
-    getProfilePhoto() {
-      let photo = "storage/profile_photo/" + this.user.profile.photo;
-      return photo;
     },
     logout() {
       axios.post("logout").then(response => {

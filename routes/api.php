@@ -39,12 +39,23 @@ Route::put('theme', 'API\ProfileController@addTheme');
 //Store Routes
 Route::apiResources(['store' => 'API\StoreController']);
 Route::put('storephoto', 'API\StoreController@updatePhoto');
+Route::put('storeCover', 'API\StoreController@updateCover');
+Route::put('storeInfo', 'API\StoreController@storeInfo');
+Route::get('allStores', 'API\StoreController@showAll');
+Route::get('searchStore', 'API\StoreController@search');
 
 //Product Routes
 Route::apiResources(['product' => 'API\ProductController']);
+Route::put('publicProducts', 'API\ProductController@togglePublic');
+Route::get('allProducts', 'API\ProductController@showAll');
+Route::get('latestProducts', 'API\ProductController@showLatest');
+Route::get('vegetables', 'API\ProductController@getVegetables');
+Route::get('fruits', 'API\ProductController@getFruits');
 
 //POST ROUTES
 Route::apiResources(['post' => 'API\PostController']);
+Route::get('searchPost', 'API\PostController@search');
+Route::get('userpost/{id}', 'API\PostController@getPost');
 
 //Comment ROUTES
 Route::apiResources(['comment' => 'API\CommentController']);
