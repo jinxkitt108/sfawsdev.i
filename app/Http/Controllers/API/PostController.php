@@ -146,9 +146,7 @@ class PostController extends Controller
         ]);
         $currentCover = $post->cover_image;
         if ($request->cover_image !=  $currentCover) {
-            if ($request->cover_image == "") {
-                //Remove cover image
-            } else {
+            if ($request->cover_image != "") {
                 // Upload new cover image
                 $name = time() . '.' . explode('/', explode(':', substr($request->cover_image, 0, strpos($request->cover_image, ';')))[1])[1];
 

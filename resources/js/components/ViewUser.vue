@@ -1,3 +1,9 @@
+<style scoped>
+.comment-section {
+  display: none;
+}
+</style>
+
 <template>
   <v-container>
     <v-tabs show-arrows centered v-model="tab">
@@ -142,11 +148,16 @@
               </v-col>
               <v-col>
                 <v-list-item>
-                  <v-list-item-title
-                    class="font-weight-bold subtitle-2"
-                  >COMMENDS ({{post.commends}})</v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-action>
+                      <v-badge color="green">
+                        <template v-slot:badge>{{post.commends}}</template>
+                        <v-chip color="primary" small>Commends</v-chip>
+                      </v-badge>
+                    </v-list-item-action>
+                    <v-list-item-title class="mt-2">{{post.content}}</v-list-item-title>
+                  </v-list-item-content>
                 </v-list-item>
-                <p>{{post.content}}</p>
               </v-col>
             </v-row>
             <p>

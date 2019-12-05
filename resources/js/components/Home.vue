@@ -5,61 +5,52 @@
 </style>
 <template>
   <v-container fluid>
-    <v-card flat tile>
-      <v-card-text>
-        <form>
-          <div class="d-flex justify">
-            <v-text-field v-model="postForm.title" label="Title"></v-text-field>
-            <v-combobox
-              v-model="tags"
-              chips
-              clearable
-              label="Add Tags"
-              multiple
-              solo
-              class="ml-5 w-50"
-              tag
+    <v-form>
+      <div class="d-flex justify">
+        <v-text-field v-model="postForm.title" label="Title"></v-text-field>
+        <v-combobox
+          v-model="tags"
+          chips
+          clearable
+          label="Add Tags"
+          multiple
+          solo
+          class="ml-5 w-50"
+          tag
+        >
+          <template v-slot:selection="{ attrs, item, select, selected }">
+            <v-chip
+              v-bind="attrs"
+              :input-value="selected"
+              close
+              @click="select"
+              @click:close="remove(item)"
+              @submit:close="remove(item)"
             >
-              <template v-slot:selection="{ attrs, item, select, selected }">
-                <v-chip
-                  v-bind="attrs"
-                  :input-value="selected"
-                  close
-                  @click="select"
-                  @click:close="remove(item)"
-                  @submit:close="remove(item)"
-                >
-                  <strong>{{ item }}</strong>
-                </v-chip>
-              </template>
-            </v-combobox>
-          </div>
-          <v-textarea
-            v-model="postForm.content"
-            class="mb-0"
-            outlined
-            label="Spread your thoughts!"
-          ></v-textarea>
-          <v-chip @click="browseImage">
-            <v-avatar left>
-              <v-icon>mdi-image</v-icon>
-            </v-avatar>Photos
-          </v-chip>
-          <v-chip>
-            <v-avatar left>
-              <v-icon>mdi-video</v-icon>
-            </v-avatar>Videos
-          </v-chip>
-          <v-chip>
-            <v-avatar left>
-              <v-icon>mdi-map-marker</v-icon>
-            </v-avatar>Location
-          </v-chip>
-          <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
-          <v-btn @click="createPost" outlined absolute bottom right>Advertise</v-btn>
-        </form>
-      </v-card-text>
-    </v-card>
+              <strong>{{ item }}</strong>
+            </v-chip>
+          </template>
+        </v-combobox>
+      </div>
+      <v-textarea v-model="postForm.content" class="mb-0" outlined label="Spread your thoughts!"></v-textarea>
+      <v-chip @click="browseImage">
+        <v-icon top>mdi-image</v-icon>
+      </v-chip>
+      <v-chip>
+        <v-icon>mdi-video</v-icon>
+      </v-chip>
+      <v-chip>
+        <v-icon>mdi-map-marker</v-icon>
+      </v-chip>
+      <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
+      <v-btn @click="createPost" outlined absolute right>Advertise</v-btn>
+    </v-form>
+    <v-container v-show="postForm.cover_image">
+      <v-btn color="danger" top left icon>
+        <v-icon @click="removeCover">mdi-close</v-icon>
+      </v-btn>
+      <v-img :src="postForm.cover_image" width="150"></v-img>
+    </v-container>
     <v-card v-for="post in posts" :key="post.id" class="mt-4">
       <v-list-item>
         <v-list-item-avatar size="50">
@@ -72,9 +63,9 @@
         <v-list-item-content>
           <v-list-item-title class="headline">{{post.title}}</v-list-item-title>
           <v-list-item-subtitle>
-            by {{post.author.name | capitalize}}
+            by {{post.author.name}}
             <span class="small ml-2">({{post.author.type}})</span>
-            <span class="float-right">Posted {{post.created_at | postDate}}</span>
+            <span class="small float-right">Posted {{post.created_at | sinceDate}}</span>
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -85,9 +76,16 @@
           </v-col>
           <v-col>
             <v-list-item>
-              <v-list-item-title class="font-weight-bold subtitle-2">COMMENDS ({{post.commends}})</v-list-item-title>
+              <v-list-item-content>
+                <v-list-item-action>
+                  <v-badge color="green">
+                    <template v-slot:badge>{{post.commends}}</template>
+                    <v-chip color="primary" small>Commends</v-chip>
+                  </v-badge>
+                </v-list-item-action>
+                <v-list-item-title class="mt-2">{{post.content}}</v-list-item-title>
+              </v-list-item-content>
             </v-list-item>
-            <p>{{post.content}}</p>
           </v-col>
         </v-row>
         <p>
@@ -117,7 +115,7 @@
           <!-- DIALOG FOR EDITING POST -->
           <v-dialog v-model="dialog" width="600">
             <v-card tile>
-              <v-toolbar dark color="primary">
+              <v-toolbar>
                 <v-toolbar-title>Edit Post</v-toolbar-title>
                 <div class="flex-grow-1"></div>
                 <v-toolbar-items>
@@ -127,7 +125,7 @@
                 </v-toolbar-items>
               </v-toolbar>
               <v-card-text class="mt-3">
-                <form>
+                <v-form>
                   <div class="d-flex justify">
                     <v-text-field v-model="postForm.title" label="Title"></v-text-field>
                     <v-combobox
@@ -154,24 +152,27 @@
                     </v-combobox>
                   </div>
                   <v-textarea v-model="postForm.content" class="mb-0" label="Spread your thoughts!"></v-textarea>
-                  <v-chip small @click="browseImage">
-                    <v-avatar left>
-                      <v-icon>mdi-image</v-icon>
-                    </v-avatar>Photos
+                  <v-chip @click="browseImage">
+                    <v-icon>mdi-image</v-icon>
                   </v-chip>
-                  <v-chip small>
-                    <v-avatar left>
-                      <v-icon>mdi-video</v-icon>
-                    </v-avatar>Videos
+                  <v-chip>
+                    <v-icon>mdi-video</v-icon>
                   </v-chip>
-                  <v-chip small>
-                    <v-avatar left>
-                      <v-icon>mdi-map-marker</v-icon>
-                    </v-avatar>Location
+                  <v-chip>
+                    <v-icon>mdi-map-marker</v-icon>
                   </v-chip>
                   <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
                   <v-btn @click="updatePost" absolute outlined right>Update</v-btn>
-                </form>
+                </v-form>
+                <v-container v-show="postForm.cover_image">
+                  <v-btn color="danger" top left icon>
+                    <v-icon @click="removeCover" left>mdi-close</v-icon>
+                  </v-btn>
+                  <v-img
+                    :src="postForm.cover_image.length > 200 ? postForm.cover_image : 'storage/cover_photo/' + postForm.cover_image"
+                    width="150"
+                  ></v-img>
+                </v-container>
               </v-card-text>
               <div style="flex: 1 1 auto;"></div>
             </v-card>
@@ -282,6 +283,7 @@ export default {
         title: "",
         content: "",
         cover_image: "",
+        delete_cover: "",
         tags: ""
       }),
       comment: new Form({
@@ -296,6 +298,9 @@ export default {
   computed: {},
 
   methods: {
+    removeCover() {
+      this.postForm.cover_image = "";
+    },
     agreeComment(comment_id) {
       axios
         .post("api/agree", {
