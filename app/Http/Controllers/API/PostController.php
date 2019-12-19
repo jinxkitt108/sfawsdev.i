@@ -96,8 +96,31 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    { }
+    public function show()
+    {
+        $user = auth('api')->user();
+        $posts = auth('api')->user()->posts;
+        foreach ($posts as $post) {
+            $post['authorize'] = true;
+            if ($user->hasLiked($post)) {
+                $post['commend'] = true;
+            }
+            $commends = $post->likers()->count();
+            $post['commends'] = $commends;
+            $comments = $post->comments;
+            foreach ($comments as $comment) {
+                if ($comment->author_id === $user->id) {
+                    $comment['authorize'] = true;
+                } else {
+                    $comment['authorize'] = false;
+                }
+                if ($user->hasLiked($comment)) {
+                    $comment['agree'] = true;
+                }
+            }
+        }
+        return $posts;
+    }
 
     public function getPost($id)
     {

@@ -304,7 +304,6 @@ export default {
       axios.get("api/user").then(({ data }) => {
         this.users = data;
         this.count = data.data.length;
-        this.$store.commit("loadUsers", this.users);
       });
     },
     createUser() {

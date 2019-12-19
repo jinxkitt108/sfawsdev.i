@@ -53,17 +53,19 @@
     </v-container>
     <v-card v-for="post in posts" :key="post.id" class="mt-4">
       <v-list-item>
-        <v-list-item-avatar size="50">
-          <img
-            class="img-circle img-bordered border-success"
-            :src="'storage/profile_photo/' + post.author.profile.photo"
-            alt="Profile Photo"
-          />
-        </v-list-item-avatar>
+        <router-link :to="'/viewuser/' + post.author.id" class="text-decoration-none">
+          <v-list-item-avatar size="50">
+            <img
+              class="img-circle img-bordered border-success"
+              :src="'storage/profile_photo/' + post.author.profile.photo"
+              alt="Profile Photo"
+            />
+          </v-list-item-avatar>
+        </router-link>
         <v-list-item-content>
           <v-list-item-title class="headline">{{post.title}}</v-list-item-title>
           <v-list-item-subtitle>
-            by {{post.author.name}}
+            by <router-link :to="'/viewuser/' + post.author.id">{{post.author.name}}</router-link>
             <span class="small ml-2">({{post.author.type}})</span>
             <span class="small float-right">Posted {{post.created_at | sinceDate}}</span>
           </v-list-item-subtitle>

@@ -54,9 +54,14 @@ Route::get('fruits', 'API\ProductController@getFruits');
 
 //POST ROUTES
 Route::apiResources(['post' => 'API\PostController']);
+Route::get('mypost', 'API\PostController@show');
 Route::get('searchPost', 'API\PostController@search');
 Route::get('userpost/{id}', 'API\PostController@getPost');
 
 //Comment ROUTES
 Route::apiResources(['comment' => 'API\CommentController']);
+
+
+//Comment ROUTES
+Route::apiResources(['chat' => 'API\ChatController']);
 

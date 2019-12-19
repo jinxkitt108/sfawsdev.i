@@ -58,12 +58,18 @@ class User extends Authenticatable
     //Posts Method
     public function posts()
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Post::class, 'author_id');
     }
 
     //Comment Method
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    //Chat Messages
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
     }
 }

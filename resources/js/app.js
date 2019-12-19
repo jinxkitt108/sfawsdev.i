@@ -19,10 +19,14 @@ import Vue2Filters from "vue2-filters";
 import moment from "moment";
 import VueCroppie from "vue-croppie";
 import "croppie/croppie.css"; // import the croppie css manually
-import store from "./store";
+import store from "./store/";
 import VueCarousel from "vue-carousel";
 import vueCountryRegionSelect from "vue-country-region-select";
 import { Ripple } from "vuetify/lib/directives";
+import Chat from 'vue-beautiful-chat';
+
+// VUE CHAT
+Vue.use(Chat);
 
 // VUE COUNTRY LIST
 Vue.use(vueCountryRegionSelect);

@@ -27,7 +27,10 @@ class FollowController extends Controller
      */
     public function index()
     {
-        //
+        $user = auth('api')->user();
+        $followingUsers = $user->followings()->orderBy('name', 'ASC')->get();
+        return $followingUsers;
+
     }
 
     /**
