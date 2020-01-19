@@ -4,7 +4,7 @@
       <v-card-title>
         <h2 class="font-weight-bold basil--text">
           SFAWS Marketplace
-          <v-btn small outlined absolute right class="text-decoration-none" to="/buildStore">
+          <v-btn small outlined absolute right class="text-decoration-none" to="/buildstore">
             <v-icon class="mr-2">mdi-storefront</v-icon>Build a Store
           </v-btn>
         </h2>
@@ -21,7 +21,7 @@
               <v-row>
                 <v-col align-self="start" class="pa-0" cols="12">
                   <v-avatar class="profile" color="grey" size="164" tile>
-                    <v-img :src="'storage/store_photo/' + store.photo"></v-img>
+                    <img v-if="store.photo" :src="'storage/store_photo/' + store.photo" />
                   </v-avatar>
                 </v-col>
                 <v-col class="py-0">
@@ -166,7 +166,9 @@
                         <v-list-item-title
                           class="font-weight-bold red--text"
                         >₱ {{newItem.price}}/{{newItem.unit}}</v-list-item-title>
-                        <v-list-item-title>{{newItem.name}}</v-list-item-title>
+                        <router-link :to="'/view-product/' + newItem.id">
+                          <v-list-item-title>{{newItem.name}}</v-list-item-title>
+                        </router-link>
                         <v-list-item-subtitle>Stocks ({{newItem.stocks + ' ' + newItem.unit}})</v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>

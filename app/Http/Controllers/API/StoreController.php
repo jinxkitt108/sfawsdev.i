@@ -99,12 +99,12 @@ class StoreController extends Controller
     {
         $store = auth('api')->user()->store;
         $currentCover = $store->cover;
-        $name = 'store-'.$store->id.'-'.time() . '.' . explode('/', explode(':', substr($request->cover, 0, strpos($request->cover, ';')))[1])[1];
+        $name = 'store-'.$store->id.'-'.time() . '.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
         if (!is_dir('storage/store_cover/')) {
             mkdir('storage/store_cover/');
         }
-        \Image::make($request->cover)->save(public_path('storage/store_cover/') . $name);
-        $request->merge(['cover' => $name]);
+        \Image::make($request->photo)->save(public_path('storage/store_cover/') . $name);
+        $request->merge(['photo' => $name]);
 
         //Deleting current store photo
         if ($currentCover != 'store_cover.png') {
@@ -113,7 +113,7 @@ class StoreController extends Controller
                 @unlink($store_cover);
             }
         }
-        $store->update($request->all());
+        $store->update(array('cover' => $request->photo));
 
         return $name;
     }
@@ -154,7 +154,7 @@ class StoreController extends Controller
                 @unlink($store_photo);
             }
         }
-        $store->update($request->all());
+        $store->update(array('photo' => $request->photo));
 
         return $name;
     }

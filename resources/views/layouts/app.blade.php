@@ -21,7 +21,7 @@
 
 </head>
 
-<body>
+<body style="background-image: linear-gradient(green, teal, green)">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
@@ -77,7 +77,7 @@
             </div>
         </div>
     </nav>
-    <main class="">
+    <main>
         @yield('content')
     </main>
 

@@ -78,7 +78,7 @@ class PostController extends Controller
             }
             \Image::make($request->cover_image)->save(public_path('storage/cover_photo/') . $name);
         } else {
-            $name = '';
+            $name = null;
         }
 
         $post = Post::create([
@@ -153,6 +153,35 @@ class PostController extends Controller
         return $posts;
     }
 
+    public function singlePost($id)
+    {
+        $current_user = auth('api')->user();
+        $post = Post::findOrFail($id);
+        if ($post->author_id === $current_user->id) {
+            $post['authorize'] = true;
+        } else {
+            $post['authorize'] = false;
+        }
+        if ($current_user->hasLiked($post)) {
+            $post['commend'] = true;
+        }
+        $commends = $post->likers()->count();
+        $post['commends'] = $commends;
+        $comments = $post->comments;
+        foreach ($comments as $comment) {
+            if ($comment->author_id === $current_user->id) {
+                $comment['authorize'] = true;
+            } else {
+                $comment['authorize'] = false;
+            }
+            if ($current_user->hasLiked($comment)) {
+                $comment['agree'] = true;
+            }
+        }
+
+        return $post;
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -195,6 +224,10 @@ class PostController extends Controller
                 $query->where('title', 'LIKE', "%$search%")
                     ->orwhere('content', 'LIKE', "%$search%");
             })->paginate(5);
+            foreach($posts as $post) {
+                $commends = $post->likers()->count();
+                $post['commends'] = $commends;
+            }
         }
         return $posts;
     }

@@ -16,12 +16,15 @@
         <v-icon>mdi-settings</v-icon>
       </v-tab>
     </v-tabs>
-    <v-container>
+    <v-tabs-items v-model="tab">
+      <v-tab-item>
+        <v-container>
           <v-row style="background-image: linear-gradient(#00ACC1, #00838F, #006064)">
             <v-col cols="12" md="3" class="text-center">
               <v-avatar class="avatar" color="cyan" size="164">
                 <v-img
-                  :src="'/storage/profile_photo/' + userForm.profile.photo"
+                  v-if="loaded"
+                  :src="'/storage/profile_photo/' + getCurrentUser.profile.photo"
                   class="img-bordered border-light"
                 >
                   <template v-slot:placeholder>
@@ -66,11 +69,11 @@
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>
-                      <span class="font-weight-bold headline">{{userForm.name}}</span>
-                      <div class="overline">{{userForm.type}}</div>
+                      <span class="font-weight-bold headline">{{getCurrentUser.name}}</span>
+                      <div class="overline">{{getCurrentUser.type}}</div>
                     </v-list-item-title>
                     <v-list-item-title>
-                      <p class="small">Member since {{userForm.created_at | sinceDate}}</p>
+                      <p class="small">Member since {{getCurrentUser.created_at | sinceDate}}</p>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -85,7 +88,9 @@
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
-                        <v-list-item-title class="font-weight-bold headline">{{userForm.followers}}</v-list-item-title>
+                        <v-list-item-title
+                          class="font-weight-bold headline"
+                        >{{getCurrentUser.followers}}</v-list-item-title>
                         <p class="small">Followers</p>
                       </v-list-item-content>
                     </v-list-item>
@@ -98,7 +103,9 @@
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
-                        <v-list-item-title class="font-weight-bold headline">{{userForm.followings}}</v-list-item-title>
+                        <v-list-item-title
+                          class="font-weight-bold headline"
+                        >{{getCurrentUser.followings}}</v-list-item-title>
                         <p class="small">Followings</p>
                       </v-list-item-content>
                     </v-list-item>
@@ -121,15 +128,15 @@
             </v-col>
           </v-row>
         </v-container>
-    <v-tabs-items v-model="tab">
-      <v-tab-item>
         <v-card tile flat class="bg-transparent">
           <v-card-text>
-            <h4>{{userForm.profile.bio}}</h4>
+            <h4
+              v-if="loaded"
+            >{{getCurrentUser.profile.bio !== null? getCurrentUser.profile.bio : 'No details.'}}</h4>
           </v-card-text>
         </v-card>
       </v-tab-item>
-       <v-tab-item>
+      <v-tab-item>
         <v-card flat tile class="mt-4" v-show="posts.length == 0">
           <v-card-text class="text-center">
             <v-divider></v-divider>
@@ -262,13 +269,13 @@
                           <v-icon>mdi-map-marker</v-icon>
                         </v-avatar>Location
                       </v-chip>
-                      <input
+                      <!-- <input
                         @change="coverImage"
                         id="cover_photo"
                         type="file"
                         hidden
                         accept="image/*"
-                      />
+                      />-->
                       <v-btn @click="updatePost" absolute outlined right>Update</v-btn>
                     </form>
                   </v-card-text>
@@ -284,7 +291,7 @@
               <span class="float-right">
                 <a @click="toggleComment(post.id)" class="link-black text-sm">
                   <i class="fas fa-comments mr-1"></i>
-                  <span>Comments</span>
+                  <span class="small">Comments</span>
                   ({{post.comments.length}})
                 </a>
               </span>
@@ -387,20 +394,31 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
   mounted() {
     console.log("Component mounted.");
   },
+
   created() {
+    this.fetchCurrentUser().then(() => {
+      this.loaded = true;
+    });
     this.loadUser();
     this.loadPosts();
   },
+
+  computed: mapGetters(["getCurrentUser"]),
+
   data: () => {
     return {
+      loaded: false,
       dialog: false,
       tab: null,
       image: null,
       croppie: false,
+      tags: "",
       posts: {},
       postForm: new Form({
         id: "",
@@ -410,7 +428,7 @@ export default {
         cover_image: "",
         tags: ""
       }),
-        comment: new Form({
+      comment: new Form({
         id: "",
         post_id: "",
         user_id: "",
@@ -432,7 +450,10 @@ export default {
       })
     };
   },
+
   methods: {
+    ...mapActions(["fetchCurrentUser"]),
+
     agreeComment(comment_id) {
       axios
         .post("/api/agree", {
@@ -557,10 +578,8 @@ export default {
         }
       });
     },
-     loadPosts() {
-      axios
-        .get("api/mypost")
-        .then(({ data }) => (this.posts = data));
+    loadPosts() {
+      axios.get("api/mypost").then(({ data }) => (this.posts = data));
     },
     loadUser() {
       axios.get("api/profile").then(({ data }) => this.userForm.fill(data));
@@ -586,7 +605,7 @@ export default {
           this.userForm
             .put("api/photo")
             .then(() => {
-              this.loadUser();
+              this.fetchCurrentUser();
               $(".avatar").show();
               this.croppie = false;
               Fire.$emit("updateProfile");

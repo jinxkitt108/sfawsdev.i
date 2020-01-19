@@ -32,18 +32,12 @@
           </template>
         </v-combobox>
       </div>
-      <v-textarea v-model="postForm.content" class="mb-0" outlined label="Spread your thoughts!"></v-textarea>
-      <v-chip @click="browseImage">
-        <v-icon top>mdi-image</v-icon>
+      <v-textarea v-model="postForm.content" rows="2" class="mb-0" outlined label="Spread your thoughts!"></v-textarea>
+      <v-chip @click="browseImage" color="success" outlined>
+        <v-icon left>mdi-image</v-icon>Photo/Video
       </v-chip>
-      <v-chip>
-        <v-icon>mdi-video</v-icon>
-      </v-chip>
-      <v-chip>
-        <v-icon>mdi-map-marker</v-icon>
-      </v-chip>
-      <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
-      <v-btn @click="createPost" outlined absolute right>Advertise</v-btn>
+      <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*, video/*" />
+      <v-btn @click="createPost" color="success" absolute right>Advertise</v-btn>
     </v-form>
     <v-container v-show="postForm.cover_image">
       <v-btn color="danger" top left icon>
@@ -63,9 +57,12 @@
           </v-list-item-avatar>
         </router-link>
         <v-list-item-content>
-          <v-list-item-title class="headline">{{post.title}}</v-list-item-title>
+          <router-link :to="'/viewpost/' + post.id" class="text-decoration-none">
+            <v-list-item-title class="headline">{{post.title}}</v-list-item-title>
+          </router-link>
           <v-list-item-subtitle>
-            by <router-link :to="'/viewuser/' + post.author.id">{{post.author.name}}</router-link>
+            by
+            <router-link :to="'/viewuser/' + post.author.id">{{post.author.name}}</router-link>
             <span class="small ml-2">({{post.author.type}})</span>
             <span class="small float-right">Posted {{post.created_at | sinceDate}}</span>
           </v-list-item-subtitle>
@@ -167,13 +164,14 @@
                   <v-btn @click="updatePost" absolute outlined right>Update</v-btn>
                 </v-form>
                 <v-container v-show="postForm.cover_image">
-                  <v-btn color="danger" top left icon>
-                    <v-icon @click="removeCover" left>mdi-close</v-icon>
+                  <v-btn color="danger" top right icon>
+                    <v-icon @click="removeCover">mdi-close</v-icon>
                   </v-btn>
-                  <v-img
-                    :src="postForm.cover_image.length > 200 ? postForm.cover_image : 'storage/cover_photo/' + postForm.cover_image"
-                    width="150"
-                  ></v-img>
+                  <img
+                    v-show="postForm.cover_image !== null"
+                    :src="postForm.cover_image !== null && postForm.cover_image.length > 200? postForm.cover_image : 'storage/cover_photo/' + postForm.cover_image"
+                    style="max-width: 150px"
+                  />
                 </v-container>
               </v-card-text>
               <div style="flex: 1 1 auto;"></div>
@@ -200,17 +198,21 @@
             :key="comment.id"
           >
             <v-divider></v-divider>
-            <div class="media ma-3 mb-0">
-              <v-avatar size="45">
-                <img
-                  class="img-circle img-bordered border-success"
-                  :src="'storage/profile_photo/' + comment.author.profile.photo"
-                  alt="Message User Image"
-                />
-              </v-avatar>
+            <div class="media mb-0">
+              <router-link :to="'/viewuser/' + post.author.id" class="text-decoration-none">
+                <v-avatar size="45">
+                  <img
+                    class="img-circle img-bordered border-success"
+                    :src="'storage/profile_photo/' + comment.author.profile.photo"
+                    alt="Message User Image"
+                  />
+                </v-avatar>
+              </router-link>
               <v-card-text>
                 <p class="mb-0">
-                  <strong>{{comment.author.name | capitalize}}</strong>
+                  <router-link :to="'/viewuser/' + post.author.id">
+                    <strong>{{comment.author.name | capitalize}}</strong>
+                  </router-link>
                   <span class="small float-right">{{comment.created_at | sinceDate}}</span>
                 </p>
                 <span class="mt-0" style="font-size: 15px">{{comment.content}}</span>

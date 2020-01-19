@@ -51,17 +51,26 @@ Route::get('allProducts', 'API\ProductController@showAll');
 Route::get('latestProducts', 'API\ProductController@showLatest');
 Route::get('vegetables', 'API\ProductController@getVegetables');
 Route::get('fruits', 'API\ProductController@getFruits');
+Route::get('searchProduct', 'API\ProductController@search');
 
-//POST ROUTES
+//Post ROUTES
 Route::apiResources(['post' => 'API\PostController']);
 Route::get('mypost', 'API\PostController@show');
 Route::get('searchPost', 'API\PostController@search');
 Route::get('userpost/{id}', 'API\PostController@getPost');
+Route::get('viewpost/{id}', 'API\PostController@singlePost');
+Route::get('searchPost', 'API\PostController@search');
 
 //Comment ROUTES
 Route::apiResources(['comment' => 'API\CommentController']);
 
+//Discussion ROUTES
+Route::apiResources(['discussion' => 'API\DiscussionController']);
+Route::post('reply', 'API\DiscussionController@postReply');
+Route::get('reply/{id}', 'API\DiscussionController@fetchAllReply');
+Route::put('best_answer', 'API\DiscussionController@toggleBestAnswer');
+Route::put('resolved', 'API\DiscussionController@toggleResolved');
 
-//Comment ROUTES
+//Chat ROUTES
 Route::apiResources(['chat' => 'API\ChatController']);
 

@@ -128,7 +128,6 @@ const app = new Vue({
                     danger: "#f30f0f"
                 },
                 dark: {
-                    primary: "#fff",
                     secondary: "#212121",
                     danger: "#ff3f3f"
                 }

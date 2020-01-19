@@ -9,15 +9,12 @@
     <v-card-title class="mb-0">
       <h2 class="font-weight-bold basil--text">
         My Store
-        <v-btn v-if="!store" outlined absolute right to="/buildstore">
-          <v-icon class="mr-2">mdi-storefront</v-icon>Build a Store
-        </v-btn>
-        <v-btn v-else small outlined absolute right class="text-decoration-none" to="/marketplace">
-          <v-icon class="mr-2">mdi-arrow-left-circle</v-icon>Go to SFAWS Market
+        <v-btn small outlined absolute right class="text-decoration-none" to="/marketplace">
+          <v-icon class="mr-2">mdi-arrow-left-circle</v-icon>SFAWS Market
         </v-btn>
       </h2>
     </v-card-title>
-    <v-card flat tile v-if="store">
+    <v-card flat tile>
       <div v-show="coverCroppie">
         <vue-croppie
           ref="coverCroppieRef"
@@ -32,7 +29,7 @@
           <v-btn class="mt-1" color="danger" small @click="cancelCrop">Cancel</v-btn>
         </div>
       </div>
-      <v-img class="cover" :src="'storage/store_cover/' + mystore.cover">
+      <v-img v-if="getMyStore.cover" class="cover" :src="'storage/store_cover/' + getMyStore.cover">
         <template v-slot:placeholder>
           <v-row class="fill-height ma-0" align="center" justify="center">
             <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
@@ -47,7 +44,7 @@
                   <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
                 </v-row>
               </template>
-              <img class="avatar" :src="getStorePhoto()" />
+              <img class="avatar" :src="'storage/store_photo/' + getMyStore.photo" />
               <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
               <v-btn
                 class="avatar"
@@ -78,12 +75,12 @@
           <v-col class="py-0">
             <v-list-item two-line dark>
               <v-list-item-content>
-                <v-list-item-title class="title">{{mystore.name}}</v-list-item-title>
+                <v-list-item-title class="title">{{getMyStore.name}}</v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ mystore.street + '|'}}
+                  {{ getMyStore.street + '|'}}
                   <span
                     class="small"
-                  >{{ mystore.city + ', ' + mystore.country}}</span>
+                  >{{ getMyStore.city + ', ' + getMyStore.country}}</span>
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -118,7 +115,7 @@
           <v-container>
             <v-card flat>
               <v-card-title class="font-weight-black subtitle-1">ABOUT</v-card-title>
-              <v-card-text>{{mystore.description}}</v-card-text>
+              <v-card-text>{{getMyStore.description}}</v-card-text>
               <v-card-title class="font-weight-black subtitle-1">FEATURED</v-card-title>
               <v-card-text></v-card-text>
             </v-card>
@@ -160,19 +157,12 @@
             >
               <template v-slot:top>
                 <v-toolbar flat>
-                  <v-toolbar-title>Product List</v-toolbar-title>
+                  <v-toolbar-title class="subtitle-1">Product List</v-toolbar-title>
                   <v-divider class="mx-4" inset vertical></v-divider>
-                  <v-text-field
-                    v-model="search"
-                    append-icon="mdi-magnify"
-                    label="Search"
-                    single-line
-                    hide-details
-                  ></v-text-field>
                   <v-spacer></v-spacer>
                   <v-dialog v-model="dialog" max-width="700px">
                     <template v-slot:activator="{ on }">
-                      <v-btn outlined color="primary" class="mb-2" v-on="on">
+                      <v-btn small outlined color="primary" class="mb-2" v-on="on">
                         <v-icon left>mdi-plus</v-icon>New Product
                       </v-btn>
                     </template>
@@ -295,6 +285,15 @@
                     </v-card>
                   </v-dialog>
                 </v-toolbar>
+                <v-toolbar flat>
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </v-toolbar>
               </template>
               <template v-slot:item.photos="{ item }">
                 <v-avatar tile>
@@ -326,7 +325,7 @@
               <v-card-text class="mt-0 pt-0">
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-text-field v-model="mystore.name" label="Store Name"></v-text-field>
+                    <v-text-field v-model="getMyStore.name" label="Store Name"></v-text-field>
                   </v-col>
                 </v-row>
                 <div class="d-flex flex-row mb-2">
@@ -334,9 +333,9 @@
                     <label for="country">Country</label>
                     <country-select
                       id="country"
-                      :country="mystore.country"
+                      :country="getMyStore.country"
                       class="custom-select bg-transparent accent--text"
-                      v-model="mystore.country"
+                      v-model="getMyStore.country"
                     />
                   </div>
                   <div class="mr-2">
@@ -346,23 +345,29 @@
                     </label>
                     <region-select
                       id="region"
-                      :country="mystore.country"
-                      :region="mystore.region"
+                      :country="getMyStore.country"
+                      :region="getMyStore.region"
                       class="custom-select bg-transparent accent--text"
-                      v-model="mystore.region"
+                      v-model="getMyStore.region"
                     />
                   </div>
                 </div>
-                <v-text-field v-model="mystore.city" class="mb-0 pb-0" label="City" outlined dense></v-text-field>
                 <v-text-field
-                  v-model="mystore.street"
+                  v-model="getMyStore.city"
+                  class="mb-0 pb-0"
+                  label="City"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-text-field
+                  v-model="getMyStore.street"
                   class="mt-0 pt-0"
                   label="Street Address"
                   outlined
                   dense
                 ></v-text-field>
                 <v-textarea
-                  v-model="mystore.description"
+                  v-model="getMyStore.description"
                   outlined
                   name="input-7-4"
                   rows="3"
@@ -377,33 +382,12 @@
         </v-tab-item>
       </v-tabs-items>
     </v-card>
-    <v-container v-show="!store" class="text-sm-center mt-0" fluid>
-      <v-row align="center" justify="center">
-        <v-col sm="7">
-          <v-avatar size="100">
-            <img src="storage/app_photos/leaf-photos.png" />
-          </v-avatar>
-          <p class="h3 font-weight-bold mb-0">Selling made simple.</p>
-          <p
-            class="h5 pink--text mt-0"
-          >Sell on the leading platform for farmers all around the world</p>
-
-          <v-card class="text-sm-left" style="border: 5px solid teal; border-radius: 20px">
-            <v-alert class="mb-0" icon="mdi-brightness-percent">Sell with 0% commision.</v-alert>
-            <v-alert
-              class="mt-0 mb-0"
-              icon="mdi-account-group"
-            >Anyone can sign-up as either individual or corporate seller.</v-alert>
-            <v-alert class="mt-0 mb-0" icon="mdi-tools">Free access to seller tools and campaigns.</v-alert>
-            <v-alert class="mt-0" icon="mdi-rocket">Boosted product search ranking.</v-alert>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   mounted() {},
 
@@ -430,27 +414,20 @@ export default {
         {
           text: "Name",
           align: "left",
-          sortable: false,
           value: "name"
         },
-        { text: "Image", value: "photos" },
+        { text: "Image", sortable: false, value: "photos" },
         { text: "Stocks", value: "stocks" },
         { text: "Ratings", value: "ratings" },
         { text: "Public", align: "center", value: "public" },
         { text: "Date Added", value: "created_at" },
-        { text: "Actions", align: "center", value: "action" }
+        { text: "Actions", sortable: false, align: "center", value: "action" }
       ],
-      mystore: new Form({
-        id: "",
-        name: "",
-        country: "",
-        region: "",
-        city: "",
-        street: "",
-        description: "",
-        photo: "",
-        cover: ""
+
+      setPhoto: new Form({
+        photo: ""
       }),
+
       newProduct: new Form({
         id: "",
         name: "",
@@ -462,21 +439,16 @@ export default {
         photos: [],
         public: false
       }),
+
       category: ["Vegetables", "Fruits", "Livestock", "Supplies"]
     };
   },
 
+  computed: mapGetters(["getMyStore"]),
+
   methods: {
-    loadMyStore() {
-      axios.get("api/store").then(({ data }) => {
-        this.mystore.fill(data);
-        if (data) {
-          this.store = true;
-        } else {
-          this.store = false;
-        }
-      });
-    },
+    ...mapActions(["fetchMyStore"]),
+
     coverCropSave() {
       let options = {
         format: "jpeg",
@@ -488,13 +460,12 @@ export default {
           this.cover = output;
         })
         .then(response => {
-          this.cover = response;
-          this.mystore.cover = this.cover;
+          this.setPhoto.photo = response;
           this.$Progress.start();
-          this.mystore
+          this.setPhoto
             .put("api/storeCover")
             .then(() => {
-              this.loadMyStore();
+              this.fetchMyStore();
               $(".cover").show();
               this.coverCroppie = false;
               Swal.fire("Updated!", "Store cover photo changed!", "success");
@@ -618,8 +589,8 @@ export default {
     },
     updateStore() {
       this.$Progress.start();
-      this.mystore
-        .put("api/storeInfo")
+      axios
+        .put("api/storeInfo", this.getMyStore)
         .then(() => {
           Swal.fire(
             "Updated!",
@@ -719,13 +690,6 @@ export default {
       this.$refs.form.reset();
       this.newProduct.public = false;
     },
-    getStorePhoto() {
-      let photo =
-        this.mystore.photo.length > 200
-          ? this.photo
-          : "storage/store_photo/" + this.mystore.photo;
-      return photo;
-    },
     cancelCrop() {
       this.croppie = false;
       this.coverCroppie = false;
@@ -745,13 +709,13 @@ export default {
           this.photo = output;
         })
         .then(response => {
-          this.photo = response;
-          this.mystore.photo = this.photo;
+          this.setPhoto.photo = response;
           this.$Progress.start();
-          this.mystore
+          this.setPhoto
             .put("api/storephoto")
             .then(() => {
               $(".avatar").show();
+              this.fetchMyStore();
               this.croppie = false;
               Swal.fire("Updated!", "Store photo changed!", "success");
               this.$Progress.finish();
@@ -796,7 +760,7 @@ export default {
   },
 
   created() {
-    this.loadMyStore();
+    this.fetchMyStore();
     this.loadProducts();
   }
 };

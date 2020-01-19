@@ -14,6 +14,8 @@ class Product extends Model
         'photos' => 'array',
     ];
 
+    protected $with = ['store:id,name,photo'];
+
     public function getPriceAttribute($price) {
         return round($price, 2);
     }

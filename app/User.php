@@ -66,6 +66,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+    
+    //Discussion Method
+    public function discussions()
+    {
+        return $this->hasMany(Discussion::class, 'user_id');
+    }
 
     //Chat Messages
     public function messages()
