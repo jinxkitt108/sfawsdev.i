@@ -9,10 +9,11 @@ use Laravel\Passport\HasApiTokens;
 use Overtrue\LaravelFollow\Traits\CanFollow;
 use Overtrue\LaravelFollow\Traits\CanBeFollowed;
 use Overtrue\LaravelFollow\Traits\CanLike;
+use Musonza\Chat\Traits\Messageable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable, CanFollow, CanBeFollowed, CanLike;
+    use HasApiTokens, Notifiable, CanFollow, CanBeFollowed, CanLike, Messageable;
 
     /**
      * The attributes that are mass assignable.
@@ -72,10 +73,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Discussion::class, 'user_id');
     }
-
-    //Chat Messages
-    public function messages()
+    
+    //Messages Method
+    public function sentMessages()
     {
         return $this->hasMany(Message::class, 'sender_id');
     }
+
+    public function messageables()
+    {
+        return $this->hasMany('App\Messageable', 'receiver_id');
+    }
+
+
+
 }

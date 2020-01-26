@@ -252,9 +252,12 @@ export default {
     this.loadExperts();
   },
   methods: {
+    ...mapActions(["fetchFollowingUsers"]),
+
     loadExperts() {
       axios.get("api/experts").then(({ data }) => (this.experts = data.data));
     },
+
     toggleFollow(id) {
       let reference = $(this);
       axios
@@ -283,6 +286,7 @@ export default {
               title: "You unfollowed user!"
             });
           }
+          this.fetchFollowingUsers()
           this.loadExperts();
         });
     }

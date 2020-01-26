@@ -45,9 +45,16 @@
           <v-list-item-title>My Account</v-list-item-title>
         </v-list-item>
 
+        <v-list-item to="/mailbox">
+          <v-list-item-icon>
+            <v-icon>mdi-email</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Mailbox</v-list-item-title>
+        </v-list-item>
+
         <v-list-item to="/discussion">
           <v-list-item-icon>
-            <v-icon>mdi-note</v-icon>
+            <v-icon>mdi-forum</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Discussions</v-list-item-title>
         </v-list-item>
@@ -116,7 +123,7 @@
         <v-tab-item>
           <v-list dense>
             <v-list-item-group>
-              <v-list-item v-for="user in allFollowingUsers" :key="user.id" @click="userChat(user)">
+              <v-list-item v-for="user in allFollowingUsers" :key="user.id">
                 <v-list-item-avatar size="36">
                   <img :src="'storage/profile_photo/' + user.profile.photo" alt />
                 </v-list-item-avatar>
@@ -136,7 +143,8 @@
       <v-app-bar-nav-icon class="white--text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-0">
         <a href="/" class="brand-link text-white">
-          <i class="fas fa-seedling text-white"></i><span class="subtitle-2">SFAWS</span>
+          <i class="fas fa-seedling text-white"></i>
+          <span class="subtitle-2">SFAWS</span>
         </a>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
@@ -163,20 +171,61 @@
       <!-- If using vue-router -->
       <router-view></router-view>
     </v-content>
+
     <v-footer app>
       <span>&copy; 2020</span>
     </v-footer>
+
+    <!-- Chat component -->
+    <!-- <v-btn absolute fab text>
+      <beautiful-chat
+        :participants="getParticipants"
+        :messageList="getMessageList"
+        :icons="icons"
+        :isOpen="isChatOpen"
+        :open="openChat"
+        :close="closeChat"
+        :onMessageWasSent="onMessageWasSent"
+      />
+    </v-btn> -->
   </v-app>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
 
+// Chat Icons
+import CloseIcon from "vue-beautiful-chat/src/assets/close-icon.png";
+import OpenIcon from "vue-beautiful-chat/src/assets/logo-no-bg.svg";
+import FileIcon from "vue-beautiful-chat/src/assets/file.svg";
+import CloseIconSvg from "vue-beautiful-chat/src/assets/close.svg";
+
 export default {
   props: {
     source: String
   },
   data: () => ({
+    //Chat
+    // isChatOpen: false,
+    // icons: {
+    //   open: {
+    //     img: OpenIcon,
+    //     name: "default"
+    //   },
+    //   close: {
+    //     img: CloseIcon,
+    //     name: "default"
+    //   },
+    //   file: {
+    //     img: FileIcon,
+    //     name: "default"
+    //   },
+    //   closeSvg: {
+    //     img: CloseIconSvg,
+    //     name: "default"
+    //   }
+    // },
+
     loaded: false,
     search: "",
     tab: null,
@@ -199,19 +248,31 @@ export default {
 
   computed: mapGetters([
     "getCurrentUser",
-    "allParticipants",
     "allFollowingUsers",
-    "userAvatar",
-    "userName"
   ]),
 
   methods: {
     ...mapActions([
       "fetchCurrentUser",
-      "fetchMessages",
       "fetchFollowingUsers",
-      "directChat"
     ]),
+
+    // onMessageWasSent(message) {
+    //   let data = {
+    //     'id' : this.getConversation.id, 
+    //     'message' : message.data.text
+    //   }
+    //   this.addMessage(data);
+    // },
+
+    // openChat(user) {
+    //   this.fetchChat(user);
+    //   this.isChatOpen = true;
+    // },
+
+    // closeChat() {
+    //   this.isChatOpen = false;
+    // },
 
     searchMode() {
       this.$router.push("/search");
@@ -243,13 +304,10 @@ export default {
         this.user.fill(data);
       });
     });
-    this.fetchCurrentUser().then( () => {
+    this.fetchCurrentUser().then(() => {
       this.loaded = true;
     });
-    this.fetchMessages();
     this.fetchFollowingUsers();
-
-
   },
 
   mounted() {

@@ -71,6 +71,6 @@ Route::get('reply/{id}', 'API\DiscussionController@fetchAllReply');
 Route::put('best_answer', 'API\DiscussionController@toggleBestAnswer');
 Route::put('resolved', 'API\DiscussionController@toggleResolved');
 
-//Chat ROUTES
-Route::apiResources(['chat' => 'API\ChatController']);
-
+//MESSAGE ROUTES
+Route::apiResources(['message' => 'API\MessageController']);
+Route::get('inbox', 'API\MessageController@fetchInbox');

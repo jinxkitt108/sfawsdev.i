@@ -17,6 +17,6 @@ export default new Vuex.Store({
         users,
         stores,
         products,
-        discussions
+        discussions,
     }
 });

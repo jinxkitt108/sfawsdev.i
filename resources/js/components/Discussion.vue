@@ -11,7 +11,13 @@
         <v-card-text>
           <v-form @submit.prevent="createDiscussion">
             <v-text-field v-model="discussionForm.title" outlined label="Title"></v-text-field>
-            <v-select v-model="discussionForm.category" solo item-color="success" :items="['Agriculture', 'Aquaculture', 'Animals', 'Supplies', 'Fruits', 'Vegetables', 'Techniques']" label="Category"></v-select>
+            <v-select
+              v-model="discussionForm.category"
+              solo
+              item-color="success"
+              :items="['Agriculture', 'Aquaculture', 'Animals', 'Supplies', 'Fruits', 'Vegetables', 'Techniques']"
+              label="Category"
+            ></v-select>
 
             <v-textarea v-model="discussionForm.content" rows="4" outlined label="Say something..."></v-textarea>
             <v-chip @click="browseImage">
@@ -35,36 +41,39 @@
       @click="viewDiscussion(discussion.id)"
       v-for="discussion in getAllDiscussions.data"
       :key="discussion.id"
-      class="media pa-2 mb-2"
+      class="mb-2"
       v-ripple
     >
-      <v-avatar>
-        <img :src="'storage/profile_photo/' + discussion.user.profile.photo" class="mr-3"/>
-      </v-avatar>
-      <div class="media-body">
-        <div class="d-flex">
+      <v-hover v-slot:default="{ hover }" open-delay="200">
+        <v-card flat :elevation="hover ? 5 : 0" class="w-100 border-bottom">
           <v-list-item>
+            <v-list-item-avatar size="60">
+              <img :src="'storage/profile_photo/' + discussion.user.profile.photo" class="mr-3" />
+            </v-list-item-avatar>
             <v-list-item-content>
+              <v-list-item-title class="font-weight-black">{{discussion.title}}</v-list-item-title>
               <v-list-item-title>
-                <span class="subtitle-2 font-weight-bold mr-1">{{discussion.user.name}}</span>
+                <span class="subtitle-2 mr-1">by {{discussion.user.name}}</span>
                 &bull;
                 <span class="ml-1 small">{{discussion.created_at | sinceDate}}</span>
+                <v-chip color="primary" outlined small>{{discussion.category}}</v-chip>
                 <div class="overline">{{discussion.user.type}}</div>
               </v-list-item-title>
+              <v-list-item-subtitle class="mt-1">{{discussion.content}}</v-list-item-subtitle>
+              <v-list-item-subtitle class="mt-3">
+                <v-icon>fas fa-comments</v-icon>
+                <span class="subtitle-2 font-weight-bold mr-1">{{discussion.replies.length}}</span>
+                <v-chip v-show="discussion.resolved" color="success" small>
+                  <v-icon left>mdi-check</v-icon>Resolved
+                </v-chip>
+              </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
-        </div>
-        <v-chip color="primary" outlined class="float-right" width="100">{{discussion.category}}</v-chip>
-        <h5 class="mt-0 primary--text">{{discussion.title}}</h5>
-        {{discussion.content}}
-        <div class="d-flex text-muted small pt-2">
-          <v-icon class="ml-4">fas fa-comments</v-icon>
-          <span class="subtitle-2 font-weight-bold ml-1 mr-2">{{discussion.replies.length}}</span>
-          <v-chip v-show="discussion.resolved" color="success" small>
-            <v-icon left>mdi-check</v-icon>Resolved
-          </v-chip>
-        </div>
-      </div>
+        </v-card>
+      </v-hover>
+    </div>
+    <div class="text-center">
+      <v-pagination v-model="getAllDiscussions.current_page" :length="getAllDiscussions.last_page" circle></v-pagination>
     </div>
   </v-container>
 </template>
@@ -77,6 +86,7 @@ export default {
     return {
       loaded: false,
       dialog: false,
+      page: '',
       discussionForm: new Form({
         title: "",
         category: "",

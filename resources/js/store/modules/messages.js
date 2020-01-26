@@ -1,28 +1,34 @@
 import axios from "axios";
 
 const state = {
-    messages: [],
-    participants: [],
+    sentMessages: [],
+    inboxMessages: []
 };
 
 const getters = {
-    allParticipants: (state) => state.participants,
-    userAvatar: (state) => state.participants.map(({ imageUrl }) => imageUrl).toString(),
-    userName: (state) => state.participants.map(({ name }) => name).toString(),
+    getSentMessages: state => state.sentMessages,
+    getInboxMessages: state => state.inboxMessages
 };
 
 const actions = {
-    async fetchMessages({ commit }) {
-        const response = await axios.get('api/chat');
+    async addMessage({ commit }, message) {
+        const response = await axios.post("api/message", message);
     },
-    directChat({ commit }, user) {
-        state.participants = [];
-        commit('setParticipants', user);
+
+    async fetchSentMessages({ commit }) {
+        const response = await axios.get("api/message");
+        commit("setSentMessages", response.data);
+    },
+
+    async fetchInboxMessages({ commit }) {
+        const response = await axios.get("api/inbox");
+        commit("setInboxMessages", response.data);
     }
 };
 
 const mutations = {
-    setParticipants: (state, user) => (state.participants.push({"id": user.id, "name": user.name, "imageUrl": 'storage/profile_photo/' + user.profile.photo}))
+    setSentMessages: (state, messages) => (state.sentMessages = messages),
+    setInboxMessages: (state, messages) => (state.inboxMessages = messages)
 };
 
 export default {

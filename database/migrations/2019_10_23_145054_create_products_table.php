@@ -20,7 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('category');
             $table->decimal('price', 19, 6);
             $table->json('photos');
-            $table->boolean('public');
+            $table->boolean('public')->default(false);
             $table->timestamps();
         });
     }
