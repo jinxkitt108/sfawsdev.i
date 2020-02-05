@@ -9,9 +9,9 @@
         <v-tab>
           <v-icon left>mdi-email-send</v-icon>Sent
         </v-tab>
-        <v-tab>
+        <!-- <v-tab>
           <v-icon left>mdi-trash-can-outline</v-icon>Trash
-        </v-tab>
+        </v-tab>-->
         <v-spacer class="d-none d-lg-block ml-1"></v-spacer>
         <v-tab>
           <v-icon left>mdi-email-plus</v-icon>New
@@ -78,6 +78,7 @@
                 </template>
               </v-data-iterator>
             </v-card>
+
             <v-card class="d-none d-lg-block" flat>
               <v-data-table
                 v-model="selected"
@@ -90,6 +91,7 @@
                 :search="search"
                 class="elevation-1"
                 hide-default-header
+                @click:row="viewMessage"
               >
                 <template v-slot:top>
                   <v-toolbar flat>
@@ -148,7 +150,7 @@
                 <template v-slot:default="props">
                   <div v-for="item in props.items" :key="item.id" class="mb-2">
                     <v-hover v-slot:default="{ hover }">
-                      <v-card :elevation="hover ? 5 : 0" flat v-ripple class="mb-2">
+                      <v-card :elevation="hover ? 5 : 0" flat v-ripple>
                         <v-list-item three-line>
                           <v-list-item-avatar>
                             <v-badge
@@ -179,9 +181,7 @@
                               v-if="item.messageables.length <= 2"
                               class="body-2 font-weight-bold"
                             >
-                              <span
-                                class="small float-right"
-                              >{{item.created_at | sinceDate}}</span>
+                              <span class="small float-right">{{item.created_at | sinceDate}}</span>
                               <span
                                 v-for="user in item.messageables"
                                 :key="user.id"
@@ -195,9 +195,7 @@
                               </span>
                             </v-list-item-title>
                             <v-list-item-title v-else class="body-2 font-weight-bold">
-                              <span
-                                class="small float-right"
-                              >{{item.created_at | sinceDate}}</span>
+                              <span class="small float-right">{{item.created_at | sinceDate}}</span>
                               <span class="subtitle-2 font-weight-bold">
                                 {{item.messageables[0].receiver.name}}, {{item.messageables[1].receiver.name}},
                                 <span
@@ -299,17 +297,10 @@
             </v-card>
           </v-tab-item>
 
-          <v-tab-item>
+          <!-- <v-tab-item>
             <v-card flat>
-              <v-card-text>
-                <p>Fusce a quam. Phasellus nec sem in justo pellentesque facilisis. Nam eget dui. Proin viverra, ligula sit amet ultrices semper, ligula arcu tristique sapien, a accumsan nisi mauris ac eros. In dui magna, posuere eget, vestibulum et, tempor auctor, justo.</p>
-
-                <p
-                  class="mb-0"
-                >Cras sagittis. Phasellus nec sem in justo pellentesque facilisis. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nam at tortor in tellus interdum sagittis.</p>
-              </v-card-text>
             </v-card>
-          </v-tab-item>
+          </v-tab-item>-->
 
           <v-tab-item>
             <v-card flat>
@@ -427,7 +418,13 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addMessage", "fetchSentMessages", "fetchInboxMessages"]),
+    ...mapActions(["addMessage", "fetchSentMessages", "fetchInboxMessages", "fetchMessage"]),
+
+    viewMessage(item) {
+        this.fetchMessage(item.message_id).then(() => {
+        this.$router.push("/view-message");
+      });
+    },
 
     limitStr(text) {
       let str = text;
@@ -439,7 +436,7 @@ export default {
     },
 
     remove(item) {
-      const index = this.messageForm.receiver.indexOf(item.name);
+      const index = this.messageForm.receiver.indexOf(item);
       if (index >= 0) this.messageForm.receiver.splice(index, 1);
     },
 

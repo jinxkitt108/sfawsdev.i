@@ -7,6 +7,7 @@
 require("./bootstrap");
 
 window.Vue = require("vue");
+window.moment = moment;
 //Sweetalerts
 window.Swal = require("sweetalert2");
 import Vuetify from "vuetify";

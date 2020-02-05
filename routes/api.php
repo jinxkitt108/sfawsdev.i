@@ -30,7 +30,7 @@ Route::apiResources(['follow' => 'API\FollowController']);
 Route::post('commend', 'API\FollowController@commend');
 Route::post('agree', 'API\FollowController@agree');
 
-//Profile Routes 
+//Profile Routes
 Route::apiResources(['profile' => 'API\ProfileController']);
 Route::put('profile', 'API\ProfileController@profile');
 Route::put('photo', 'API\ProfileController@updatePhoto');
@@ -66,11 +66,14 @@ Route::apiResources(['comment' => 'API\CommentController']);
 
 //Discussion ROUTES
 Route::apiResources(['discussion' => 'API\DiscussionController']);
+Route::get('mydiscussions', 'API\DiscussionController@fetchMyDiscussions');
 Route::post('reply', 'API\DiscussionController@postReply');
 Route::get('reply/{id}', 'API\DiscussionController@fetchAllReply');
+Route::delete('reply/{id}', 'API\DiscussionController@deleteReply');
 Route::put('best_answer', 'API\DiscussionController@toggleBestAnswer');
 Route::put('resolved', 'API\DiscussionController@toggleResolved');
 
 //MESSAGE ROUTES
 Route::apiResources(['message' => 'API\MessageController']);
 Route::get('inbox', 'API\MessageController@fetchInbox');
+Route::put('delete_inbox', 'API\MessageController@deleteInbox');

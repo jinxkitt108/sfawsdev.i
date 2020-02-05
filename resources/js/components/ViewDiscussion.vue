@@ -83,11 +83,54 @@
         </template>
         <v-card>
           <v-card-title>
-            <v-chip color="success" outlined small>
-              <v-icon left>fas fa-reply</v-icon>REPLY
-            </v-chip>
+            <v-bottom-sheet v-model="sheet" inset hide-overlay>
+              <template v-slot:activator="{ on }">
+                <v-chip
+                  v-show="!reply.authorize"
+                  v-on="on"
+                  @click="reply_to(reply.author)"
+                  color="success"
+                  outlined
+                  small
+                >
+                  <v-icon left>fas fa-reply</v-icon>REPLY
+                </v-chip>
+              </template>
+              <v-card>
+                <v-card-title class="subtitle-1">
+                  <v-icon left>mdi-reply</v-icon>Reply to
+                  <span class="success--text ml-1 font-weight-black">{{replyForm.to_user_name}}</span>
+                </v-card-title>
+                <v-card-text>
+                  <v-divider></v-divider>
+                  <v-textarea v-model="replyForm.content" autofocus></v-textarea>
+                  <div class="d-flex">
+                    <v-chip @click="browseImage" class="mr-auto">
+                      <v-icon top>mdi-image</v-icon>Add Image
+                    </v-chip>
+                    <input
+                      @change="coverImage"
+                      id="cover_photo"
+                      type="file"
+                      hidden
+                      accept="image/*"
+                    />
+                    <v-btn @click="sheet = !sheet" class="mr-2" rounded>Cancel</v-btn>
+                    <v-btn @click="sendReply" rounded color="success">
+                      <v-icon>mdi-send</v-icon>
+                    </v-btn>
+                  </div>
+                  <v-container v-show="replyForm.photo">
+                    <v-btn color="danger" top left icon>
+                      <v-icon @click="removeCover">mdi-close</v-icon>
+                    </v-btn>
+                    <v-img :src="replyForm.photo" width="150"></v-img>
+                  </v-container>
+                </v-card-text>
+              </v-card>
+            </v-bottom-sheet>
             <v-checkbox
-              v-show="reply.authorize"
+              v-show="getDiscussion.authorize"
               loading
               small
               label="Best Answer"
@@ -100,7 +143,11 @@
                 <v-list-item-title>
                   <span class="subtitle-2 font-weight-bold mr-1">{{reply.author.name}}</span>
                   &bull;
-                  <span class="ml-1 small">{{reply.created_at | sinceDate}}</span>
+                  <span class="ml-1 small mr-1">{{reply.created_at | sinceDate}}</span>
+                  <span v-show="reply.authorize">&bull;</span>
+                  <v-btn v-show="reply.authorize" @click="deleteReply(reply.id)" text small>
+                    <v-icon left>mdi-delete-circle</v-icon>Delete
+                  </v-btn>
                   <div class="overline">{{reply.author.type}}</div>
                 </v-list-item-title>
               </v-list-item-content>
@@ -113,16 +160,19 @@
               width="200"
               class="mb-1"
             ></v-img>
-            {{reply.content}}
+            <p>
+              <span
+                v-if="reply.to_user !== null"
+                class="success--text subtitle-2 font-weight-black mr-1"
+              >{{'@' + reply.to_user.name}}</span>
+              {{reply.content}}
+            </p>
           </v-card-text>
         </v-card>
       </v-timeline-item>
     </v-timeline>
-    <v-card-actions>
-      <v-btn
-        v-if="getDiscussion.resolved"
-        @click="toggleResolved(getDiscussion)"
-      >
+    <v-card-actions v-show="getDiscussion.authorize">
+      <v-btn v-if="getDiscussion.resolved" @click="toggleResolved(getDiscussion)">
         <v-icon left>mdi-check</v-icon>Resolved
       </v-btn>
       <v-btn v-else @click="toggleResolved(getDiscussion)" color="success">Mark as Resolved</v-btn>
@@ -154,12 +204,14 @@ export default {
 
   data() {
     return {
+      sheet: false,
       rules: {
         required: value => !!value || "Required."
       },
       replyForm: new Form({
         discussion_id: "",
         to_user_id: "",
+        to_user_name: "",
         content: "",
         photo: ""
       })
@@ -172,9 +224,14 @@ export default {
       "addReply",
       "fetchAllReply",
       "updateBestAnswer",
-      "updateResolved"
+      "updateResolved",
+      "deleteReply"
     ]),
 
+    reply_to(user) {
+      this.replyForm.to_user_id = user.id;
+      this.replyForm.to_user_name = user.name;
+    },
     toggleResolved(discussion) {
       this.updateResolved(discussion).then(() => {
         this.fetchDiscussion(discussion.id);
@@ -199,6 +256,7 @@ export default {
       this.addReply(this.replyForm)
         .then(() => {
           this.replyForm.reset();
+          this.sheet = false;
           this.fetchAllReply(this.getDiscussion.id);
           Toast.fire({
             type: "success",

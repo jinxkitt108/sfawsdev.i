@@ -19,7 +19,7 @@ class MessageController extends Controller
     public function index()
     {
         $messages = auth('api')->user()->sentMessages;
-        foreach($messages as $key => $item){
+        foreach ($messages as $key => $item) {
             $item->messageables;
         }
 
@@ -30,7 +30,7 @@ class MessageController extends Controller
     public function fetchInbox()
     {
         $messageables = auth('api')->user()->messageables;
-        foreach($messageables as $key => $item) {
+        foreach ($messageables as $key => $item) {
             $item->message;
         }
         return $messageables;
@@ -67,10 +67,10 @@ class MessageController extends Controller
             'attachment' => null
         ]);
 
-        foreach($receivers as $key => $item) {
+        foreach ($receivers as $key => $item) {
             Messageable::create([
                 'message_id' => $message->id,
-                'sender_id' => 	$message->sender_id,
+                'sender_id' =>     $message->sender_id,
                 'receiver_id' => $item['id']
             ]);
         }
@@ -85,7 +85,8 @@ class MessageController extends Controller
      */
     public function show($id)
     {
-        //
+        $message = Message::findOrFail($id);
+        return $message;
     }
 
     /**
@@ -109,5 +110,13 @@ class MessageController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function deleteInbox(Request $request)
+    {
+        $auth_user = auth('api')->user();
+        $message = Messageable::where('message_id', $request['id'])->where('receiver_id', $auth_user->id);
+        $message->update(['receiver_deleted' => true]);
+        dd('Message was removed!');
     }
 }

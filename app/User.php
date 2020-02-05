@@ -67,24 +67,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
-    
+
     //Discussion Method
     public function discussions()
     {
         return $this->hasMany(Discussion::class, 'user_id');
     }
-    
+
     //Messages Method
     public function sentMessages()
     {
-        return $this->hasMany(Message::class, 'sender_id');
+        return $this->hasMany(Message::class, 'sender_id')->orderBy('created_at', 'desc');
     }
 
     public function messageables()
     {
-        return $this->hasMany('App\Messageable', 'receiver_id');
+        return $this->hasMany('App\Messageable', 'receiver_id')->where('receiver_deleted', 0)->orderBy('created_at', 'desc');
     }
-
-
-
 }

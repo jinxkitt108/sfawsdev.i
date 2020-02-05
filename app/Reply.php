@@ -10,9 +10,13 @@ class Reply extends Model
         'author_id', 'discussion_id', 'to_user_id', 'content', 'photo', 'best_answer'
     ];
 
-    protected $with = ['author:id,name,type'];
+    protected $with = ['author:id,name,type', 'to_user:id,name'];
 
     public function author(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function to_user(){
         return $this->belongsTo(User::class);
     }
 

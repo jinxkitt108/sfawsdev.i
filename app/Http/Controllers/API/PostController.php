@@ -246,7 +246,7 @@ class PostController extends Controller
         $cover_image = public_path('storage/cover_photo/') . $currentCover;
         if ($currentCover != 'noimage.jpg') {
             @unlink($cover_image);
-        } else { }
+        }
         //Delete the post
         $post->delete();
         $comment->delete();

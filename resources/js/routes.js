@@ -18,7 +18,8 @@ let routes = [
     { path: '/view-product/:id',  props: { default: true}, component: require('./components/ViewProduct.vue').default },
     { path: '/discussion', component: require('./components/Discussion.vue').default },
     { path: '/view-discussion', component: require('./components/ViewDiscussion.vue').default },
-    { path: '/mailbox', component: require('./components/Mailbox.vue').default }
+    { path: '/mailbox', component: require('./components/Mailbox.vue').default },
+    { path: '/view-message', component: require('./components/ViewMessage.vue').default }
 ]
 const router = new VueRouter({
     mode: 'history',

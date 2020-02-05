@@ -30,6 +30,14 @@ class DiscussionController extends Controller
         return $discussions;
     }
 
+    // CURRENT USER DISCUSSIONS
+    public function fetchMyDiscussions()
+    {
+        $user_id = auth('api')->user()->id;
+        $discussions = Discussion::where('user_id', $user_id)->latest()->get();
+        return $discussions;
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -107,6 +115,9 @@ class DiscussionController extends Controller
     public function show($id)
     {
         $discussion = Discussion::findOrFail($id);
+        if ($discussion->user_id === auth('api')->user()->id) {
+            $discussion['authorize'] = true;
+        }
         return $discussion;
     }
 
@@ -116,7 +127,7 @@ class DiscussionController extends Controller
         $discussion = Discussion::findOrFail($id);
         $auth_id = auth('api')->user()->id;
         foreach ($replies as $reply) {
-            if ($discussion->user_id === $auth_id) {
+            if ($reply->author_id === $auth_id) {
                 $reply['authorize'] = true;
             } else {
                 $reply['authorize'] = false;
@@ -135,7 +146,33 @@ class DiscussionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'title' => 'required',
+            'category' => 'required',
+            'content' => 'required',
+            'photo' => 'nullable'
+        ]);
+
+        $discussion = Discussion::findOrFail($id);
+        $currentCover = $discussion->photo;
+        if ($request->photo !=  $currentCover) {
+            $name = time() . '.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+            $dir = 'storage/discussion_photo/';
+            if (!is_dir($dir)) {
+                mkdir($dir);
+            }
+            $saving_cover = \Image::make($request->photo)->save(public_path('storage/discussion_photo/') . $name);
+            $request->merge(['photo' => $name]);
+            if ($saving_cover) {
+                $photo = public_path('storage/discussion_photo/') . $currentCover;
+                if (file_exists($photo)) {
+                    @unlink($photo);
+                }
+            }
+        }
+        // Update 
+        $discussion->update($request->all());
+        return $discussion;
     }
 
     public function toggleBestAnswer(Request $request)
@@ -143,7 +180,7 @@ class DiscussionController extends Controller
         $best_answer = Reply::where('discussion_id', $request['discussion_id'])->where('best_answer', true);
         $reply = Reply::where('id', $request['id']);
 
-        if($best_answer){
+        if ($best_answer) {
             $best_answer->update(['best_answer' => false]);
         }
         if ($request['best_answer']) {
@@ -156,7 +193,7 @@ class DiscussionController extends Controller
     }
 
     public function toggleResolved(Request $request)
-    {     
+    {
         $discussion = Discussion::where('id', $request['id']);
 
         if ($request['resolved']) {
@@ -168,7 +205,7 @@ class DiscussionController extends Controller
         }
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -178,6 +215,27 @@ class DiscussionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $discussion = Discussion::findOrFail($id);
+        //Deleting discussion
+        $currentCover = $discussion->photo;
+        $path = public_path('storage/discussion_photo/') . $currentCover;
+        $deleting = $discussion->delete();
+        if($deleting) {
+            @unlink($path);
+        }
+        return ['message' => 'Discussion Deleted'];
+    }
+    
+    public function deleteReply($id)
+    {
+        $reply = Reply::findOrFail($id);
+        //Deleting reply
+        $currentCover = $reply->photo;
+        $path = public_path('storage/reply_photo/') . $currentCover;
+        $deleting = $reply->delete();
+        if($deleting) {
+            @unlink($path);
+        }
+        return $reply;
     }
 }
