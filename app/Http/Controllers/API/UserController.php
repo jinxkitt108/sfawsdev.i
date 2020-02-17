@@ -41,7 +41,7 @@ class UserController extends Controller
                     ->orwhere('email', 'LIKE', "%$search%")
                     ->orwhere('type', 'LIKE', "%$search%");
             })->paginate(5);
-        } 
+        }
         foreach($users as $user) {
             $followers = $user->followers()->get()->count();
             $followings = $user->followings()->get()->count();
@@ -68,7 +68,7 @@ class UserController extends Controller
     public function findExperts()
     {
         $user = auth('api')->user();
-        $experts = User::where('type', 'Expert')->where('id', '!=', $user->id)->latest()->paginate();
+        $experts = User::where('type', 'Expert')->where('id', '!=', $user->id)->latest()->paginate(12);
         foreach ($experts as $expert) {
             $expert->profile;
             $followers = $expert->followers()->get()->count();

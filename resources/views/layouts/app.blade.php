@@ -21,7 +21,7 @@
 
 </head>
 
-<body style="background-image: linear-gradient(green, teal, green)">
+<body style="background: linear-gradient(0deg, rgba(193,182,160,0.969625350140056) 0%, rgba(126,117,84,1) 54%, rgba(76,77,17,1) 100%);">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">

@@ -2,17 +2,15 @@
   <v-container>
     <v-card>
       <v-system-bar></v-system-bar>
-      <v-card-title>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>{{getMessage.subject}}</v-list-item-title>
-            <v-list-item-title class="subtitle-2">
-              <span>From: {{getMessage.sender.name}}</span>
-              <span class="small float-right">{{getMessage.created_at | postDate}}</span>
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card-title>
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title>{{getMessage.subject}}</v-list-item-title>
+          <v-list-item-title class="subtitle-2">
+            <span>From: {{getMessage.sender.name}}</span>
+            <span class="small float-right">{{getMessage.created_at | postDate}}</span>
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-divider></v-divider>
 
       <div class="d-flex justify-center">
@@ -45,7 +43,7 @@
 
         <v-bottom-sheet v-model="sheet" inset>
           <v-card flat>
-            <v-system-bar></v-system-bar>
+            <v-system-bar>{{label}}</v-system-bar>
             <v-form @submit.prevent="sendMessage" class="pa-3">
               <v-autocomplete
                 v-model="messageForm.receiver"
@@ -91,6 +89,7 @@
               <v-text-field
                 v-model="messageForm.subject"
                 label="Subject"
+                :prefix="reply ? 'Re: ' : 'Fwd: '"
                 prepend-icon="mdi-note-outline"
                 single-line
                 hide-details
@@ -117,16 +116,26 @@
             </v-form>
           </v-card>
         </v-bottom-sheet>
-
       </div>
 
       <v-divider></v-divider>
       <v-card-text>
-        <div>{{getMessage.content}}</div>
+        <p>{{getMessage.content}}</p>
+        <div v-if="getMessage.attachment" class="mt-2">
+          <v-chip
+            v-for="(file, index) in getMessage.attachment"
+            :key="index"
+            @click.prevent="downloadFile(getMessage.id, file.filename)"
+            class="ma-2"
+          >
+            <v-icon left>mdi-paperclip</v-icon>
+            {{file.filename}}
+          </v-chip>
+        </div>
       </v-card-text>
 
       <v-card-actions>
-        <v-btn small color="danger" @click="deleteMessage(getMessage)">
+        <v-btn dark small color="danger" @click="deleteMessage(getMessage)">
           <v-icon left>mdi-delete</v-icon>Delete
         </v-btn>
         <v-spacer></v-spacer>
@@ -147,6 +156,8 @@ export default {
   data() {
     return {
       sheet: false,
+      label: "",
+      reply: false,
 
       messageForm: new Form({
         receiver: "",
@@ -168,11 +179,34 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addMessage", "deleteInboxMessage"]),
+    ...mapActions(["addMessage", "deleteOneInbox"]),
+
+    forceFileDownload(response) {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+    },
+
+    downloadFile(id, file) {
+      let downloadUrl = "storage/message_attachments/" + id + "/";
+      axios
+        .get(downloadUrl + file, { responseType: "arraybuffer" })
+        .then(response => {
+          let blob = new Blob([response.data]);
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = file;
+          link.click();
+        });
+    },
 
     replyToMessage(message) {
+      this.reply = true;
+      this.label = "Reply Message";
       this.messageForm.receiver = new Array(this.getMessage.sender);
-      this.messageForm.subject = "Re: " + message.subject;
+      this.messageForm.subject = message.subject;
       this.messageForm.content =
         "On " +
         moment(message.created_at).format("lll") +
@@ -185,7 +219,9 @@ export default {
     },
 
     forwardMessage(message) {
-      this.messageForm.subject = "Fwd: " + message.subject;
+      this.reply = false;
+      this.label = "Forward Message";
+      this.messageForm.subject = message.subject;
       this.messageForm.content =
         "On " +
         moment(message.created_at).format("lll") +
@@ -214,13 +250,13 @@ export default {
     },
 
     deleteMessage(message) {
-        this.deleteInboxMessage(message).then(() => {
-            this.$router.push("/mailbox");
-            Toast.fire({
-                type: "success",
-                title: "Message deleted!"
-            });
-        })
+      this.deleteOneInbox(message).then(() => {
+        this.$router.push("/mailbox");
+        Toast.fire({
+          type: "success",
+          title: "Message deleted!"
+        });
+      });
     }
   }
 };

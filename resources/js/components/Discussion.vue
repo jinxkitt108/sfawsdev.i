@@ -60,15 +60,18 @@
       </v-dialog>
       <v-tabs-items v-model="tab">
         <v-tab-item>
-          <v-data-iterator :items="getAllDiscussions.data" :search="search" loading="getAllDiscussions">
+          <v-data-iterator
+            :items="getAllDiscussions.data"
+            :search="search"
+            loading="getAllDiscussions"
+          >
             <template v-slot:header>
               <v-toolbar flat>
-                <v-toolbar-title class="subtitle-1 font-weight-black">Latest Discussions</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-text-field
                   v-model="search"
                   append-icon="mdi-magnify"
-                  label="Search message.."
+                  label="Search topic.."
                   single-line
                   hide-details
                 ></v-text-field>
@@ -85,7 +88,10 @@
                   <v-card :elevation="hover ? 5 : 0" flat v-ripple>
                     <v-list-item>
                       <v-list-item-avatar size="56">
-                        <v-img :src="'storage/profile_photo/' + item.user.profile.photo" class="mr-3"></v-img>
+                        <v-img
+                          :src="'storage/profile_photo/' + item.user.profile.photo"
+                          class="mr-3"
+                        ></v-img>
                       </v-list-item-avatar>
                       <v-list-item-content>
                         <v-list-item-title class="font-weight-black">{{item.title}}</v-list-item-title>
@@ -119,14 +125,12 @@
           <v-data-iterator :items="getMyDiscussions" :search="search">
             <template v-slot:header>
               <v-toolbar flat>
-                <v-toolbar-title class="subtitle-1 font-weight-black">
-                  <v-icon left>mdi-help-circle</v-icon>My Questions
-                </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-text-field
+                  width
                   v-model="search"
                   append-icon="mdi-magnify"
-                  label="Search message.."
+                  label="Search topic.."
                   single-line
                   hide-details
                 ></v-text-field>
@@ -257,7 +261,6 @@ export default {
       this.$Progress.start();
       this.addDiscussion(this.discussionForm)
         .then(() => {
-          this.dialog = false;
           Toast.fire({
             type: "success",
             title: "Topic created successfuly!"
@@ -269,6 +272,7 @@ export default {
         .catch(() => {
           this.$Progress.fail();
         });
+      this.dialog = false;
     },
 
     browseImage() {

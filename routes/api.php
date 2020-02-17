@@ -76,4 +76,10 @@ Route::put('resolved', 'API\DiscussionController@toggleResolved');
 //MESSAGE ROUTES
 Route::apiResources(['message' => 'API\MessageController']);
 Route::get('inbox', 'API\MessageController@fetchInbox');
+Route::get('sent', 'API\MessageController@fetchSent');
+Route::put('delete_one_inbox', 'API\MessageController@removeOneInbox');
 Route::put('delete_inbox', 'API\MessageController@deleteInbox');
+Route::put('delete_sent', 'API\MessageController@deleteSent');
+
+//NOTIFICATIONS ROUTES
+Route::apiResources(['notification' => 'API\NotificationController']);

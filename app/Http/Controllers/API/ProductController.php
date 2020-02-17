@@ -21,22 +21,22 @@ class ProductController extends Controller
 
     public function showAll()
     {
-        return Product::where('public', 1)->latest()->paginate(10);
+        return Product::where('public', 1)->latest()->get();
     }
 
     public function showLatest()
     {
-        return Product::where('public', 1)->limit(12)->get();
+        return Product::where('public', 1)->limit(15)->get();
     }
 
     public function getVegetables()
     {
-        return Product::where('public', 1)->where('category', 'Vegetables')->latest()->paginate(10);
+        return Product::where('public', 1)->where('category', 'Vegetables')->limit(15)->get();
     }
 
     public function getFruits()
     {
-        return Product::where('public', 1)->where('category', 'Fruits')->latest()->paginate(10);
+        return Product::where('public', 1)->where('category', 'Fruits')->limit(15)->get();
     }
 
     /**
@@ -94,7 +94,7 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::findOrFail($id);
-        
+
         return $product;
     }
 

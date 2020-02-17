@@ -49,7 +49,10 @@
           <v-list-item-icon>
             <v-icon>mdi-email</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Mailbox</v-list-item-title>
+          <v-list-item-title>
+            Mailbox
+            <v-chip class="ml-2" x-small dark color="red">{{getAllNotifications.length}} Unread</v-chip>
+          </v-list-item-title>
         </v-list-item>
 
         <v-list-item to="/discussion">
@@ -70,7 +73,7 @@
           <v-list-item-icon>
             <v-icon>mdi-store</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>SFAWS Market</v-list-item-title>
+          <v-list-item-title>Marketplace</v-list-item-title>
         </v-list-item>
 
         <v-list-group dark prepend-icon="mdi-cogs">
@@ -108,18 +111,42 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="drawerRight" width="250px" app clipped right>
+    <v-navigation-drawer v-model="drawerRight" width="300px" app clipped right>
       <v-tabs centered v-model="tab" icons-and-text>
+        <v-tab>
+          <span class="small">Updates</span>
+          <v-icon>mdi-mail</v-icon>
+        </v-tab>
         <v-tab>
           <span class="small">Users</span>
           <v-icon>mdi-account-box</v-icon>
         </v-tab>
-        <v-tab>
-          <span class="small">Messages</span>
-          <v-icon>mdi-mail</v-icon>
-        </v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-list>
+            <template v-for="item in getAllNotifications">
+              <v-list-item v-if="item" :key="item.id" style="cursor:pointer">
+                <v-badge offset-x="23" offset-y="20" avatar bordered overlap bottom>
+                  <template v-slot:badge>
+                    <v-avatar>
+                      <v-icon>{{item.data[0].type === 'comment' ? 'mdi-chat' : 'mdi-email-send'}}</v-icon>
+                    </v-avatar>
+                  </template>
+
+                  <v-avatar color="grey" class="mr-3">
+                    <v-img :src="'storage/profile_photo/' + item.data[0].sender.profile.photo"></v-img>
+                  </v-avatar>
+                </v-badge>
+
+                <v-list-item-content @click="viewNotification(item.data[0])">
+                  <v-list-item-title class="small font-weight-black">{{item.data[0].notification}}</v-list-item-title>
+                  <v-list-item-subtitle class="small">{{item.created_at | sinceDate}}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-tab-item>
         <v-tab-item>
           <v-list dense>
             <v-list-item-group>
@@ -135,7 +162,6 @@
             </v-list-item-group>
           </v-list>
         </v-tab-item>
-        <v-tab-item></v-tab-item>
       </v-tabs-items>
     </v-navigation-drawer>
 
@@ -148,6 +174,7 @@
         </a>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
+
       <v-text-field
         v-model="search"
         @click="searchMode"
@@ -159,10 +186,13 @@
         label="What are you looking for?"
         append-icon="mdi-magnify"
         solo-inverted
+        class="rounded-pill"
       ></v-text-field>
-      <div class="flex-grow-1"></div>
+
       <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
-        <v-icon class="text--accent">mdi-bell</v-icon>
+        <v-badge color="red" :content="getAllNotifications.length" overlap bordered>
+          <v-icon class="text--accent">mdi-bell</v-icon>
+        </v-badge>
       </v-app-bar-nav-icon>
     </v-app-bar>
 
@@ -187,7 +217,7 @@
         :close="closeChat"
         :onMessageWasSent="onMessageWasSent"
       />
-    </v-btn> -->
+    </v-btn>-->
   </v-app>
 </template>
 
@@ -225,7 +255,7 @@ export default {
     //     name: "default"
     //   }
     // },
-
+    show_search: false,
     loaded: false,
     search: "",
     tab: null,
@@ -247,19 +277,35 @@ export default {
   }),
 
   computed: mapGetters([
+    "getAllNotifications",
     "getCurrentUser",
-    "allFollowingUsers",
+    "allFollowingUsers"
   ]),
 
   methods: {
     ...mapActions([
+      "fetchAllNotifications",
       "fetchCurrentUser",
       "fetchFollowingUsers",
+      "fetchMessage"
     ]),
+
+    viewNotification(item) {
+      if (item.type === "message") {
+        this.fetchMessage(item.data.id).then(() => {
+          this.$router.push("/view-message");
+        });
+      } else if (item.type === "comment") {
+        this.$router.push("/viewpost/" + item.data.id);
+      }
+      //   this.fetchMessage(item.message_id).then(() => {
+      //     this.$router.push("/view-message");
+      //   });
+    },
 
     // onMessageWasSent(message) {
     //   let data = {
-    //     'id' : this.getConversation.id, 
+    //     'id' : this.getConversation.id,
     //     'message' : message.data.text
     //   }
     //   this.addMessage(data);
@@ -308,6 +354,7 @@ export default {
       this.loaded = true;
     });
     this.fetchFollowingUsers();
+    this.fetchAllNotifications();
   },
 
   mounted() {

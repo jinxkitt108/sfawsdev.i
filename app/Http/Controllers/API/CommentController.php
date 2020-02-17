@@ -4,11 +4,14 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Notifications\NewComment;
 use App\Comment;
+use App\Post;
+use App\User;
 
 class CommentController extends Controller
 {
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -37,13 +40,27 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'content' => 'required'
+            'body' => 'required'
         ]);
-        return Comment::create([
+
+        $post_author = User::find($request['post_author']);
+        $post = Post::find($request['post_id']);
+
+        $comment = Comment::create([
             'author_id' => auth('api')->user()->id,
             'post_id' =>  $request['post_id'],
-            'content' => $request['content']
+            'content' => $request['body']
         ]);
+
+        if ($request['post_author'] !== auth('api')->user()->id) {
+            $data = [
+                'type' => 'comment',
+                'data' => $post,
+                'sender' => auth('api')->user(),
+                'notification' => 'commented on your Ads "' . $post->title . '"',
+            ];
+            $post_author->notify(new NewComment($data));
+        }
     }
 
     /**
@@ -80,7 +97,7 @@ class CommentController extends Controller
         $comment = Comment::findOrFail($id);
 
         //Delete the post
-        $comment->delete(); 
+        $comment->delete();
         return ['message' => 'Comment Deleted'];
     }
 }

@@ -14,7 +14,7 @@ let routes = [
     { path: '/users', component: require('./components/Users.vue').default },
     { path: '/search', component: require('./components/Search.vue').default },
     { path: '/viewuser/:id',  props: { default: true}, component: require('./components/ViewUser.vue').default },
-    { path: '/viewpost/:id',  props: { default: true}, component: require('./components/ViewPost.vue').default },
+    { path: '/view-post', component: require('./components/ViewPost.vue').default },
     { path: '/view-product/:id',  props: { default: true}, component: require('./components/ViewProduct.vue').default },
     { path: '/discussion', component: require('./components/Discussion.vue').default },
     { path: '/view-discussion', component: require('./components/ViewDiscussion.vue').default },

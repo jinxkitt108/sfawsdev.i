@@ -73,7 +73,8 @@
       </div>
     </v-card>
     <v-divider></v-divider>
-    <v-card-title class="subtitle-1 font-weight-bold">REPLIES ({{getAllReply.length}})</v-card-title>
+    <v-card-title class="font-weight-bold">({{getAllReply.length}}) Answers</v-card-title>
+    <v-divider></v-divider>
     <v-timeline v-show="getAllReply.length" align-top dense clipped>
       <v-timeline-item v-for="reply in getAllReply" :key="reply.id" right large>
         <template v-slot:icon>
@@ -145,8 +146,8 @@
                   &bull;
                   <span class="ml-1 small mr-1">{{reply.created_at | sinceDate}}</span>
                   <span v-show="reply.authorize">&bull;</span>
-                  <v-btn v-show="reply.authorize" @click="deleteReply(reply.id)" text small>
-                    <v-icon left>mdi-delete-circle</v-icon>Delete
+                  <v-btn v-show="reply.authorize" @click="deleteReply(reply.id)" icon small>
+                    <v-icon>mdi-delete-circle</v-icon>
                   </v-btn>
                   <div class="overline">{{reply.author.type}}</div>
                 </v-list-item-title>

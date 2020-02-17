@@ -1,14 +1,7 @@
 <template>
   <v-container fluid>
-    <v-card tile flat>
-      <v-tabs
-        v-if="searchMode"
-        v-model="tab"
-        show-arrows
-        center-active
-        background-color="transparent"
-        fixed-tabs
-      >
+    <v-card tile flat v-if="searchMode">
+      <v-tabs v-model="tab" show-arrows center-active background-color="transparent" fixed-tabs>
         <v-tab>
           <v-chip class="ma-3 pa-4" pill>
             <v-avatar left>
@@ -148,14 +141,73 @@
           </v-tab-item>
         </v-tabs-items>
       </v-tabs>
-      <v-card flat v-else>
-        <v-card-title class="font-weight-bold">Recommended</v-card-title>
-        <carousel :per-page="4">
-          <slide v-for="expert in experts" :key="expert.id" class="pt-2">
-            <v-card flat>
-              <router-link :to="'/viewuser/' + expert.id" class="text-decoration-none">
+    </v-card>
+
+    <v-card flat v-else>
+      <v-card-title class="subtitle-1 font-weight-bold">Recommended for you</v-card-title>
+      <swiper :options="swiperOption" ref="mySwiper" class="pa-2">
+        <swiper-slide v-for="item in getExpertUsers.data" :key="item.id">
+          <v-card>
+            <div class="text-center">
+              <v-avatar size="130">
+                <v-img :src="'storage/profile_photo/' + item.profile.photo">
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
+              </v-avatar>
+            </div>
+            <v-list-item>
+              <v-list-item-content>
+                <router-link :to="'/viewuser/' + item.id" class="text-decoration-none">
+                  <v-list-item-title>
+                    <span class="subtitle-1 font-weight-bold">{{item.name}}</span>
+                    <div class="overline">{{item.type}}</div>
+                  </v-list-item-title>
+                </router-link>
+                <v-list-item-title class="caption">
+                  Followers
+                  <span class="mr-1">{{item.followers}}</span>
+                </v-list-item-title>
+                <v-list-item-title class="caption">Followings {{item.followings}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-card-actions>
+              <v-btn
+                @click="toggleFollow(item.id)"
+                :class="item.isFollowing ? 'success' : 'secondary'"
+                fab
+                text
+                small
+              >
+                <i
+                  style="font-size: 20px"
+                  :class="item.isFollowing ? 'fas fa-check' : 'fas fa-user-plus'"
+                ></i>
+              </v-btn>
+              <v-btn fab small color="success" class="shadow-none">
+                <i style="font-size: 20px" class="fas fa-comment"></i>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </swiper-slide>
+      </swiper>
+
+      <!-- <v-data-iterator :items="getExpertUsers.data" :items-per-page="4">
+        <template v-slot:header>
+          <v-toolbar flat>
+            <v-toolbar-title class="subtitle-1 font-weight-black">Recommended for you</v-toolbar-title>
+          </v-toolbar>
+        </template>
+
+        <template v-slot:default="props">
+          <div class="d-flex">
+            <v-card max-width="200" v-for="item in props.items" :key="item.id" class="mr-2">
+              <div class="text-center mt-2">
                 <v-avatar size="150">
-                  <v-img aspect-ratio="1" :src="'storage/profile_photo/' + expert.profile.photo">
+                  <v-img :src="'storage/profile_photo/' + item.profile.photo">
                     <template v-slot:placeholder>
                       <v-row class="fill-height ma-0" align="center" justify="center">
                         <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
@@ -163,33 +215,33 @@
                     </template>
                   </v-img>
                 </v-avatar>
-              </router-link>
+              </div>
               <v-list-item>
                 <v-list-item-content>
-                  <router-link :to="'/viewuser/' + expert.id" class="text-decoration-none">
+                  <router-link :to="'/viewuser/' + item.id" class="text-decoration-none">
                     <v-list-item-title>
-                      <span class="font-weight-bold">{{expert.name}}</span>
-                      <div class="overline">{{expert.type}}</div>
+                      <span class="subtitle-1 font-weight-bold">{{item.name}}</span>
+                      <div class="overline">{{item.type}}</div>
                     </v-list-item-title>
                   </router-link>
                   <v-list-item-title class="caption">
                     Followers
-                    <span class="mr-1">{{expert.followers}}</span>
+                    <span class="mr-1">{{item.followers}}</span>
                   </v-list-item-title>
-                  <v-list-item-title class="caption">Followings {{expert.followings}}</v-list-item-title>
+                  <v-list-item-title class="caption">Followings {{item.followings}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-card-actions>
                 <v-btn
-                  @click="toggleFollow(expert.id)"
-                  :class="expert.isFollowing ? 'success' : 'secondary'"
+                  @click="toggleFollow(item.id)"
+                  :class="item.isFollowing ? 'success' : 'secondary'"
                   fab
                   text
                   small
                 >
                   <i
                     style="font-size: 20px"
-                    :class="expert.isFollowing ? 'fas fa-check' : 'fas fa-user-plus'"
+                    :class="item.isFollowing ? 'fas fa-check' : 'fas fa-user-plus'"
                   ></i>
                 </v-btn>
                 <v-btn fab small color="success" class="shadow-none">
@@ -197,9 +249,9 @@
                 </v-btn>
               </v-card-actions>
             </v-card>
-          </slide>
-        </carousel>
-      </v-card>
+          </div>
+        </template>
+      </v-data-iterator>-->
     </v-card>
   </v-container>
 </template>
@@ -209,14 +261,39 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   mounted() {
-    console.log("Component mounted.");
+    console.log("Search component mounted.");
+    this.swiper.slideTo(3, 1000, false);
   },
+
   data() {
     return {
+      swiperOption: {
+        slidesPerView: 4,
+        spaceBetween: 20,
+        freeMode: true,
+        grabCursor: true,
+        breakpoints: {
+          1024: {
+            slidesPerView: 4,
+            spaceBetween: 40
+          },
+          768: {
+            slidesPerView: 3,
+            spaceBetween: 30
+          },
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20
+          },
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 10
+          }
+        }
+      },
       tab: null,
       toggleIcon: false,
       followIcon: "",
-      experts: "",
       users: {},
       posts: {},
       products: {},
@@ -224,6 +301,15 @@ export default {
       searchMode: false
     };
   },
+
+  computed: {
+    ...mapGetters(["getExpertUsers"]),
+
+    swiper() {
+      return this.$refs.mySwiper.swiper;
+    }
+  },
+
   created() {
     Fire.$on("searching", query => {
       this.searchMode = true;
@@ -249,14 +335,11 @@ export default {
         })
         .catch(() => {});
     });
-    this.loadExperts();
+
+    this.fetchExpertUsers();
   },
   methods: {
-    ...mapActions(["fetchFollowingUsers"]),
-
-    loadExperts() {
-      axios.get("api/experts").then(({ data }) => (this.experts = data.data));
-    },
+    ...mapActions(["fetchFollowingUsers", "fetchExpertUsers"]),
 
     toggleFollow(id) {
       let reference = $(this);
@@ -286,8 +369,8 @@ export default {
               title: "You unfollowed user!"
             });
           }
-          this.fetchFollowingUsers()
-          this.loadExperts();
+          this.fetchFollowingUsers();
+          this.fetchExpertUsers();
         });
     }
   }

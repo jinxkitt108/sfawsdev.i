@@ -1,20 +1,19 @@
 <template>
   <v-container>
     <v-card flat>
-      <v-card-title>Mailbox</v-card-title>
-      <v-tabs v-model="tab" background-color="success" dark icons-and-text>
+      <v-tabs v-model="tab" icons-and-text>
         <v-tab>
           <v-icon left>mdi-inbox-arrow-down</v-icon>Inbox
         </v-tab>
         <v-tab>
           <v-icon left>mdi-email-send</v-icon>Sent
         </v-tab>
-        <!-- <v-tab>
-          <v-icon left>mdi-trash-can-outline</v-icon>Trash
-        </v-tab>-->
         <v-spacer class="d-none d-lg-block ml-1"></v-spacer>
-        <v-tab>
-          <v-icon left>mdi-email-plus</v-icon>New
+        <v-tab class="v-tab--active">
+          <v-btn color="success">
+            <v-icon left>mdi-email-plus</v-icon>
+            <span class="d-none d-lg-block">Compose</span>
+          </v-btn>
         </v-tab>
 
         <v-tabs-items v-model="tab">
@@ -81,16 +80,13 @@
 
             <v-card class="d-none d-lg-block" flat>
               <v-data-table
-                v-model="selected"
-                loading="getInboxMessages"
-                loading-text="Loading.. Please wait"
+                v-model="selected_inbox"
                 :items="getInboxMessages"
                 :headers="sentHeaders"
                 show-select
                 item-key="id"
                 :search="search"
                 class="elevation-1"
-                hide-default-header
                 @click:row="viewMessage"
               >
                 <template v-slot:top>
@@ -104,6 +100,16 @@
                       single-line
                       hide-details
                     ></v-text-field>
+                  </v-toolbar>
+                  <v-toolbar v-if="selected_inbox.length > 0" flat dense height="30">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn icon color="danger" @click="deleteInboxItem" v-on="on">
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
                   </v-toolbar>
                 </template>
 
@@ -215,18 +221,16 @@
                 </template>
               </v-data-iterator>
             </v-card>
+
             <v-card flat class="d-none d-lg-block">
               <v-data-table
-                v-model="selected"
-                loading="getSentMessages"
-                loading-text="Loading.. Please wait"
+                v-model="selected_sent"
                 :items="getSentMessages"
                 :headers="sentHeaders"
                 show-select
                 item-key="id"
                 :search="search"
                 class="elevation-1"
-                hide-default-header
               >
                 <template v-slot:top>
                   <v-toolbar flat>
@@ -239,6 +243,16 @@
                       single-line
                       hide-details
                     ></v-text-field>
+                  </v-toolbar>
+                  <v-toolbar v-if="selected_sent.length > 0" flat dense height="30">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn icon color="danger" @click="deleteSentItem" v-on="on">
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
                   </v-toolbar>
                 </template>
 
@@ -297,20 +311,18 @@
             </v-card>
           </v-tab-item>
 
-          <!-- <v-tab-item>
-            <v-card flat>
-            </v-card>
-          </v-tab-item>-->
-
           <v-tab-item>
             <v-card flat>
               <v-form @submit.prevent="sendMessage" class="pa-3">
                 <v-autocomplete
+                  id="receiver"
                   v-model="messageForm.receiver"
                   :items="allFollowingUsers"
                   chips
                   label="To"
                   prepend-icon="mdi-account"
+                  item-text="name"
+                  return-object
                   single-line
                   multiple
                 >
@@ -345,6 +357,7 @@
                   </template>
                 </v-autocomplete>
                 <v-text-field
+                  id="subject"
                   v-model="messageForm.subject"
                   label="Subject"
                   prepend-icon="mdi-note-outline"
@@ -352,6 +365,7 @@
                   hide-details
                 ></v-text-field>
                 <v-textarea
+                  id="content"
                   v-model="messageForm.content"
                   rows="10"
                   label="Message"
@@ -366,9 +380,14 @@
                 <div class="form-group">
                   <div class="btn btn-outline-success btn-file">
                     <i class="fas fa-paperclip"></i> Attachment
-                    <input type="file" name="attachment" />
+                    <input ref="attachments" type="file" multiple @change="uploadFiles" />
                   </div>
                   <p class="help-block small">Max. 32MB</p>
+                </div>
+                <div class="d-flex justify-start">
+                  <span v-for="(file, index) in attachments" :key="index">
+                    <v-chip class="mr-1" close @click:close="removeFile(file)">{{file.name}}</v-chip>
+                  </span>
                 </div>
               </v-form>
             </v-card>
@@ -387,12 +406,15 @@ export default {
     return {
       tab: null,
       search: "",
-      selected: [],
+      selected_sent: [],
+      selected_inbox: [],
+      attachments: [],
+      form: new FormData(),
 
       //Sent Headers
       sentHeaders: [
         { text: "Avatar", sortable: false, filterable: false, value: "avatar" },
-        { text: "Name", value: "name", filterable: true },
+        { text: "Name", value: "name", sortable: false, filterable: true },
         { text: "Content", sortable: false, value: "content" },
         {
           text: "Attachment",
@@ -408,7 +430,7 @@ export default {
         receiver: "",
         subject: "",
         content: "",
-        attachment: ""
+        attachments: []
       })
     };
   },
@@ -418,11 +440,81 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addMessage", "fetchSentMessages", "fetchInboxMessages", "fetchMessage"]),
+    ...mapActions([
+      "addMessage",
+      "fetchSentMessages",
+      "fetchInboxMessages",
+      "fetchMessage",
+      "deleteInboxMessage",
+      "deleteSentMessage"
+    ]),
 
     viewMessage(item) {
-        this.fetchMessage(item.message_id).then(() => {
+      this.fetchMessage(item.message_id).then(() => {
         this.$router.push("/view-message");
+      });
+    },
+
+    deleteInboxItem() {
+      //   Swal.fire({
+      //     title: "Are you sure?",
+      //     text: "You won't be able to revert this!",
+      //     type: "warning",
+      //     showCancelButton: true,
+      //     confirmButtonColor: "teal",
+      //     cancelButtonColor: "#d33",
+      //     confirmButtonText: "Yes, delete it!"
+      //   }).then(result => {
+      //     // Send request to the server
+      //     if (result.value) {
+      this.deleteInboxMessage(this.selected_inbox).then(() => {
+        this.selected_inbox = [];
+      });
+      //         .then(() => {
+      //           Toast.fire({
+      //             type: "success",
+      //             title: "Post Deleted!"
+      //           });
+      //         })
+      //         .catch(() => {
+      //           Swal.fire({
+      //             type: "error",
+      //             title: "Oops...",
+      //             text: "Something went wrong!"
+      //           });
+      //         });
+      //     }
+      //   });
+    },
+
+    deleteSentItem() {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "teal",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(result => {
+        // Send request to the server
+        if (result.value) {
+          this.deleteSentMessage(this.selected_sent)
+            .then(() => {
+              this.selected_sent = [];
+              Toast.fire({
+                type: "success",
+                title: "Post Deleted!"
+              });
+            })
+            .catch(() => {
+              Swal.fire({
+                type: "error",
+                title: "Oops...",
+                text: "Something went wrong!"
+              });
+            });
+        }
       });
     },
 
@@ -440,12 +532,51 @@ export default {
       if (index >= 0) this.messageForm.receiver.splice(index, 1);
     },
 
-    sendMessage() {
-      this.addMessage(this.messageForm).then(() => {
+    removeFile(file) {
+      const index = this.attachments.indexOf(file);
+      if (index >= 0) this.attachments.splice(index, 1);
+    },
+
+    uploadFiles() {
+      let files = this.$refs.attachments.files;
+
+      if (!files.length) {
+        return false;
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        this.attachments.push(files[i]);
+      }
+    },
+
+    clear() {
+      const input = this.$refs.attachments;
+      input.type = "text";
+      input.type = "file";
+    },
+
+    sendMessage(e) {
+      for (let i = 0; i < this.attachments.length; i++) {
+        this.form.append("attachments[]", this.attachments[i]);
+      }
+      this.form.append("subject", this.messageForm.subject);
+      this.form.append("content", this.messageForm.content);
+      if (this.messageForm.receiver.length > 1) {
+        for (let i = 0; i < this.messageForm.receiver.length; i++) {
+          this.form.append("receiver[]", this.messageForm.receiver[i].id);
+        }
+      } else {
+        this.form.append("receiver", this.messageForm.receiver[0].id);
+      }
+
+      this.addMessage(this.form).then(() => {
         Toast.fire({
           type: "success",
           title: "Message sent!"
         });
+        this.clear();
+        this.form = new FormData();
+        this.attachments = [];
         this.messageForm.reset();
         this.fetchSentMessages();
       });

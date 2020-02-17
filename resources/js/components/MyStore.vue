@@ -6,15 +6,12 @@
 
 <template>
   <div class="container">
-    <v-card-title class="mb-0">
-      <h2 class="font-weight-bold basil--text">
-        My Store
-        <v-btn small outlined absolute right class="text-decoration-none" to="/marketplace">
-          <v-icon class="mr-2">mdi-arrow-left-circle</v-icon>SFAWS Market
-        </v-btn>
-      </h2>
+    <v-card-title>
+      <v-btn small outlined absolute right class="text-decoration-none" to="/marketplace">
+        <v-icon class="mr-2">mdi-arrow-left-circle</v-icon>Marketplace
+      </v-btn>
     </v-card-title>
-    <v-card flat tile>
+    <v-card flat tile class="mt-2">
       <div v-show="coverCroppie">
         <vue-croppie
           ref="coverCroppieRef"
@@ -26,7 +23,7 @@
         ></vue-croppie>
         <div class="text-center">
           <v-btn class="mt-1" color="success" small @click="coverCropSave">Change</v-btn>
-          <v-btn class="mt-1" color="danger" small @click="cancelCrop">Cancel</v-btn>
+          <v-btn class="mt-1" color="danger" dark small @click="cancelCrop">Cancel</v-btn>
         </div>
       </div>
       <v-img v-if="getMyStore.cover" class="cover" :src="'storage/store_cover/' + getMyStore.cover">
@@ -36,56 +33,47 @@
           </v-row>
         </template>
         <input ref="coverUpload" id="cover" type="file" @change="setUpCover" hidden />
-        <v-row align="end" class="fill-height">
-          <v-col align-self="start" class="pa-4 ml-2" cols="12">
-            <v-avatar class="profile" size="164" tile>
-              <template v-slot:placeholder>
-                <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
-                </v-row>
-              </template>
-              <img class="avatar" :src="'storage/store_photo/' + getMyStore.photo" />
-              <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
-              <v-btn
-                class="avatar"
-                @click="browseImage"
-                color="grey lighten-1"
-                fab
-                small
-                absolute
-                bottom
-                right
-              >
-                <v-icon>mdi-camera</v-icon>
-              </v-btn>
-              <div class="mt-2" v-show="croppie">
-                <vue-croppie
-                  ref="croppieRef"
-                  :enableOrientation="true"
-                  :viewport="{ width: 164, height: 164, type: 'square' }"
-                  :boundary="{ width: 170, height: 170 }"
-                  :enableResize="false"
-                  :showZoomer="false"
-                ></vue-croppie>
-                <v-btn class="mt-1" small @click="cropSave">Change</v-btn>
-                <v-btn class="mt-1" small @click="cancelCrop">Cancel</v-btn>
-              </div>
-            </v-avatar>
-          </v-col>
-          <v-col class="py-0">
-            <v-list-item two-line dark>
-              <v-list-item-content>
-                <v-list-item-title class="title">{{getMyStore.name}}</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ getMyStore.street + '|'}}
-                  <span
-                    class="small"
-                  >{{ getMyStore.city + ', ' + getMyStore.country}}</span>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-col>
-        </v-row>
+        <div class="text-center mt-5">
+          <v-avatar class="avatar" size="164" tile>
+            <template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+              </v-row>
+            </template>
+            <v-img v-if="getMyStore.photo" :src="'storage/store_photo/' + getMyStore.photo"></v-img>
+            <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
+          </v-avatar>
+          <div class="avatar mt-1">
+            <v-btn @click="browseImage" color="grey lighten-1" small rounded>
+              <v-icon left>mdi-camera</v-icon>Change
+            </v-btn>
+          </div>
+        </div>
+        <div v-show="croppie" class="text-center mt-5">
+          <vue-croppie
+            ref="croppieRef"
+            :enableOrientation="true"
+            :viewport="{ width: 164, height: 164, type: 'square' }"
+            :boundary="{ width: 170, height: 170 }"
+            :enableResize="false"
+            :showZoomer="false"
+          ></vue-croppie>
+          <div class="mt-1">
+            <v-btn class="mt-1" color="success" dark small @click="cropSave">Change</v-btn>
+            <v-btn class="mt-1" color="danger" dark small @click="cancelCrop">Cancel</v-btn>
+          </div>
+        </div>
+        <v-list-item two-line dark>
+          <v-list-item-content>
+            <v-list-item-title class="headline font-weight-black">{{getMyStore.name}}</v-list-item-title>
+            <v-list-item-subtitle>
+              {{ getMyStore.street + '|'}}
+              <span
+                class="small"
+              >{{ getMyStore.city + ', ' + getMyStore.country}}</span>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
         <v-btn
           class="cover"
           rounded
@@ -114,9 +102,16 @@
         <v-tab-item>
           <v-container>
             <v-card flat>
-              <v-card-title class="font-weight-black subtitle-1">ABOUT</v-card-title>
+              <v-card-title class="font-weight-black subtitle-1">Store Address</v-card-title>
+              <v-card-text>
+                {{ getMyStore.street + '|'}}
+                <span
+                  class="small"
+                >{{ getMyStore.city + ', ' + getMyStore.country}}</span>
+              </v-card-text>
+              <v-card-title class="font-weight-black subtitle-1">Description</v-card-title>
               <v-card-text>{{getMyStore.description}}</v-card-text>
-              <v-card-title class="font-weight-black subtitle-1">FEATURED</v-card-title>
+              <v-card-title class="font-weight-black subtitle-1">Featured Products</v-card-title>
               <v-card-text></v-card-text>
             </v-card>
           </v-container>
@@ -405,7 +400,7 @@ export default {
       products: {},
       tab: null,
       store: true,
-      croppie: null,
+      croppie: false,
       coverCroppie: null,
       image: null,
       photo: null,

@@ -1,43 +1,30 @@
 <template>
   <div class="container">
     <v-card flat>
-      <v-card-title>
-        <h2 class="font-weight-bold basil--text">
-          SFAWS Marketplace
-          <v-btn small outlined absolute right class="text-decoration-none" to="/buildstore">
-            <v-icon class="mr-2">mdi-storefront</v-icon>Build a Store
-          </v-btn>
-        </h2>
-      </v-card-title>
+      <v-btn small outlined absolute right class="text-decoration-none" to="/buildstore">
+        <v-icon class="mr-2">mdi-storefront</v-icon>Build a Store
+      </v-btn>
       <v-card-title class="font-weight-bold">Top Stores</v-card-title>
-      <carousel autoplay loop mouseDrag centerMode :per-page="1">
-        <slide v-for="store in stores.data" :key="store.id">
-          <v-card class="mx-auto" tile>
-            <v-img
-              max-height="262"
-              :aspect-ratio="16/9"
-              :src="'storage/store_cover/' + store.cover"
-            >
-              <v-row>
-                <v-col align-self="start" class="pa-0" cols="12">
-                  <v-avatar class="profile" color="grey" size="164" tile>
-                    <img v-if="store.photo" :src="'storage/store_photo/' + store.photo" />
-                  </v-avatar>
-                </v-col>
-                <v-col class="py-0">
-                  <v-list-item three-line color="rgba(0, 0, 0, .4)" dark>
-                    <v-list-item-content>
-                      <div class="overline mb-4">{{store.name}}</div>
-                      <v-list-item-title class="headline mb-1">{{store.name}}</v-list-item-title>
-                      <v-list-item-subtitle>{{store.street + ' | ' + store.city + ', ' + store.country}}</v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-col>
-              </v-row>
-            </v-img>
-          </v-card>
-        </slide>
-      </carousel>
+      <v-carousel height="220" cycle continuous hide-delimiters show-arrows-on-hover>
+        <v-carousel-item
+          v-for="(item,i) in getAllStores.data"
+          :key="i"
+          :src="'storage/store_cover/' + item.cover"
+        >
+          <div class="pt-2 pl-2">
+            <v-avatar size="150" tile>
+              <v-img v-if="getAllStores" :src="'storage/store_photo/' + item.photo"></v-img>
+            </v-avatar>
+          </div>
+          <v-list-item color="rgba(0, 0, 0, .4)" dark>
+            <v-list-item-content>
+              <v-list-item-title class="headline mb-1">{{item.name}}</v-list-item-title>
+              <v-list-item-subtitle>{{item.street + ' | ' + item.city + ', ' + item.country}}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-carousel-item>
+      </v-carousel>
+
       <v-card flat>
         <v-card-title class="font-weight-bold">Featured</v-card-title>
         <v-row>
@@ -127,13 +114,6 @@
           </v-chip>
         </v-tab>
         <v-tab>
-          <v-chip dark color="red darken-4" pill>
-            <v-avatar left>
-              <v-img src="storage/icons/arables.png"></v-img>
-            </v-avatar>Arables
-          </v-chip>
-        </v-tab>
-        <v-tab>
           <v-chip dark color="cyan darken-2" pill>
             <v-avatar left>
               <v-img src="storage/icons/animals.png" alt="Message User Image"></v-img>
@@ -148,88 +128,90 @@
           </v-chip>
         </v-tab>
       </v-tabs>
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <v-card flat tile color="secondary">
-            <v-card-title class="font-weight-bold">New Products</v-card-title>
 
-            <v-container>
-              <v-row>
-                <v-col v-for="newItem in latest" :key="newItem.id" cols="6" md="3">
-                  <v-card>
-                    <img
-                      class="img-thumbnail border-0"
-                      :src="'storage/product_photo/' + newItem.photos[0].file"
-                    />
-                    <v-list-item three-line>
-                      <v-list-item-content>
-                        <v-list-item-title
-                          class="font-weight-bold red--text"
-                        >₱ {{newItem.price}}/{{newItem.unit}}</v-list-item-title>
-                        <router-link :to="'/view-product/' + newItem.id">
-                          <v-list-item-title>{{newItem.name}}</v-list-item-title>
-                        </router-link>
-                        <v-list-item-subtitle>Stocks ({{newItem.stocks + ' ' + newItem.unit}})</v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card>
-        </v-tab-item>
+      <v-tabs-items v-model="tab">
+
         <v-tab-item>
-          <v-card flat tile color="secondary">
-            <v-card-title class="font-weight-bold">Vegetables</v-card-title>
-            <v-container>
-              <v-row>
-                <v-col v-for="item in vegetables.data" :key="item.id" cols="6" md="3">
-                  <v-card>
-                    <img
-                      class="img-thumbnail border-0"
-                      :src="'storage/product_photo/' + item.photos[0].file"
-                    />
-                    <v-list-item three-line>
-                      <v-list-item-content>
-                        <v-list-item-title
-                          class="font-weight-bold red--text"
-                        >₱ {{item.price}}/{{item.unit}}</v-list-item-title>
-                        <v-list-item-title>{{item.name}}</v-list-item-title>
-                        <v-list-item-subtitle>Stocks ({{item.stocks + ' ' + item.unit}})</v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-card>
+          <v-data-iterator :items="getLatestProducts" :server-items-length="getLatestProducts.length">
+            <template v-slot:default="props">
+              <v-row dense>
+                <v-col cols="6" md="3" v-for="item in props.items" :key="item.id" class="mb-2">
+                  <v-hover v-slot:default="{ hover }">
+                    <v-card :elevation="hover ? 5 : 0" flat v-ripple class="mr-2">
+                      <router-link :to="'/view-product/' + item.id" class="text-decoration-none">
+                        <v-img :src="'storage/product_photo/' + item.photos[0].file"></v-img>
+                        <v-list-item three-line>
+                          <v-list-item-content>
+                            <v-list-item-title
+                              class="font-weight-bold red--text"
+                            >₱ {{item.price}}/{{item.unit}}</v-list-item-title>
+                            <v-list-item-title>{{item.name}}</v-list-item-title>
+                            <v-list-item-subtitle>Stocks ({{item.stocks + ' ' + item.unit}})</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </router-link>
+                    </v-card>
+                  </v-hover>
                 </v-col>
               </v-row>
-            </v-container>
-          </v-card>
+            </template>
+          </v-data-iterator>
         </v-tab-item>
+
         <v-tab-item>
-          <v-card flat tile color="secondary">
-            <v-card-title class="font-weight-bold">Fruits</v-card-title>
-            <v-container>
-              <v-row>
-                <v-col v-for="item in fruits.data" :key="item.id" cols="6" md="3">
-                  <v-card>
-                    <img
-                      class="img-thumbnail border-0"
-                      :src="'storage/product_photo/' + item.photos[0].file"
-                    />
-                    <v-list-item three-line>
-                      <v-list-item-content>
-                        <v-list-item-title
-                          class="font-weight-bold red--text"
-                        >₱ {{item.price}}/{{item.unit}}</v-list-item-title>
-                        <v-list-item-title>{{item.name}}</v-list-item-title>
-                        <v-list-item-subtitle>Stocks ({{item.stocks + ' ' + item.unit}})</v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-card>
+          <v-data-iterator :items="getLatestVegetables">
+            <template v-slot:default="props">
+              <v-row dense>
+                <v-col cols="6" md="3" v-for="item in props.items" :key="item.id" class="mb-2">
+                  <v-hover v-slot:default="{ hover }">
+                    <v-card :elevation="hover ? 5 : 0" flat v-ripple class="mr-2">
+                      <router-link :to="'/view-product/' + item.id" class="text-decoration-none">
+                        <v-img :src="'storage/product_photo/' + item.photos[0].file"></v-img>
+                        <v-list-item three-line>
+                          <v-list-item-content>
+                            <v-list-item-title
+                              class="font-weight-bold red--text"
+                            >₱ {{item.price}}/{{item.unit}}</v-list-item-title>
+                            <v-list-item-title>{{item.name}}</v-list-item-title>
+                            <v-list-item-subtitle>Stocks ({{item.stocks + ' ' + item.unit}})</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </router-link>
+                    </v-card>
+                  </v-hover>
                 </v-col>
               </v-row>
-            </v-container>
-          </v-card>
+            </template>
+          </v-data-iterator>
         </v-tab-item>
+
+        <v-tab-item>
+          <v-data-iterator :items="getLatestFruits">
+            <template v-slot:default="props">
+              <v-row dense>
+                <v-col cols="6" md="3" v-for="item in props.items" :key="item.id" class="mb-2">
+                  <v-hover v-slot:default="{ hover }">
+                    <v-card :elevation="hover ? 5 : 0" flat v-ripple class="mr-2">
+                      <router-link :to="'/view-product/' + item.id" class="text-decoration-none">
+                        <v-img :src="'storage/product_photo/' + item.photos[0].file"></v-img>
+                        <v-list-item three-line>
+                          <v-list-item-content>
+                            <v-list-item-title
+                              class="font-weight-bold red--text"
+                            >₱ {{item.price}}/{{item.unit}}</v-list-item-title>
+                            <v-list-item-title>{{item.name}}</v-list-item-title>
+                            <v-list-item-subtitle>Stocks ({{item.stocks + ' ' + item.unit}})</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </router-link>
+                    </v-card>
+                  </v-hover>
+                </v-col>
+              </v-row>
+            </template>
+          </v-data-iterator>
+        </v-tab-item>
+
         <v-tab-item>xxxx</v-tab-item>
         <v-tab-item>xxx</v-tab-item>
       </v-tabs-items>
@@ -238,67 +220,29 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   created() {
-    this.loadProducts();
-    this.loadVegetables();
-    this.loadFruits();
-    this.latestProducts();
-    this.loadStores();
+    this.fetchAllStores();
+    this.fetchLatestProducts();
+    this.fetchLatestVegetables();
+    this.fetchLatestFruits();
   },
 
   data() {
     return {
       products: {},
-      vegetables: {},
-      fruits: {},
-      latest: {},
-      stores: {},
       tab: null
     };
   },
 
+  computed: {
+    ...mapGetters(["getAllStores", "getLatestProducts", "getLatestVegetables", "getLatestFruits"])
+  },
+
   methods: {
-    loadStores() {
-      axios
-        .get("api/allStores")
-        .then(data => {
-          this.stores = data.data;
-        })
-        .catch(() => {});
-    },
-    loadProducts() {
-      axios
-        .get("api/allProducts")
-        .then(data => {
-          this.products = data.data;
-        })
-        .catch(() => {});
-    },
-    loadVegetables() {
-      axios
-        .get("api/vegetables")
-        .then(data => {
-          this.vegetables = data.data;
-        })
-        .catch(() => {});
-    },
-    loadFruits() {
-      axios
-        .get("api/fruits")
-        .then(data => {
-          this.fruits = data.data;
-        })
-        .catch(() => {});
-    },
-    latestProducts() {
-      axios
-        .get("api/latestProducts")
-        .then(data => {
-          this.latest = data.data;
-        })
-        .catch(() => {});
-    }
+    ...mapActions(["fetchAllStores", "fetchLatestProducts", "fetchLatestVegetables", "fetchLatestFruits"])
   }
 };
 </script>

@@ -12,6 +12,7 @@ class Message extends Model
 
     protected $casts = [
         'receiver' => 'array',
+        'attachment' => 'array'
     ];
 
     protected $with = ['sender'];
@@ -23,5 +24,11 @@ class Message extends Model
     public function messageables(){
         return $this->hasMany(Messageable::class, 'message_id');
     }
-   
+
+
+    public function receiver()
+    {
+        return $this->hasMany(User::class);
+    }
+
 }
