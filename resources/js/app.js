@@ -23,15 +23,15 @@ import "croppie/croppie.css"; // import the croppie css manually
 import store from "./store/";
 import vueCountryRegionSelect from "vue-country-region-select";
 import { Ripple } from "vuetify/lib/directives";
-import Chat from "vue-beautiful-chat";
 import VueAwesomeSwiper from "vue-awesome-swiper";
 // require styles
 import "swiper/dist/css/swiper.css";
+import VueChatScroll from "vue-chat-scroll";
+
+// Chat Scroll
+Vue.use(VueChatScroll);
 
 Vue.use(VueAwesomeSwiper /* { default global options } */);
-
-// VUE CHAT
-Vue.use(Chat);
 
 // VUE COUNTRY LIST
 Vue.use(vueCountryRegionSelect);
@@ -54,6 +54,10 @@ Vue.filter("postDate", function(created) {
 
 Vue.filter("sinceDate", function(created) {
     return moment(created).fromNow();
+});
+
+Vue.filter("dateAtTime", function(created) {
+    return moment(created).calendar();
 });
 
 // Progress Bar

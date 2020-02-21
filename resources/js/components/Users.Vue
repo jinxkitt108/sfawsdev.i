@@ -231,6 +231,7 @@ export default {
       return errors;
     }
   },
+
   methods: {
     //New User Button Function
     newUser() {
@@ -336,6 +337,7 @@ export default {
       this.userForm.reset();
     }
   },
+  
   created() {
     this.loadUsers();
   }

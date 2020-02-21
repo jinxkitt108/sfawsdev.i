@@ -20,7 +20,7 @@ const actions = {
 
     async fetchSentMessages({ commit }) {
         const response = await axios.get("api/sent");
-        commit("setSentMessages", response.data);
+        commit("setSentMessages", response.data.data);
     },
 
     async fetchInboxMessages({ commit }) {

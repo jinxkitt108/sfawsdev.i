@@ -81,5 +81,10 @@ Route::put('delete_one_inbox', 'API\MessageController@removeOneInbox');
 Route::put('delete_inbox', 'API\MessageController@deleteInbox');
 Route::put('delete_sent', 'API\MessageController@deleteSent');
 
+//MESSAGE ROUTES
+Route::apiResources(['chat' => 'API\ChatController']);
+Route::get('conversation/{id}', 'API\ChatController@getConvo');
+Route::get('all_conversation', 'API\ChatController@getAllConvo');
+
 //NOTIFICATIONS ROUTES
 Route::apiResources(['notification' => 'API\NotificationController']);

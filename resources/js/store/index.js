@@ -8,6 +8,7 @@ import stores from './modules/stores';
 import products from './modules/products';
 import discussions from './modules/discussions';
 import notifications from './modules/notifications';
+import chats from './modules/chats';
 
 //Load Vuex
 Vue.use(Vuex);
@@ -21,6 +22,7 @@ export default new Vuex.Store({
         stores,
         products,
         discussions,
-        notifications
+        notifications,
+        chats
     }
 });

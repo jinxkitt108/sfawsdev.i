@@ -11,7 +11,8 @@
         <v-icon class="mr-2">mdi-arrow-left-circle</v-icon>Marketplace
       </v-btn>
     </v-card-title>
-    <v-card flat tile class="mt-2">
+    <v-card flat tile class="mt-2
+    ">
       <div v-show="coverCroppie">
         <vue-croppie
           ref="coverCroppieRef"

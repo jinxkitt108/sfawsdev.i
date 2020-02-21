@@ -173,23 +173,36 @@
           <span class="subtitle-2">SFAWS</span>
         </a>
       </v-toolbar-title>
-      <div class="flex-grow-1"></div>
+      <v-spacer></v-spacer>
+      <v-menu
+        v-model="fab_search"
+        :close-on-click="false"
+        :close-on-content-click="false"
+        nudge-left="265"
+        :nudge-top="8"
+        transition="slide-x-transition"
+        fixed
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn icon class="mr-1" v-on="on">
+            <v-icon class="text--accent">mdi-magnify</v-icon>
+          </v-btn>
+        </template>
+        <v-text-field
+          v-model="search"
+          @click="searchMode"
+          @keyup.enter="searchit"
+          hide-no-data
+          hide-details
+          prepend-inner-icon="mdi-magnify"
+          label="Search..."
+          solo
+          dense
+          rounded
+        ></v-text-field>
+      </v-menu>
 
-      <v-text-field
-        v-model="search"
-        @click="searchMode"
-        @keyup.enter="searchit"
-        cache-items
-        hide-no-data
-        hide-details
-        flat
-        label="What are you looking for?"
-        append-icon="mdi-magnify"
-        solo-inverted
-        class="rounded-pill"
-      ></v-text-field>
-
-      <v-app-bar-nav-icon class="white--text" @click.stop="drawerRight = !drawerRight">
+      <v-app-bar-nav-icon class="white--text mr-3" @click.stop="drawerRight = !drawerRight">
         <v-badge color="red" :content="getAllNotifications.length" overlap bordered>
           <v-icon class="text--accent">mdi-bell</v-icon>
         </v-badge>
@@ -201,67 +214,195 @@
       <!-- If using vue-router -->
       <router-view></router-view>
     </v-content>
+    <v-menu
+      min-width="350"
+      v-model="chat"
+      top
+      :close-on-click="false"
+      :close-on-content-click="false"
+      :nudge-top="60"
+      transition="slide-y-reverse-transition"
+      offset-x
+    >
+      <template v-slot:activator="{ on }">
+        <v-fab-transition>
+          <v-btn dark fixed bottom right fab v-on="on" @click="openChatBox" color="green">
+            <v-icon>mdi-chat</v-icon>
+          </v-btn>
+        </v-fab-transition>
+      </template>
 
-    <v-footer app>
+      <v-card v-if="!direct_chat">
+        <v-toolbar dense dark color="primary">
+          <v-toolbar-title>Sfaws Chat</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="chat = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-card flat height="420">
+          <v-tabs v-model="tab_chat" centered hide-slider>
+            <v-tab>
+              Chats
+              <v-icon>mdi-wechat</v-icon>
+            </v-tab>
+            <v-tab>
+              People
+              <v-icon>mdi-account-multiple</v-icon>
+            </v-tab>
+          </v-tabs>
+          <v-tabs-items v-model="tab_chat">
+            <v-tab-item>
+              <v-list dense>
+                <v-list-item-group>
+                  <v-list-item
+                    @click="openChat(item.conversation.participants[0].messageable)"
+                    v-for="item in getAllConversations"
+                    :key="item.id"
+                  >
+                    <v-list-item-avatar size="36">
+                      <img
+                        :src="'storage/profile_photo/' + item.conversation.participants[0].messageable.profile.photo"
+                        alt
+                      />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        v-text="item.conversation.participants[0].messageable.name"
+                      >
+                        <span
+                          class="float-right caption"
+                        >{{item.conversation.last_message.created_at | dateAtTime}}</span>
+                      </v-list-item-title>
+                      <v-list-item-subtitle class="caption">
+                        <span v-show="item.conversation.last_message.is_sender" class="mr-1">You:</span>
+                        {{item.conversation.last_message.body}}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-tab-item>
+
+            <v-tab-item>
+              <v-list dense>
+                <v-list-item-group>
+                  <v-list-item
+                    @click="openChat(user)"
+                    v-for="user in allFollowingUsers"
+                    :key="user.id"
+                  >
+                    <v-list-item-avatar size="36">
+                      <img :src="'storage/profile_photo/' + user.profile.photo" alt />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-text="user.name"></v-list-item-title>
+                      <v-list-item-subtitle v-text="user.type" class="overline"></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card>
+      </v-card>
+
+      <v-card v-else>
+        <v-toolbar dense dark color="primary">
+          <v-avatar size="40" class="mr-2">
+            <v-img :src="'storage/profile_photo/' + chatForm.user.profile.photo"></v-img>
+          </v-avatar>
+          <v-toolbar-title class="subtitle-1 font-weight-bold">{{chatForm.user.name}}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="closeChat">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <!-- LOADER CHAT -->
+        <div v-if="!loaded_chat">
+          <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto"></v-skeleton-loader>
+          <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto"></v-skeleton-loader>
+        </div>
+
+        <v-card height="340" flat tile class="direct-chat direct-chat-success">
+          <div id="chat_box" class="direct-chat-messages" style="height: 350px">
+            <div
+              class="mb-4"
+              :class="!message.is_sender ? 'direct-chat-msg right ml-5' : 'direct-chat-msg mr-5'"
+              v-for="message in getConversation"
+              :key="message.id"
+            >
+              <v-avatar size="35" class="direct-chat-img">
+                <v-img :src="'storage/profile_photo/' + message.sender.profile.photo"></v-img>
+              </v-avatar>
+              <div class="direct-chat-text caption">{{message.body}}</div>
+              <span class="direct-chat-timestamp caption mr-3">{{message.created_at | dateAtTime}}</span>
+              <span
+                v-show="!message.is_sender && message.is_seen"
+                class="font-weight-bold caption"
+              >Seen</span>
+            </div>
+
+            <v-progress-circular
+              v-if="loading_new_message"
+              class="float-right"
+              :width="3"
+              size="28"
+              indeterminate
+              color="green"
+            ></v-progress-circular>
+          </div>
+        </v-card>
+
+        <!-- CHAT INPUT FIELD -->
+        <v-card-actions>
+          <v-text-field
+            ref="chat_field"
+            @keyup.enter="prepareSending"
+            @click:append-outer="prepareSending"
+            id="chat_input"
+            label="Message"
+            append-outer-icon="mdi-send"
+            rounded
+            solo
+            dense
+            required
+          ></v-text-field>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
+
+    <v-footer dark app>
       <span>&copy; 2020</span>
     </v-footer>
-
-    <!-- Chat component -->
-    <!-- <v-btn absolute fab text>
-      <beautiful-chat
-        :participants="getParticipants"
-        :messageList="getMessageList"
-        :icons="icons"
-        :isOpen="isChatOpen"
-        :open="openChat"
-        :close="closeChat"
-        :onMessageWasSent="onMessageWasSent"
-      />
-    </v-btn>-->
   </v-app>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
 
-// Chat Icons
-import CloseIcon from "vue-beautiful-chat/src/assets/close-icon.png";
-import OpenIcon from "vue-beautiful-chat/src/assets/logo-no-bg.svg";
-import FileIcon from "vue-beautiful-chat/src/assets/file.svg";
-import CloseIconSvg from "vue-beautiful-chat/src/assets/close.svg";
-
 export default {
   props: {
     source: String
   },
   data: () => ({
-    //Chat
-    // isChatOpen: false,
-    // icons: {
-    //   open: {
-    //     img: OpenIcon,
-    //     name: "default"
-    //   },
-    //   close: {
-    //     img: CloseIcon,
-    //     name: "default"
-    //   },
-    //   file: {
-    //     img: FileIcon,
-    //     name: "default"
-    //   },
-    //   closeSvg: {
-    //     img: CloseIconSvg,
-    //     name: "default"
-    //   }
-    // },
+    direct_chat: false,
+    fab: false,
+    fab_search: false,
+    chat: false,
     show_search: false,
     loaded: false,
+    loaded_chat: false,
+    loading_new_message: false,
     search: "",
     tab: null,
+    tab_chat: null,
     drawer: null,
     drawerRight: null,
     right: false,
+
     user: new Form({
       name: "",
       type: "",
@@ -273,13 +414,20 @@ export default {
         photo: ""
       },
       store: {}
+    }),
+
+    chatForm: new Form({
+      user: "",
+      body: ""
     })
   }),
 
   computed: mapGetters([
     "getAllNotifications",
     "getCurrentUser",
-    "allFollowingUsers"
+    "allFollowingUsers",
+    "getConversation",
+    "getAllConversations"
   ]),
 
   methods: {
@@ -287,8 +435,57 @@ export default {
       "fetchAllNotifications",
       "fetchCurrentUser",
       "fetchFollowingUsers",
-      "fetchMessage"
+      "fetchMessage",
+      "addChatMessage",
+      "fetchAllConversations",
+      "fetchConversation",
+      "resetConversation"
     ]),
+
+    openChatBox() {
+      this.fetchAllConversations();
+      this.direct_chat = false;
+    },
+
+    closeChat() {
+      this.direct_chat = false;
+      this.resetConversation();
+    },
+
+    scrollChat() {
+      var container = document.getElementById("chat_box");
+      if (typeof container != "undefined" && container != null) {
+        container.scrollTop = container.scrollHeight;
+      }
+    },
+
+    openChat(user) {
+      this.chatForm.user = user;
+      this.direct_chat = true;
+      this.fetchConversation(user).then(() => {
+        this.loaded_chat = true;
+        this.scrollChat();
+      });
+    },
+
+    sendMessage() {
+      setInterval(() => {
+        this.scrollChat();
+      }, 500);
+
+      this.$refs.chat_field.reset();
+      this.addChatMessage(this.chatForm).then(() => {
+        this.loading_new_message = false;
+        this.chatForm.body = "";
+      });
+    },
+
+    prepareSending(e) {
+      this.loading_new_message = true;
+      const body = e.target.value;
+      this.chatForm.body = body;
+      this.sendMessage();
+    },
 
     viewNotification(item) {
       if (item.type === "message") {
@@ -302,23 +499,6 @@ export default {
       //     this.$router.push("/view-message");
       //   });
     },
-
-    // onMessageWasSent(message) {
-    //   let data = {
-    //     'id' : this.getConversation.id,
-    //     'message' : message.data.text
-    //   }
-    //   this.addMessage(data);
-    // },
-
-    // openChat(user) {
-    //   this.fetchChat(user);
-    //   this.isChatOpen = true;
-    // },
-
-    // closeChat() {
-    //   this.isChatOpen = false;
-    // },
 
     searchMode() {
       this.$router.push("/search");
@@ -344,6 +524,7 @@ export default {
       });
     }
   },
+
   created() {
     Fire.$on("updateProfile", () => {
       axios.get("api/profile").then(({ data }) => {
