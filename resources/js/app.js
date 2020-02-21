@@ -26,10 +26,7 @@ import { Ripple } from "vuetify/lib/directives";
 import VueAwesomeSwiper from "vue-awesome-swiper";
 // require styles
 import "swiper/dist/css/swiper.css";
-import VueChatScroll from "vue-chat-scroll";
 
-// Chat Scroll
-Vue.use(VueChatScroll);
 
 Vue.use(VueAwesomeSwiper /* { default global options } */);
 

@@ -7,6 +7,18 @@
   bottom: 0 !important;
   right: 0 !important;
 }
+
+.scroll-area {
+  position: relative;
+  margin: auto;
+  height: 355px;
+}
+
+.scroll-message {
+  position: relative;
+  margin: auto;
+  height: 330px;
+}
 </style>
 
 <template>
@@ -220,7 +232,7 @@
       top
       :close-on-click="false"
       :close-on-content-click="false"
-      :nudge-top="60"
+      :nudge-top="66"
       transition="slide-y-reverse-transition"
       offset-x
     >
@@ -241,9 +253,9 @@
           </v-btn>
         </v-toolbar>
 
-        <v-card flat height="420">
+        <v-card flat height="410">
           <v-tabs v-model="tab_chat" centered hide-slider>
-            <v-tab>
+            <v-tab @click="openChatBox">
               Chats
               <v-icon>mdi-wechat</v-icon>
             </v-tab>
@@ -254,55 +266,66 @@
           </v-tabs>
           <v-tabs-items v-model="tab_chat">
             <v-tab-item>
-              <v-list dense>
-                <v-list-item-group>
-                  <v-list-item
-                    @click="openChat(item.conversation.participants[0].messageable)"
-                    v-for="item in getAllConversations"
-                    :key="item.id"
-                  >
-                    <v-list-item-avatar size="36">
-                      <img
-                        :src="'storage/profile_photo/' + item.conversation.participants[0].messageable.profile.photo"
-                        alt
-                      />
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title
-                        v-text="item.conversation.participants[0].messageable.name"
-                      >
-                        <span
-                          class="float-right caption"
-                        >{{item.conversation.last_message.created_at | dateAtTime}}</span>
-                      </v-list-item-title>
-                      <v-list-item-subtitle class="caption">
-                        <span v-show="item.conversation.last_message.is_sender" class="mr-1">You:</span>
-                        {{item.conversation.last_message.body}}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
+              <!-- LOADER CONVERSATION LIST -->
+              <v-row v-if="!loaded_convo" justify="center">
+                <v-overlay :opacity="0.1" :value="!loaded_convo">
+                  <v-progress-circular :size="64" :width="7" color="green" indeterminate></v-progress-circular>
+                </v-overlay>
+              </v-row>
+              <vue-custom-scrollbar class="scroll-area" settings="30">
+                <v-list dense>
+                  <v-list-item-group>
+                    <v-list-item
+                      @click="openChat(item.conversation.participants[0].messageable)"
+                      v-for="item in getAllConversations"
+                      :key="item.id"
+                    >
+                      <v-list-item-avatar size="36">
+                        <img
+                          :src="'storage/profile_photo/' + item.conversation.participants[0].messageable.profile.photo"
+                          alt
+                        />
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title
+                          v-text="item.conversation.participants[0].messageable.name"
+                        >
+                          <!-- <v-spacer></v-spacer>
+                          <span
+                            class="caption"
+                          >{{item.conversation.last_message.created_at | dateAtTime}}</span>-->
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="caption">
+                          <span v-show="item.conversation.last_message.is_sender" class="mr-1">You:</span>
+                          {{limitStr(item.conversation.last_message.body)}}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </vue-custom-scrollbar>
             </v-tab-item>
 
             <v-tab-item>
-              <v-list dense>
-                <v-list-item-group>
-                  <v-list-item
-                    @click="openChat(user)"
-                    v-for="user in allFollowingUsers"
-                    :key="user.id"
-                  >
-                    <v-list-item-avatar size="36">
-                      <img :src="'storage/profile_photo/' + user.profile.photo" alt />
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title v-text="user.name"></v-list-item-title>
-                      <v-list-item-subtitle v-text="user.type" class="overline"></v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
+              <vue-custom-scrollbar class="scroll-area" settings="30">
+                <v-list dense>
+                  <v-list-item-group>
+                    <v-list-item
+                      @click="openChat(user)"
+                      v-for="user in allFollowingUsers"
+                      :key="user.id"
+                    >
+                      <v-list-item-avatar size="36">
+                        <img :src="'storage/profile_photo/' + user.profile.photo" alt />
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title v-text="user.name"></v-list-item-title>
+                        <v-list-item-subtitle v-text="user.type" class="overline"></v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </vue-custom-scrollbar>
             </v-tab-item>
           </v-tabs-items>
         </v-card>
@@ -320,14 +343,18 @@
           </v-btn>
         </v-toolbar>
 
-        <!-- LOADER CHAT -->
-        <div v-if="!loaded_chat">
-          <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto"></v-skeleton-loader>
-          <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto"></v-skeleton-loader>
-        </div>
-
-        <v-card height="340" flat tile class="direct-chat direct-chat-success">
-          <div id="chat_box" class="direct-chat-messages" style="height: 350px">
+        <v-card max-height="420" flat tile class="direct-chat direct-chat-success">
+          <!-- LOADER CHAT -->
+          <v-row v-if="!loaded_chat" justify="center">
+            <v-overlay :opacity="0.1" :value="!loaded_chat">
+              <v-progress-circular :size="64" :width="7" color="green" indeterminate></v-progress-circular>
+            </v-overlay>
+          </v-row>
+          <vue-custom-scrollbar
+            id="chat_box"
+            class="direct-chat-messages scroll-message"
+            settings="30"
+          >
             <div
               class="mb-4"
               :class="!message.is_sender ? 'direct-chat-msg right ml-5' : 'direct-chat-msg mr-5'"
@@ -353,7 +380,7 @@
               indeterminate
               color="green"
             ></v-progress-circular>
-          </div>
+          </vue-custom-scrollbar>
         </v-card>
 
         <!-- CHAT INPUT FIELD -->
@@ -382,8 +409,13 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import vueCustomScrollbar from "vue-custom-scrollbar";
 
 export default {
+  components: {
+    vueCustomScrollbar
+  },
+
   props: {
     source: String
   },
@@ -394,6 +426,7 @@ export default {
     chat: false,
     show_search: false,
     loaded: false,
+    loaded_convo: false,
     loaded_chat: false,
     loading_new_message: false,
     search: "",
@@ -443,11 +476,16 @@ export default {
     ]),
 
     openChatBox() {
-      this.fetchAllConversations();
+      this.loaded_convo = false;
+      this.fetchAllConversations().then(() => {
+        this.loaded_convo = true;
+      });
       this.direct_chat = false;
+      this.loaded_chat = false;
     },
 
     closeChat() {
+      this.loaded_chat = false;
       this.direct_chat = false;
       this.resetConversation();
     },
@@ -498,6 +536,15 @@ export default {
       //   this.fetchMessage(item.message_id).then(() => {
       //     this.$router.push("/view-message");
       //   });
+    },
+
+    limitStr(text) {
+      let str = text;
+      let limit = 20;
+      if (typeof str === "string" && str.length > limit) {
+        str = str.slice(0, limit) + "...";
+      }
+      return str;
     },
 
     searchMode() {
