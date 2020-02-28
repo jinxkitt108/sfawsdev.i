@@ -31,7 +31,7 @@
                 offset-x="50"
                 offset-y="30"
               >
-                <v-avatar class="avatar" color="cyan" size="164">
+                <v-avatar  @click="browseImage" class="avatar" color="cyan" size="164">
                   <v-img
                     v-if="loaded"
                     :src="'/storage/profile_photo/' + getCurrentUser.profile.photo"
