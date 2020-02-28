@@ -16,37 +16,60 @@
         <v-icon>mdi-settings</v-icon>
       </v-tab>
     </v-tabs>
+
     <v-tabs-items v-model="tab">
       <v-tab-item>
         <v-container>
           <v-row style="background-image: linear-gradient(#00ACC1, #00838F, #006064)">
             <v-col cols="12" md="3" class="text-center">
-              <v-avatar class="avatar" color="cyan" size="164">
-                <v-img
-                  v-if="loaded"
-                  :src="'/storage/profile_photo/' + getCurrentUser.profile.photo"
-                  class="img-bordered border-light"
-                >
-                  <template v-slot:placeholder>
-                    <v-row class="fill-height ma-0" align="center" justify="center">
-                      <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
-                    </v-row>
-                  </template>
-                </v-img>
-                <v-btn
-                  class="avatar mb-4"
-                  @click="browseImage"
-                  color="grey lighten-1"
-                  fab
-                  small
-                  absolute
-                  bottom
-                  right
-                >
-                  <v-icon>mdi-camera</v-icon>
-                </v-btn>
-                <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
-              </v-avatar>
+              <v-badge
+                color="grey"
+                icon="mdi-camera"
+                @click:icon="browseImage"
+                bottom
+                overlap
+                offset-x="50"
+                offset-y="30"
+              >
+                <v-avatar class="avatar" color="cyan" size="164">
+                  <v-img
+                    v-if="loaded"
+                    :src="'/storage/profile_photo/' + getCurrentUser.profile.photo"
+                    class="img-bordered border-light"
+                  >
+                    <template v-slot:placeholder>
+                      <v-row class="fill-height ma-0" align="center" justify="center">
+                        <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+                      </v-row>
+                    </template>
+                    <!-- <v-btn
+                    color="grey"
+                    avatar
+                    absolute
+                    bottom
+                    fab
+                    small
+                    style="position: inherit !important"
+                  >
+                    <v-icon>mdi-camera</v-icon>
+                    </v-btn>-->
+                  </v-img>
+                </v-avatar>
+              </v-badge>
+
+              <!-- <v-btn
+                class="avatar mb-4"
+                @click="browseImage"
+                color="grey lighten-1"
+                fab
+                small
+                absolute
+                bottom
+                right
+              >
+                <v-icon>mdi-camera</v-icon>
+              </v-btn>-->
+              <input ref="fileupload" id="image" type="file" @change="setUpCroppie" hidden />
               <v-avatar size="164" v-show="croppie">
                 <vue-croppie
                   ref="croppieRef"
@@ -64,12 +87,13 @@
                 </v-btn>
               </v-avatar>
             </v-col>
-            <v-col cols="12" md="4">
+
+            <v-col cols="12" md="3">
               <v-card dark flat shaped style="background-color: #10383738">
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>
-                      <span class="font-weight-bold headline">{{getCurrentUser.name}}</span>
+                      <span class="font-weight-bold">{{getCurrentUser.name}}</span>
                       <div class="overline">{{getCurrentUser.type}}</div>
                     </v-list-item-title>
                     <v-list-item-title>
@@ -79,12 +103,13 @@
                 </v-list-item>
               </v-card>
             </v-col>
-            <v-col cols="12" md="5">
+
+            <v-col cols="12" md="6">
               <v-row no-gutters class="justify-content-center">
                 <v-col cols="4" md="4" class="pr-2">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar align="center" size="64" tile>
-                      <v-img src="/storage/app_photos/account.png"></v-img>
+                      <v-icon size="50">mdi-account-multiple</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
@@ -96,10 +121,11 @@
                     </v-list-item>
                   </v-card>
                 </v-col>
+
                 <v-col cols="4" md="4" class="pr-2">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar class="mx-auto" size="64" tile>
-                      <v-img src="/storage/app_photos/remission.png"></v-img>
+                      <v-icon size="50">mdi-account-box-multiple</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
@@ -111,10 +137,11 @@
                     </v-list-item>
                   </v-card>
                 </v-col>
+
                 <v-col cols="4" md="4">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar class="mx-auto" size="64" tile>
-                      <v-img src="/storage/app_photos/trophy.png"></v-img>
+                      <v-icon size="50">mdi-trophy</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
@@ -128,6 +155,7 @@
             </v-col>
           </v-row>
         </v-container>
+
         <v-card tile flat class="bg-transparent">
           <v-card-text>
             <h4
@@ -136,6 +164,7 @@
           </v-card-text>
         </v-card>
       </v-tab-item>
+
       <v-tab-item>
         <v-card flat tile class="mt-4" v-show="posts.length == 0">
           <v-card-text class="text-center">
@@ -164,7 +193,7 @@
               <v-list-item-subtitle>
                 by {{post.author.name}}
                 <span class="small ml-2">({{post.author.type}})</span>
-                <span class="float-right">Posted {{post.created_at | sinceDate}}</span>
+                <span class="float-right caption font-weight-bold">Posted {{post.created_at | sinceDate}}</span>
               </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
@@ -188,23 +217,20 @@
               </v-col>
             </v-row>
             <p>
-              <a class="link-black text-sm mr-2">
-                <i class="fas fa-leaf mr-1"></i>Spread
-              </a>
               <a
                 v-if="post.commend"
                 @click="toggleCommend(post.id)"
                 class="link-black text-sm mr-2 primary--text"
               >
                 <strong>
-                  <i class="fas fa-check mr-1"></i>Commended
+                  <i class="fas fa-check mr-1"></i>Recommended
                 </strong>
               </a>
               <a
                 v-else
                 @click="toggleCommend(post.id)"
                 class="link-black text-sm mr-2 primary--text"
-              >Commend</a>
+              >Recommend</a>
               <a
                 v-show="post.authorize"
                 @click="dialog = true; postForm.fill(post)"
@@ -361,6 +387,7 @@
           </v-container>
         </v-card>
       </v-tab-item>
+
       <v-tab-item></v-tab-item>
       <v-tab-item></v-tab-item>
       <v-tab-item>

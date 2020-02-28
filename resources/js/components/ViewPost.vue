@@ -1,6 +1,13 @@
 <template>
-  <v-container>
-    <v-card class="mt-2">
+  <v-card>
+    <v-toolbar flat dark color="success">
+      <v-btn icon dark @click="() => this.$emit('closeDialog')">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn dark text @click="() => this.$emit('closeDialog')">Close</v-btn>
+    </v-toolbar>
+    <v-card-text>
       <v-list>
         <v-list-item>
           <router-link :to="'viewuser/' + getViewPost.author.id" class="text-decoration-none">
@@ -25,32 +32,41 @@
       </v-list>
 
       <!-- POST SECTION -->
-      <v-img :src="'storage/cover_photo/' + getViewPost.cover_image" height="250"></v-img>
-      <v-card-text>
-        <p>{{getViewPost.content}}</p>
-        <v-badge color="green">
-          <template v-slot:badge>{{getViewPost.commends}}</template>
-          <v-chip color="primary" small>Commends</v-chip>
-        </v-badge>
-      </v-card-text>
+      <v-container>
+        <v-row>
+          <v-col cols="12" md="7">
+            <v-img
+              aspect-ratio="2"
+              :src="'storage/cover_photo/' + getViewPost.cover_image"
+              width="450"
+            ></v-img>
+          </v-col>
+          <v-col cols="12" md="5" class="border-left">
+            <p>{{getViewPost.content}}</p>
+            <v-badge color="green">
+              <template v-slot:badge>{{getViewPost.commends}}</template>
+              <v-chip color="primary" small>Commends</v-chip>
+            </v-badge>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- REACTION SECTION -->
       <p>
-        <a class="link-black text-sm mr-2">
-          <i class="fas fa-leaf mr-1"></i>Spread
-        </a>
         <a
           v-if="getViewPost.commend"
           @click="toggleCommend(getViewPost.id)"
           class="link-black text-sm mr-2 primary--text"
         >
           <strong>
-            <i class="fas fa-check mr-1"></i>Commended
+            <i class="fas fa-check mr-1"></i>Recommended
           </strong>
         </a>
         <a
           v-else
           @click="toggleCommend(getViewPost.id)"
           class="link-black text-sm mr-2 primary--text"
-        >Commend</a>
+        >Recommend</a>
         <a
           v-show="getViewPost.authorize"
           @click="dialog = true; postForm.fill(getViewPost)"
@@ -136,9 +152,11 @@
           </a>
         </span>
       </p>
+    </v-card-text>
 
-      <!-- COMMENT SECTION -->
-      <div class="comment-section" :id="'CS-' + getViewPost.id">
+    <!-- COMMENTS SECTION -->
+    <v-card-text class="ml-4 mr-4">
+      <div class="comment-section" :id="'DCS-' + getViewPost.id">
         <div class="media mb-3" v-for="comment in getViewPost.comments" :key="comment.id">
           <v-avatar size="42" class="mr-2">
             <v-img :src="'storage/profile_photo/' + comment.author.profile.photo"></v-img>
@@ -173,7 +191,8 @@
         <v-btn @click="toggleComment(getViewPost.id)" text small>View Less</v-btn>
       </div>
 
-      <v-form :id="'F-' + getViewPost.id" @submit.prevent="createComment(getViewPost)" class="mt-2">
+      <!-- Create Comment Input -->
+      <v-form @submit.prevent="createComment(getViewPost)" class="mt-2">
         <div class="input-group">
           <input v-model="comment.body" placeholder="Comment here..." class="form-control" />
           <span class="input-group-append">
@@ -185,8 +204,8 @@
           </span>
         </div>
       </v-form>
-    </v-card>
-  </v-container>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -295,7 +314,7 @@ export default {
     },
 
     toggleComment(comment_section) {
-      $("#CS-" + comment_section).slideToggle();
+      $("#DCS-" + comment_section).slideToggle();
     },
 
     //Create Comment

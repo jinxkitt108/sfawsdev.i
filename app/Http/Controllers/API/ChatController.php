@@ -107,6 +107,14 @@ class ChatController extends Controller
         return $messages;
     }
 
+    public function getAllChatCount()
+    {
+        $auth_user = auth('api')->user();
+        $unreadCount = Chat::messages()->setParticipant($auth_user)->unreadCount();
+
+        return $unreadCount;
+    }
+
     /**
      * Update the specified resource in storage.
      *

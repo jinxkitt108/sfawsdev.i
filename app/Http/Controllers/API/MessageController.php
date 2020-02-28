@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\StoreMailMessage;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -57,27 +58,19 @@ class MessageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreMailMessage $request)
     {
-
-        $this->validate($request, [
-            'receiver' => 'required',
-            'subject' => 'nullable',
-            'content' => 'required',
-            'attachment' => 'nullable'
-        ]);
-
         if (!is_dir('storage/message_attachments/')) {
             mkdir('storage/message_attachments/');
         }
 
-        //THis is a reference code for creating a new object and push into an array
-        // $receiver = [];
-        // foreach ($request['receiver'] as $key => $item) {
-        //     $user = new \stdClass();
-        //     $user->id = $item['id'];
-        //     array_push($receiver, $user);
-        // }
+        /*    THis is a reference code for creating a new object and push into an array
+        $receiver = [];
+        foreach ($request['receiver'] as $key => $item) {
+            $user = new \stdClass();
+            $user->id = $item['id'];
+            array_push($receiver, $user);
+        } */
 
         $receivers = $request->receiver;
         $message = Message::create([
@@ -121,7 +114,6 @@ class MessageController extends Controller
                     'notification' => 'New Message from ' . auth('api')->user()->name,
                 ];
                 Notification::send($users, new NewMessage($data));
-
             } else {
                 Messageable::create([
                     'message_id' => $message->id,

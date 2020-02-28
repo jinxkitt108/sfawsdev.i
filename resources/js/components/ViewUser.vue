@@ -20,7 +20,8 @@
             <v-col cols="12" md="3" class="text-center">
               <v-avatar color="indigo" size="164">
                 <v-img
-                  :src="'/storage/profile_photo/' + user.profile.photo"
+                  v-if="getUser.profile.photo"
+                  :src="'/storage/profile_photo/' + getUser.profile.photo"
                   class="img-bordered border-light"
                 >
                   <template v-slot:placeholder>
@@ -31,28 +32,29 @@
                 </v-img>
               </v-avatar>
             </v-col>
-            <v-col cols="12" md="4">
+
+            <v-col cols="12" md="3">
               <v-card dark flat shaped style="background-color: #10383738">
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>
-                      <span class="font-weight-bold headline">{{user.name}}</span>
-                      <div class="overline">{{user.type}}</div>
+                      <span class="font-weight-bold headline">{{getUser.name}}</span>
+                      <div class="overline">{{getUser.type}}</div>
                     </v-list-item-title>
                     <v-list-item-title>
-                      <p class="small">Member since {{user.created_at | sinceDate}}</p>
+                      <p class="small">Member since {{getUser.created_at | sinceDate}}</p>
                     </v-list-item-title>
-                    <v-list-item-title v-show="!user.current_user">
+                    <v-list-item-title v-show="!getUser.current_user">
                       <v-btn
                         @click="toggleFollow(user.id)"
-                        :class="user.isFollowing ? 'success' : 'secondary'"
+                        :class="getUser.isFollowing ? 'success' : 'secondary'"
                         fab
                         text
                         small
                       >
                         <i
                           style="font-size: 20px"
-                          :class="user.isFollowing ? 'fas fa-check' : 'fas fa-user-plus'"
+                          :class="getUser.isFollowing ? 'fas fa-check' : 'fas fa-user-plus'"
                         ></i>
                       </v-btn>
                       <v-btn fab small color="success" class="shadow-none">
@@ -63,38 +65,41 @@
                 </v-list-item>
               </v-card>
             </v-col>
-            <v-col cols="12" md="5">
+
+            <v-col cols="12" md="6">
               <v-row no-gutters class="justify-content-center">
                 <v-col cols="4" md="4" class="pr-2">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar align="center" size="64" tile>
-                      <v-img src="/storage/app_photos/account.png"></v-img>
+                      <v-icon size="50">mdi-account-multiple</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
-                        <v-list-item-title class="font-weight-bold headline">{{user.followers}}</v-list-item-title>
+                        <v-list-item-title class="font-weight-bold headline">{{getUser.followers}}</v-list-item-title>
                         <p class="small">Followers</p>
                       </v-list-item-content>
                     </v-list-item>
                   </v-card>
                 </v-col>
+
                 <v-col cols="4" md="4" class="pr-2">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar class="mx-auto" size="64" tile>
-                      <v-img src="/storage/app_photos/remission.png"></v-img>
+                      <v-icon size="50">mdi-account-box-multiple</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
-                        <v-list-item-title class="font-weight-bold headline">{{user.followings}}</v-list-item-title>
+                        <v-list-item-title class="font-weight-bold headline">{{getUser.followings}}</v-list-item-title>
                         <p class="small">Followings</p>
                       </v-list-item-content>
                     </v-list-item>
                   </v-card>
                 </v-col>
+
                 <v-col cols="4" md="4">
                   <v-card dark flat shaped style="background-color: #10383738" class="text-center">
                     <v-avatar class="mx-auto" size="64" tile>
-                      <v-img src="/storage/app_photos/trophy.png"></v-img>
+                      <v-icon size="50">mdi-trophy</v-icon>
                     </v-avatar>
                     <v-list-item class="text-center">
                       <v-list-item-content>
@@ -342,10 +347,10 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
-  mounted() {
-    console.log(this.$route.params.id);
-  },
+  mounted() {},
 
   watch: {
     dialog(val) {
@@ -354,8 +359,11 @@ export default {
   },
 
   created() {
-    this.loadUser();
     this.loadPosts();
+  },
+
+  computed: {
+    ...mapGetters(["getUser"])
   },
 
   data() {
@@ -364,8 +372,8 @@ export default {
       dialog: false,
       tags: "",
       tab: null,
-      user: {},
       posts: {},
+
       postForm: new Form({
         id: "",
         rating: null,
@@ -374,6 +382,7 @@ export default {
         cover_image: "",
         tags: ""
       }),
+
       comment: new Form({
         id: "",
         post_id: "",
@@ -386,7 +395,7 @@ export default {
   methods: {
     agreeComment(comment_id) {
       axios
-        .post("/api/agree", {
+        .post("api/agree", {
           comment_id: comment_id
         })
         .then(response => {
@@ -397,9 +406,10 @@ export default {
           });
         });
     },
+
     toggleCommend(post_id) {
       axios
-        .post("/api/commend", {
+        .post("api/commend", {
           post_id: post_id
         })
         .then(response => {
@@ -410,9 +420,10 @@ export default {
           });
         });
     },
+
     deleteComment(id) {
       this.comment
-        .delete("/api/comment/" + id)
+        .delete("api/comment/" + id)
         .then(() => {
           Toast.fire({
             type: "success",
@@ -428,9 +439,11 @@ export default {
           });
         });
     },
+
     toggleComment(comment_section) {
       $("#CS-" + comment_section).slideToggle();
     },
+
     //Create Comment
     createComment(post_id) {
       let comment = document.querySelector("#C-" + post_id).value;
@@ -456,10 +469,11 @@ export default {
           });
         });
     },
+
     updatePost() {
       this.$Progress.start();
       this.postForm
-        .put("/api/post/" + this.postForm.id)
+        .put("api/post/" + this.postForm.id)
         .then(() => {
           this.dialog = false;
           Swal.fire({
@@ -477,6 +491,7 @@ export default {
           this.$Progress.fail();
         });
     },
+
     deletePost(id) {
       Swal.fire({
         title: "Are you sure?",
@@ -490,7 +505,7 @@ export default {
         // Send request to the server
         if (result.value) {
           this.postForm
-            .delete("/api/post/" + id)
+            .delete("api/post/" + id)
             .then(() => {
               Toast.fire({
                 type: "success",
@@ -508,10 +523,12 @@ export default {
         }
       });
     },
+
     remove(item) {
       this.tags.splice(this.tags.indexOf(item), 1);
       this.tags = [...this.tags];
     },
+
     coverImage(file) {
       let image = file.target.files[0];
       console.log(image);
@@ -522,24 +539,17 @@ export default {
       };
       reader.readAsDataURL(image);
     },
+
     browseImage() {
       $("#cover_photo").click();
     },
+
     loadPosts() {
       axios
-        .get("/api/userpost/" + this.$route.params.id)
+        .get("api/userpost/" + this.getUser.id)
         .then(({ data }) => (this.posts = data));
     },
-    loadUser() {
-      axios
-        .get("/api/user/" + this.$route.params.id)
-        .then(data => {
-          this.user = data.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
+
     toggleFollow(id) {
       let reference = $(this);
       axios
@@ -568,7 +578,7 @@ export default {
               title: "You unfollowed user!"
             });
           }
-          this.loadUser();
+          this.fetchUser(this.getUser.id);
         });
     }
   }

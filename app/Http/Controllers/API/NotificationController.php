@@ -63,6 +63,18 @@ class NotificationController extends Controller
         //
     }
 
+    public function markReadNotification(Request $request)
+    {
+        $auth_user = auth('api')->user();
+        $notificationId = $request->id;
+
+        $auth_user->notifications()
+            ->where('id', $notificationId) // and/or ->where('type', $notificationType)
+            ->get()
+            ->first()
+            ->markAsRead();
+    }
+
     /**
      * Remove the specified resource from storage.
      *

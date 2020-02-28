@@ -2,12 +2,14 @@ import axios from "axios";
 
 const state = {
     allConversations: [],
+    allUnreadChatCount: [],
     conversation: []
 };
 
 const getters = {
     getAllConversations: state => state.allConversations,
-    getConversation: state => state.conversation
+    getConversation: state => state.conversation,
+    getAllUnreadChatCount: state => state.allUnreadChatCount
 };
 
 const actions = {
@@ -28,6 +30,11 @@ const actions = {
     async fetchAllConversations({ commit }) {
         const response = await axios.get("api/all_conversation");
         commit("setAllConversations", response.data);
+    },
+
+    async fetchAllUnreadChatCount({ commit }) {
+        const response = await axios.get("api/all_chat_count");
+        commit("setAllUnreadChatCount", response.data);
     }
 };
 
@@ -45,7 +52,9 @@ const mutations = {
     setAllConversations: (state, conversations) =>
         (state.allConversations = conversations.data),
 
-    newChat: (state, chat) => state.conversation.push(chat)
+    newChat: (state, chat) => state.conversation.push(chat),
+
+    setAllUnreadChatCount: (state, count) => (state.allUnreadChatCount = count)
 };
 
 export default {

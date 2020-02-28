@@ -23,10 +23,10 @@ import "croppie/croppie.css"; // import the croppie css manually
 import store from "./store/";
 import vueCountryRegionSelect from "vue-country-region-select";
 import { Ripple } from "vuetify/lib/directives";
+import Gate from "./Gate";
 import VueAwesomeSwiper from "vue-awesome-swiper";
 // require styles
 import "swiper/dist/css/swiper.css";
-
 
 Vue.use(VueAwesomeSwiper /* { default global options } */);
 
@@ -37,7 +37,6 @@ Vue.use(vueCountryRegionSelect);
 Vue.use(VueCroppie);
 
 // Front-end Access Control
-import Gate from "./Gate";
 Vue.prototype.$gate = new Gate(window.user);
 
 //Global Filters
@@ -106,6 +105,11 @@ Vue.use(Vuetify, {
 Vue.component(
     "example-component",
     require("./components/ExampleComponent.vue").default
+);
+
+Vue.component(
+    "view-post",
+    require("./components/ViewPost.vue").default
 );
 
 /**

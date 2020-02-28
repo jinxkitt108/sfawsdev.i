@@ -451,7 +451,7 @@ export default {
 
     viewMessage(item) {
       this.fetchMessage(item.message_id).then(() => {
-        this.$router.push("/view-message");
+        this.$router.push("/view_message");
       });
     },
 

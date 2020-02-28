@@ -12,7 +12,14 @@ const actions = {
     async fetchAllNotifications({ commit }) {
         const response = await axios.get("api/notification");
         commit("setAllNotifications", response.data)
+    },
+
+    async markReadNotification({ commit }, notification) {
+        const response = await axios.put("api/mark_read_notification", notification);
+        // commit("setAllNotifications", response.data)
     }
+
+
 };
 
 const mutations = {

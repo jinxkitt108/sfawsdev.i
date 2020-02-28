@@ -40,9 +40,13 @@
         label="Spread your thoughts!"
       ></v-textarea>
       <v-chip @click="browseImage" color="success" outlined>
-        <v-icon left>mdi-image</v-icon>Photo/Video
+        <v-icon left>mdi-image</v-icon>Photo
       </v-chip>
-      <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*, video/*" />
+      <v-chip @click="browseVideo" color="success" outlined>
+        <v-icon left>mdi-video</v-icon>Video
+      </v-chip>
+      <input @change="onFileImageChange" id="cover_photo" type="file" hidden accept="image/*" />
+      <input @change="onFileVideoChange" id="cover_video" type="file" hidden accept="video/*" />
       <v-btn
         :loading="loading"
         :disabled="loading"
@@ -63,31 +67,46 @@
     <!-- POST SECTION -->
     <v-card v-for="post in getAllPosts" :key="post.id" class="mt-4">
       <v-list-item>
-        <router-link :to="'/viewuser/' + post.author.id" class="text-decoration-none">
-          <v-list-item-avatar size="50">
-            <img
-              class="img-circle img-bordered border-success"
-              :src="'storage/profile_photo/' + post.author.profile.photo"
-              alt="Profile Photo"
-            />
-          </v-list-item-avatar>
-        </router-link>
+        <v-list-item-avatar @click="viewUser(post.author.id)" size="50" style="cursor: pointer">
+          <img
+            class="img-circle img-bordered border-success"
+            :src="'storage/profile_photo/' + post.author.profile.photo"
+            alt="Profile Photo"
+          />
+        </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title @click="viewPost(post)" class="headline">{{post.title}}</v-list-item-title>
+          <v-list-item-title
+            @click="viewPost(post)"
+            class="headline"
+            style="cursor: pointer"
+          >{{post.title}}</v-list-item-title>
           <v-list-item-subtitle>
             by
-            <router-link :to="'/viewuser/' + post.author.id">{{post.author.name}}</router-link>
-            <span class="small ml-2">({{post.author.type}})</span>
+            <span class="font-weight-bold">{{post.author.name}}</span>
             <span class="small float-right">Posted {{post.created_at | sinceDate}}</span>
           </v-list-item-subtitle>
+          <div class="overline">
+            <span class="small">({{post.author.type}})</span>
+          </div>
         </v-list-item-content>
       </v-list-item>
       <v-container>
+        <!-- Post Content -->
         <v-row>
-          <v-col v-if="post.cover_image" sm="6">
-            <v-img :src="'storage/cover_photo/' + post.cover_image" max-width="270"></v-img>
+          <v-col cols="12" md="4" v-if="post.cover_image">
+            <v-hover v-slot:default="{ hover }" close-delay="200" style="cursor: pointer">
+              <v-card tile :elevation="hover ? 9 : 0" class="pa-2" width="250">
+                <v-img
+                  @click="viewPost(post)"
+                  aspect-ratio="1"
+                  :src="'storage/cover_photo/' + post.cover_image"
+                  contain
+                ></v-img>
+              </v-card>
+            </v-hover>
           </v-col>
-          <v-col>
+
+          <v-col cols="12" md="8">
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-action>
@@ -103,23 +122,20 @@
         </v-row>
 
         <p>
-          <a class="link-black text-sm mr-2">
-            <i class="fas fa-leaf mr-1"></i>Spread
-          </a>
           <a
             v-if="post.commend"
             @click="toggleCommend(post.id)"
             class="link-black text-sm mr-2 primary--text"
           >
             <strong>
-              <i class="fas fa-check mr-1"></i>Commended
+              <i class="fas fa-check mr-1"></i>Recommended
             </strong>
           </a>
           <a
             v-else
             @click="toggleCommend(post.id)"
             class="link-black text-sm mr-2 primary--text"
-          >Commend</a>
+          >Recommend</a>
           <a v-show="post.authorize" @click="editPost(post)" class="link-black text-sm mr-2">Edit</a>
 
           <!-- DIALOG FOR EDITING POST -->
@@ -171,7 +187,13 @@
                   <v-chip>
                     <v-icon>mdi-map-marker</v-icon>
                   </v-chip>
-                  <input @change="coverImage" id="cover_photo" type="file" hidden accept="image/*" />
+                  <input
+                    @change="onFileImageChange"
+                    id="cover_photo"
+                    type="file"
+                    hidden
+                    accept="image/*"
+                  />
                   <v-btn @click="updatePost" absolute outlined right>Update</v-btn>
                 </v-form>
                 <v-container v-show="postForm.cover_image">
@@ -265,6 +287,10 @@
       <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto mt-2"></v-skeleton-loader>
     </div>
 
+    <v-dialog v-model="dialog_view_post" transition="dialog-scale-transition">
+      <view-post v-on:closeDialog="closeViewPost"></view-post>
+    </v-dialog>
+
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate color="green" :size="100" :width="15"></v-progress-circular>
     </v-overlay>
@@ -298,6 +324,7 @@ export default {
       overlay: false,
       isActive: false,
       dialog: false,
+      dialog_view_post: false,
       tags: "",
 
       postForm: new Form({
@@ -306,6 +333,7 @@ export default {
         title: "",
         content: "",
         cover_image: "",
+        cover_video: "",
         delete_cover: "",
         tags: ""
       }),
@@ -320,11 +348,22 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["getCurrentUser", "getAllPosts"])
+    ...mapGetters(["getCurrentUser", "getAllPosts", "getViewPost"])
   },
 
   methods: {
-    ...mapActions(["fetchViewPost", "fetchAllPosts"]),
+    ...mapActions(["fetchUser", "fetchViewPost", "fetchAllPosts"]),
+
+    onFileVideoChange(e) {
+      let video = e.target.files[0];
+      console.log(video);
+      let reader = new FileReader();
+      reader.onloadend = video => {
+        //console.log('RESULT', reader.result)
+        this.postForm.cover_video = reader.result;
+      };
+      reader.readAsDataURL(video);
+    },
 
     limitStr(text) {
       let str = text;
@@ -335,10 +374,31 @@ export default {
       return str;
     },
 
+    browseVideo() {
+      $("#cover_video").click();
+    },
+
+    viewUser(id) {
+      if (id === this.getCurrentUser.id) {
+        this.$router.push("/profile");
+      } else {
+        this.overlay = true;
+        this.fetchUser(id).then(() => {
+          this.overlay = false;
+          this.$router.push("/view_user");
+        });
+      }
+    },
+
+    closeViewPost() {
+      this.dialog_view_post = false;
+    },
+
     viewPost(post) {
       this.overlay = true;
       this.fetchViewPost(post.id).then(() => {
-        this.$router.push("/view-post");
+        this.overlay = false;
+        this.dialog_view_post = true;
       });
     },
 
@@ -489,7 +549,7 @@ export default {
       this.tags = [...this.tags];
     },
 
-    coverImage(file) {
+    onFileImageChange(file) {
       let image = file.target.files[0];
       console.log(image);
       let reader = new FileReader();
@@ -512,6 +572,7 @@ export default {
           title: this.postForm.title,
           content: this.postForm.content,
           cover_image: this.postForm.cover_image,
+          cover_video: this.postForm.cover_video,
           tags: this.postForm.tags
         })
         .then(() => {

@@ -50,6 +50,18 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
+        <v-list-group v-if="$gate.isAdmin()" dark prepend-icon="mdi-cogs">
+          <template v-slot:activator>
+            <v-list-item-title>Management</v-list-item-title>
+          </template>
+          <v-list-item to="/users">
+            <v-list-item-title class="ml-10">Users</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-account-group</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
+        </v-list-group>
+
         <v-list-item to="/profile">
           <v-list-item-icon>
             <v-icon>mdi-account</v-icon>
@@ -63,7 +75,13 @@
           </v-list-item-icon>
           <v-list-item-title>
             Mailbox
-            <v-chip class="ml-2" x-small dark color="red">{{getAllNotifications.length}} Unread</v-chip>
+            <v-chip
+              v-show="getAllNotifications.length > 0"
+              class="ml-2"
+              x-small
+              dark
+              color="red"
+            >{{getAllNotifications.length}} Unread</v-chip>
           </v-list-item-title>
         </v-list-item>
 
@@ -87,18 +105,6 @@
           </v-list-item-icon>
           <v-list-item-title>Marketplace</v-list-item-title>
         </v-list-item>
-
-        <v-list-group dark prepend-icon="mdi-cogs">
-          <template v-slot:activator>
-            <v-list-item-title>Management</v-list-item-title>
-          </template>
-          <v-list-item to="/users">
-            <v-list-item-title class="ml-10">Users</v-list-item-title>
-            <v-list-item-icon>
-              <v-icon>mdi-account-group</v-icon>
-            </v-list-item-icon>
-          </v-list-item>
-        </v-list-group>
 
         <v-list-item v-if="this.$vuetify.theme.dark" @click="themeLight">
           <v-list-item-icon>
@@ -142,7 +148,7 @@
                 <v-badge offset-x="23" offset-y="20" avatar bordered overlap bottom>
                   <template v-slot:badge>
                     <v-avatar>
-                      <v-icon>{{item.data[0].type === 'comment' ? 'mdi-chat' : 'mdi-email-send'}}</v-icon>
+                      <v-icon>{{item.data[0].type === 'comment' ? 'mdi-comment-multiple' : 'mdi-email-send'}}</v-icon>
                     </v-avatar>
                   </template>
 
@@ -151,8 +157,10 @@
                   </v-avatar>
                 </v-badge>
 
-                <v-list-item-content @click="viewNotification(item.data[0])">
-                  <v-list-item-title class="small font-weight-black">{{item.data[0].notification}}</v-list-item-title>
+                <v-list-item-content @click="viewNotification(item)">
+                  <v-list-item-title
+                    class="small font-weight-bold success--text"
+                  >{{item.data[0].notification}}</v-list-item-title>
                   <v-list-item-subtitle class="small">{{item.created_at | sinceDate}}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -188,15 +196,14 @@
       <v-spacer></v-spacer>
       <v-menu
         v-model="fab_search"
-        :close-on-click="false"
         :close-on-content-click="false"
-        nudge-left="265"
+        nudge-left="200"
         :nudge-top="8"
         transition="slide-x-transition"
         fixed
       >
         <template v-slot:activator="{ on }">
-          <v-btn icon class="mr-1" v-on="on">
+          <v-btn icon v-on="on">
             <v-icon class="text--accent">mdi-magnify</v-icon>
           </v-btn>
         </template>
@@ -215,7 +222,12 @@
       </v-menu>
 
       <v-app-bar-nav-icon class="white--text mr-3" @click.stop="drawerRight = !drawerRight">
-        <v-badge color="red" :content="getAllNotifications.length" overlap bordered>
+        <v-badge
+          :value="getAllNotifications.length"
+          color="red"
+          :content="getAllNotifications.length"
+          overlap
+        >
           <v-icon class="text--accent">mdi-bell</v-icon>
         </v-badge>
       </v-app-bar-nav-icon>
@@ -226,6 +238,8 @@
       <!-- If using vue-router -->
       <router-view></router-view>
     </v-content>
+
+    <!-- CHAT BOX SECTION -->
     <v-menu
       min-width="350"
       v-model="chat"
@@ -239,11 +253,19 @@
       <template v-slot:activator="{ on }">
         <v-fab-transition>
           <v-btn dark fixed bottom right fab v-on="on" @click="openChatBox" color="green">
-            <v-icon>mdi-chat</v-icon>
+            <v-badge
+              :value="getAllUnreadChatCount"
+              color="red"
+              :content="getAllUnreadChatCount"
+              overlap
+            >
+              <v-icon>mdi-chat</v-icon>
+            </v-badge>
           </v-btn>
         </v-fab-transition>
       </template>
 
+      <!-- Conversation List -->
       <v-card v-if="!direct_chat">
         <v-toolbar dense dark color="primary">
           <v-toolbar-title>Sfaws Chat</v-toolbar-title>
@@ -254,83 +276,96 @@
         </v-toolbar>
 
         <v-card flat height="410">
-          <v-tabs v-model="tab_chat" centered hide-slider>
+          <v-tabs v-model="tab_chat" fixed-tabs centered hide-slider>
             <v-tab @click="openChatBox">
               Chats
               <v-icon>mdi-wechat</v-icon>
             </v-tab>
-            <v-tab>
+            <v-tab @click="fetchFollowingUsers">
               People
               <v-icon>mdi-account-multiple</v-icon>
             </v-tab>
           </v-tabs>
+
           <v-tabs-items v-model="tab_chat">
             <v-tab-item>
-              <!-- LOADER CONVERSATION LIST -->
-              <v-row v-if="!loaded_convo" justify="center">
-                <v-overlay :opacity="0.1" :value="!loaded_convo">
-                  <v-progress-circular :size="64" :width="7" color="green" indeterminate></v-progress-circular>
-                </v-overlay>
-              </v-row>
-              <vue-custom-scrollbar class="scroll-area" settings="30">
-                <v-list dense>
-                  <v-list-item-group>
-                    <v-list-item
-                      @click="openChat(item.conversation.participants[0].messageable)"
-                      v-for="item in getAllConversations"
-                      :key="item.id"
-                    >
-                      <v-list-item-avatar size="36">
-                        <img
-                          :src="'storage/profile_photo/' + item.conversation.participants[0].messageable.profile.photo"
-                          alt
-                        />
-                      </v-list-item-avatar>
-                      <v-list-item-content>
-                        <v-list-item-title
-                          v-text="item.conversation.participants[0].messageable.name"
-                        >
-                          <!-- <v-spacer></v-spacer>
-                          <span
+              <v-card flat>
+                <!-- LOADER LIST -->
+                <v-row v-if="!loaded_convo" justify="center">
+                  <v-overlay :opacity="0.1" :value="!loaded_convo">
+                    <v-progress-circular :size="64" :width="7" color="green" indeterminate></v-progress-circular>
+                  </v-overlay>
+                </v-row>
+                <vue-custom-scrollbar class="scroll-area" settings="30">
+                  <v-list dense>
+                    <v-list-item-group v-for="item in getAllConversations" :key="item.id">
+                      <v-list-item
+                        v-show="user.messageable.id !== getCurrentUser.id"
+                        v-for="user in item.conversation.participants"
+                        :key="user.id"
+                        @click="openChat(user.messageable)"
+                      >
+                        <v-list-item-avatar size="36">
+                          <img :src="'storage/profile_photo/' + user.messageable.profile.photo" alt />
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                          <v-list-item-title
+                            :class="item.conversation.last_message.is_seen ? '' : 'success--text font-weight-bold'"
+                            v-text="user.messageable.name"
+                          ></v-list-item-title>
+                          <v-list-item-subtitle
                             class="caption"
-                          >{{item.conversation.last_message.created_at | dateAtTime}}</span>-->
-                        </v-list-item-title>
-                        <v-list-item-subtitle class="caption">
-                          <span v-show="item.conversation.last_message.is_sender" class="mr-1">You:</span>
-                          {{limitStr(item.conversation.last_message.body)}}
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </vue-custom-scrollbar>
+                            :class="item.conversation.last_message.is_seen ? '' : 'success--text font-weight-bold'"
+                          >
+                            <span
+                              v-show="item.conversation.last_message.is_sender"
+                              class="mr-1"
+                            >You:</span>
+                            {{limitStr(item.conversation.last_message.body)}}
+                          </v-list-item-subtitle>
+                          <v-list-item-subtitle class="caption">
+                            <span
+                              class="small"
+                            >{{item.conversation.last_message.created_at | dateAtTime}}</span>
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </vue-custom-scrollbar>
+              </v-card>
             </v-tab-item>
 
             <v-tab-item>
-              <vue-custom-scrollbar class="scroll-area" settings="30">
-                <v-list dense>
-                  <v-list-item-group>
-                    <v-list-item
-                      @click="openChat(user)"
-                      v-for="user in allFollowingUsers"
-                      :key="user.id"
-                    >
-                      <v-list-item-avatar size="36">
-                        <img :src="'storage/profile_photo/' + user.profile.photo" alt />
-                      </v-list-item-avatar>
-                      <v-list-item-content>
-                        <v-list-item-title v-text="user.name"></v-list-item-title>
-                        <v-list-item-subtitle v-text="user.type" class="overline"></v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </vue-custom-scrollbar>
+              <v-card flat>
+                <vue-custom-scrollbar class="scroll-area" settings="30">
+                  <v-list dense>
+                    <v-list-item-group>
+                      <v-list-item
+                        @click="openChat(user)"
+                        v-for="user in allFollowingUsers"
+                        :key="user.id"
+                      >
+                        <v-badge :value="user.last_seen" color="green lighten-1" overlap bottom bordered dot offset-x="10">
+                          <v-avatar size="36">
+                            <img :src="'storage/profile_photo/' + user.profile.photo" alt />
+                          </v-avatar>
+                        </v-badge>
+                        <v-list-item-content>
+                          <v-list-item-title v-text="user.name"></v-list-item-title>
+                          <v-list-item-subtitle v-text="user.type" class="overline"></v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </vue-custom-scrollbar>
+              </v-card>
             </v-tab-item>
           </v-tabs-items>
         </v-card>
       </v-card>
 
+      <!-- Direct Chat -->
       <v-card v-else>
         <v-toolbar dense dark color="primary">
           <v-avatar size="40" class="mr-2">
@@ -358,18 +393,21 @@
             <div
               class="mb-4"
               :class="!message.is_sender ? 'direct-chat-msg right ml-5' : 'direct-chat-msg mr-5'"
-              v-for="message in getConversation"
-              :key="message.id"
+              v-for="(message, index) in getConversation"
+              :key="index"
             >
               <v-avatar size="35" class="direct-chat-img">
                 <v-img :src="'storage/profile_photo/' + message.sender.profile.photo"></v-img>
               </v-avatar>
-              <div class="direct-chat-text caption">{{message.body}}</div>
-              <span class="direct-chat-timestamp caption mr-3">{{message.created_at | dateAtTime}}</span>
-              <span
-                v-show="!message.is_sender && message.is_seen"
-                class="font-weight-bold caption"
-              >Seen</span>
+              <div class="direct-chat-text body-1">{{message.body}}</div>
+              <div class="caption">
+                <span class="direct-chat-timestamp small mr-3">{{message.created_at | dateAtTime}}</span>
+                <span
+                  v-if="index == getConversation.length - 1"
+                  v-show="!message.is_sender && message.is_seen"
+                  class="font-weight-bold"
+                >Seen</span>
+              </div>
             </div>
 
             <v-progress-circular
@@ -401,6 +439,10 @@
       </v-card>
     </v-menu>
 
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate color="green" :size="100" :width="15"></v-progress-circular>
+    </v-overlay>
+
     <v-footer dark app>
       <span>&copy; 2020</span>
     </v-footer>
@@ -425,10 +467,13 @@ export default {
     fab_search: false,
     chat: false,
     show_search: false,
+    // Loaders
     loaded: false,
     loaded_convo: false,
     loaded_chat: false,
     loading_new_message: false,
+    overlay: false,
+
     search: "",
     tab: null,
     tab_chat: null,
@@ -460,7 +505,8 @@ export default {
     "getCurrentUser",
     "allFollowingUsers",
     "getConversation",
-    "getAllConversations"
+    "getAllConversations",
+    "getAllUnreadChatCount"
   ]),
 
   methods: {
@@ -469,10 +515,13 @@ export default {
       "fetchCurrentUser",
       "fetchFollowingUsers",
       "fetchMessage",
+      "fetchViewPost",
       "addChatMessage",
       "fetchAllConversations",
       "fetchConversation",
-      "resetConversation"
+      "resetConversation",
+      "fetchAllUnreadChatCount",
+      "markReadNotification"
     ]),
 
     openChatBox() {
@@ -485,9 +534,10 @@ export default {
     },
 
     closeChat() {
-      this.loaded_chat = false;
-      this.direct_chat = false;
+      this.openChatBox();
       this.resetConversation();
+      // Reload Unread Messages Count
+      this.fetchAllUnreadChatCount();
     },
 
     scrollChat() {
@@ -503,6 +553,8 @@ export default {
       this.fetchConversation(user).then(() => {
         this.loaded_chat = true;
         this.scrollChat();
+        // Reload Unread Messages Count
+        this.fetchAllUnreadChatCount();
       });
     },
 
@@ -526,12 +578,26 @@ export default {
     },
 
     viewNotification(item) {
-      if (item.type === "message") {
-        this.fetchMessage(item.data.id).then(() => {
-          this.$router.push("/view-message");
+      if (item.data[0].type === "message") {
+        this.overlay = true;
+        this.fetchMessage(item.data[0].data.id).then(() => {
+          this.overlay = false;
+          this.$router.push("/view_message");
+
+          this.markReadNotification(item).then(() => {
+            this.fetchAllNotifications();
+          });
         });
-      } else if (item.type === "comment") {
-        this.$router.push("/viewpost/" + item.data.id);
+      } else if (item.data[0].type === "comment") {
+        this.overlay = true;
+        this.fetchViewPost(item.data[0].data.id).then(() => {
+          this.overlay = false;
+          this.$router.push("/view_post");
+
+          this.markReadNotification(item).then(() => {
+            this.fetchAllNotifications();
+          });
+        });
       }
       //   this.fetchMessage(item.message_id).then(() => {
       //     this.$router.push("/view-message");
@@ -581,6 +647,7 @@ export default {
     this.fetchCurrentUser().then(() => {
       this.loaded = true;
     });
+    this.fetchAllUnreadChatCount();
     this.fetchFollowingUsers();
     this.fetchAllNotifications();
   },

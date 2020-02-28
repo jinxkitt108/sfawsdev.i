@@ -253,7 +253,7 @@ export default {
 
     viewDiscussion(id) {
       this.fetchDiscussion(id).then(() => {
-        this.$router.push("/view-discussion");
+        this.$router.push("/view_discussion");
       });
     },
 

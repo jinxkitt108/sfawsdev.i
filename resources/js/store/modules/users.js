@@ -1,18 +1,25 @@
 import axios from "axios";
 
 const state = {
+    user: [],
     followingUsers: [],
     currentUser: [],
     expertUsers: []
 };
 
 const getters = {
+    getUser: (state) => state.user,
     allFollowingUsers: (state) => state.followingUsers,
     getCurrentUser: (state) => state.currentUser,
     getExpertUsers: (state) => state.expertUsers
 };
 
 const actions = {
+
+    async fetchUser({ commit }, id) {
+        const response = await axios.get('api/user/' + id);
+        commit('setUser', response.data);
+    },
 
     async fetchFollowingUsers({ commit }) {
         const response = await axios.get('api/follow');
@@ -32,6 +39,7 @@ const actions = {
 };
 
 const mutations = {
+    setUser: (state, user) => (state.user = user),
     setfollowingUsers: (state, users) => (state.followingUsers = users),
     setCurrentUser: (state, user) => (state.currentUser = user),
     setExpertUsers: (state, users) => (state.expertUsers = users)

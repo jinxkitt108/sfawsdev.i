@@ -14,13 +14,13 @@ const getters = {
 
 const actions = {
     async addMessage({ commit }, message) {
-        const config = { headers: { "Content-Type": "multipart/form-data" } };
+        const config = { headers: { "Content-Type": "multipart/form-data", "type" : "POST" } };
         const response = await axios.post("api/message", message, config);
     },
 
     async fetchSentMessages({ commit }) {
         const response = await axios.get("api/sent");
-        commit("setSentMessages", response.data.data);
+        commit("setSentMessages", response.data);
     },
 
     async fetchInboxMessages({ commit }) {
