@@ -20,10 +20,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 //Users Routes
 Route::apiResources(['user' => 'API\UserController']);
-Route::get('currentUser', 'API\UserController@current');
+Route::put('online', 'API\UserController@userOnline');
+Route::post('currentUser', 'API\UserController@current');
 Route::get('email', 'API\UserController@uniqueEmail');
 Route::get('experts', 'API\UserController@findExperts');
 Route::get('searchUser', 'API\UserController@search');
+
+//Expert Routes
+Route::apiResources(['expert' => 'API\ExpertController']);
 
 //Follow and Commend Routes
 Route::apiResources(['follow' => 'API\FollowController']);

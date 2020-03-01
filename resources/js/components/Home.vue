@@ -312,6 +312,7 @@ export default {
   },
 
   created() {
+      this.onlineStatus();
     this.fetchAllPosts().then(() => {
       this.loaded = true;
     });
@@ -352,7 +353,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["fetchUser", "fetchViewPost", "fetchAllPosts"]),
+    ...mapActions(["fetchUser", "fetchViewPost", "fetchAllPosts", "onlineStatus"]),
 
     onFileVideoChange(e) {
       let video = e.target.files[0];

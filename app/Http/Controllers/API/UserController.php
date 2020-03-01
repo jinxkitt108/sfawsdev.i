@@ -32,6 +32,15 @@ class UserController extends Controller
         return User::latest()->paginate();
     }
 
+    public function userOnline(Request $request)
+    {
+        $id = auth('api')->user()->id;
+        $user = User::find($id);
+
+        $user->update($request->all());
+        return dd("online user");
+    }
+
     public function search()
     {
         $current_user = auth('api')->user();
@@ -65,6 +74,7 @@ class UserController extends Controller
     {
         return auth('api')->user();
     }
+
     public function findExperts()
     {
         $user = auth('api')->user();
@@ -166,7 +176,7 @@ class UserController extends Controller
             $request->merge(['password' => Hash::make($request['password'])]);
         }
         $user->update($request->all());
-        return ['message' => 'User Updated!'];
+        return $user;
     }
 
     /**
@@ -178,9 +188,14 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $profile = Profile::where('user_id', $id);
 
         //Delete the user
-        $user->delete();
+        $delete = $user->delete();
+        if($delete) {
+            $profile->delete();
+        }
+
         return ['message' => 'User Deleted'];
     }
 }

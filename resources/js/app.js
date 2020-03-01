@@ -14,7 +14,6 @@ import Vuetify from "vuetify";
 import Routes from "@/js/routes.js";
 import App from "@/js/views/App";
 import { Form, HasError, AlertError } from "vform";
-import Vuelidate from "vuelidate";
 import VueProgressBar from "vue-progressbar";
 import Vue2Filters from "vue2-filters";
 import moment from "moment";
@@ -25,6 +24,7 @@ import vueCountryRegionSelect from "vue-country-region-select";
 import { Ripple } from "vuetify/lib/directives";
 import Gate from "./Gate";
 import VueAwesomeSwiper from "vue-awesome-swiper";
+import vueCustomScrollbar from "vue-custom-scrollbar";
 // require styles
 import "swiper/dist/css/swiper.css";
 
@@ -73,9 +73,20 @@ const Toast = Swal.mixin({
     showConfirmButton: false,
     timer: 3000
 });
+
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger"
+    },
+    buttonsStyling: false
+});
+
 window.Toast = Toast;
+window.swalWithBootstrapButtons = swalWithBootstrapButtons;
 
 // Vuelidate
+import Vuelidate from "vuelidate";
 Vue.use(Vuelidate);
 
 // VUE FORM
@@ -107,10 +118,8 @@ Vue.component(
     require("./components/ExampleComponent.vue").default
 );
 
-Vue.component(
-    "view-post",
-    require("./components/ViewPost.vue").default
-);
+Vue.component("view-post", require("./components/ViewPost.vue").default);
+Vue.component("vue-custom-scrollbar", vueCustomScrollbar);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

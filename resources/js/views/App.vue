@@ -43,13 +43,7 @@
         </v-list-item>
         <v-divider></v-divider>
 
-        <v-list-item to="/home">
-          <v-list-item-icon>
-            <v-icon>mdi-home</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Home</v-list-item-title>
-        </v-list-item>
-
+        <!-- Admin Managmente Links -->
         <v-list-group v-if="$gate.isAdmin()" dark prepend-icon="mdi-cogs">
           <template v-slot:activator>
             <v-list-item-title>Management</v-list-item-title>
@@ -60,7 +54,20 @@
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
           </v-list-item>
+          <v-list-item to="/experts">
+            <v-list-item-title class="ml-10">Experts</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-account-tie</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
         </v-list-group>
+
+        <v-list-item to="/home">
+          <v-list-item-icon>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Home</v-list-item-title>
+        </v-list-item>
 
         <v-list-item to="/profile">
           <v-list-item-icon>
@@ -306,7 +313,20 @@
                         @click="openChat(user.messageable)"
                       >
                         <v-list-item-avatar size="36">
-                          <img :src="'storage/profile_photo/' + user.messageable.profile.photo" alt />
+                          <v-badge
+                            :value="user.messageable.status"
+                            color="green lighten-1"
+                            overlap
+                            bottom
+                            bordered
+                            dot
+                            offset-x="10"
+                          >
+                            <img
+                              :src="'storage/profile_photo/' + user.messageable.profile.photo"
+                              alt
+                            />
+                          </v-badge>
                         </v-list-item-avatar>
                         <v-list-item-content>
                           <v-list-item-title
@@ -346,7 +366,15 @@
                         v-for="user in allFollowingUsers"
                         :key="user.id"
                       >
-                        <v-badge :value="user.last_seen" color="green lighten-1" overlap bottom bordered dot offset-x="10">
+                        <v-badge
+                          :value="user.status"
+                          color="green lighten-1"
+                          overlap
+                          bottom
+                          bordered
+                          dot
+                          offset-x="10"
+                        >
                           <v-avatar size="36">
                             <img :src="'storage/profile_photo/' + user.profile.photo" alt />
                           </v-avatar>
@@ -451,13 +479,8 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import vueCustomScrollbar from "vue-custom-scrollbar";
 
 export default {
-  components: {
-    vueCustomScrollbar
-  },
-
   props: {
     source: String
   },

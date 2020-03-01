@@ -11,7 +11,11 @@ let routes = [
     { path: '/thestore', component: require('./components/TheStore.vue').default },
     { path: '/mystore', component: require('./components/MyStore.vue').default },
     { path: '/buildstore', component: require('./components/BuildStore.vue').default },
-    { path: '/users', component: require('./components/Users.vue').default },
+
+    // Admin Routes
+    { path: '/users', component: require('./components/User.vue').default },
+    { path: '/experts', component: require('./components/Expert.vue').default },
+
     { path: '/search', component: require('./components/Search.vue').default },
     { path: '/view_user', component: require('./components/ViewUser.vue').default },
     { path: '/view-product/:id',  props: { default: true}, component: require('./components/ViewProduct.vue').default },

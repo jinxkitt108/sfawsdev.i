@@ -117,6 +117,7 @@
             </v-card>
           </v-container>
         </v-tab-item>
+
         <v-tab-item>
           <v-container>
             <v-row class="d-flex flex-row">
@@ -140,6 +141,7 @@
             </v-row>
           </v-container>
         </v-tab-item>
+
         <v-tab-item>
           <v-container>
             <v-data-table
@@ -156,6 +158,8 @@
                   <v-toolbar-title class="subtitle-1">Product List</v-toolbar-title>
                   <v-divider class="mx-4" inset vertical></v-divider>
                   <v-spacer></v-spacer>
+
+                  <!-- Add/Edit Product Dialog -->
                   <v-dialog v-model="dialog" max-width="700px">
                     <template v-slot:activator="{ on }">
                       <v-btn small outlined color="primary" class="mb-2" v-on="on">
@@ -291,6 +295,8 @@
                   ></v-text-field>
                 </v-toolbar>
               </template>
+
+              <!-- Product Table Contents -->
               <template v-slot:item.photos="{ item }">
                 <v-avatar tile>
                   <v-img :src="'storage/product_photo/' + item.photos[0].file"></v-img>
@@ -315,6 +321,7 @@
             </v-data-table>
           </v-container>
         </v-tab-item>
+
         <v-tab-item>
           <v-container>
             <v-form>
