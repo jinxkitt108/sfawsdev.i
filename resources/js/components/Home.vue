@@ -282,8 +282,8 @@
     </v-card>
 
     <div v-show="!loaded">
-      <v-skeleton-loader type="card-avatar" class="mx-auto mt-3"></v-skeleton-loader>
       <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto mt-2"></v-skeleton-loader>
+      <v-skeleton-loader type="card-avatar" class="mx-auto mt-3"></v-skeleton-loader>
       <v-skeleton-loader type="list-item-avatar-three-line" class="mx-auto mt-2"></v-skeleton-loader>
     </div>
 
@@ -312,7 +312,7 @@ export default {
   },
 
   created() {
-      this.onlineStatus();
+    this.setUserOnline();
     this.fetchAllPosts().then(() => {
       this.loaded = true;
     });
@@ -353,7 +353,18 @@ export default {
   },
 
   methods: {
-    ...mapActions(["fetchUser", "fetchViewPost", "fetchAllPosts", "onlineStatus"]),
+    ...mapActions([
+      "fetchUser",
+      "fetchViewPost",
+      "fetchAllPosts",
+      "onlineStatus"
+    ]),
+
+    setUserOnline() {
+      if (!this.getCurrentUser.status) {
+        this.onlineStatus();
+      }
+    },
 
     onFileVideoChange(e) {
       let video = e.target.files[0];

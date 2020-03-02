@@ -124,7 +124,6 @@ class UserController extends Controller
 
     public function uniqueEmail(Request $request, $value)
     {
-
         return  User::where('email', $value);
     }
 

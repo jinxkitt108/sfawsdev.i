@@ -12,12 +12,18 @@ const getters = {
 const actions = {
     async fetchAllExperts({ commit }) {
         const response = await axios.get("api/expert");
-        commit("setAllExperts", response.data)
+        commit("setAllExperts", response.data);
+    },
+
+    async addExpert({ commit }, expert) {
+        const response = await axios.post("api/expert", expert);
+        commit("newExpert", response.data);
     }
 };
 
 const mutations = {
-    setAllExperts: (state, experts) => state.allExperts = experts
+    setAllExperts: (state, experts) => (state.allExperts = experts),
+    newExpert: (state, expert) => state.allExperts.unshift(expert)
 };
 
 export default {

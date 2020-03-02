@@ -91,6 +91,8 @@
                         v-model="expert_form.website"
                         label="Website"
                         color="success"
+                        hint="Leave empty if not available."
+                        persistent-hint
                         outlined
                         rounded
                         dense
@@ -115,6 +117,39 @@
                         outlined
                         rounded
                       ></v-text-field>
+                      <v-file-input
+                        ref="avatar_input"
+                        @change="setUpCroppie"
+                        accept="image/*"
+                        label="Photo"
+                        color="success"
+                        outlined
+                        rounded
+                        dense
+                        :clearable="false"
+                        prepend-icon="mdi-camera"
+                      ></v-file-input>
+
+                      <div v-if="avatar" class="text-center">
+                        <v-avatar size="164">
+                          <v-img :src="this.expert_form.photo"></v-img>
+                        </v-avatar>
+                        <v-btn icon color="success">
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </div>
+
+                      <div v-show="croppie" class="text-center">
+                        <vue-croppie
+                          ref="croppieRef"
+                          :enableOrientation="true"
+                          :viewport="{ width: 164, height: 164, type: 'circle'}"
+                          :boundary="{ width: 164, height: 164}"
+                          :enableResize="false"
+                          :showZoomer="false"
+                        ></vue-croppie>
+                        <v-btn @click="saveCrop" small outlined rounded color="success">Crop</v-btn>
+                      </div>
                     </v-card-text>
                   </v-card>
                   <v-card-actions>
@@ -324,6 +359,9 @@ export default {
       dialog_new_expert: false,
       showPassword: false,
       training: "",
+      croppie: false,
+      cropped: false,
+      avatar: false,
 
       //Steppers
       exForm: 1,
@@ -464,7 +502,52 @@ export default {
   },
 
   methods: {
-    ...mapActions(["fetchAllExperts"]),
+    ...mapActions(["fetchAllExperts", "addExpert"]),
+
+    saveCrop() {
+      // Saving Croppie Result
+      let options = {
+        format: "jpeg",
+        type: "canvas",
+        size: "boundary"
+      };
+
+      this.$refs.croppieRef
+        .result(options, output => {
+          this.expert_form.photo = output;
+        })
+        .then(() => {
+          this.cropped = true;
+          this.croppie = false;
+          this.avatar = true;
+          this.$refs.avatar_input.value = "";
+        });
+    },
+
+    setUpCroppie(file) {
+      this.croppie = true;
+      this.cropped = false;
+      let image = file;
+      console.log(image);
+      // To check if file is an image
+      if (!image.name.match(/.(jpg|jpeg|png|gif)$/i)) {
+        Swal.fire({
+          type: "error",
+          title: "Oops...",
+          text: "That is not an image!"
+        });
+        file = null;
+        return;
+      }
+
+      let reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = image => {
+        this.$refs.croppieRef.bind({
+          url: reader.result
+        });
+      };
+    },
 
     removeFile(file) {
       let index = this.expert_form.attachments.findIndex(
@@ -516,9 +599,26 @@ export default {
 
     close() {
       this.dialog_new_expert = false;
+      this.expert_form.reset();
     },
 
-    saveNewExpert() {}
+    saveNewExpert() {
+      let ctgory = this.selected_categories;
+      ctgory.forEach((item, index) => {
+        this.expert_form.categories.push(item.name);
+      });
+      //Then Sending http request saving expert into DB
+      this.addExpert(this.expert_form).then(() => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Expert successfuly added!",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        this.close();
+      });
+    }
   }
 };
 </script>

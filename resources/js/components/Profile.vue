@@ -31,7 +31,7 @@
                 offset-x="50"
                 offset-y="30"
               >
-                <v-avatar  @click="browseImage" class="avatar" color="cyan" size="164">
+                <v-avatar @click="browseImage" class="avatar" color="cyan" size="164">
                   <v-img
                     v-if="loaded"
                     :src="'/storage/profile_photo/' + getCurrentUser.profile.photo"
@@ -193,7 +193,9 @@
               <v-list-item-subtitle>
                 by {{post.author.name}}
                 <span class="small ml-2">({{post.author.type}})</span>
-                <span class="float-right caption font-weight-bold">Posted {{post.created_at | sinceDate}}</span>
+                <span
+                  class="float-right caption font-weight-bold"
+                >Posted {{post.created_at | sinceDate}}</span>
               </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
@@ -494,6 +496,7 @@ export default {
           });
         });
     },
+
     toggleCommend(post_id) {
       axios
         .post("/api/commend", {
@@ -507,6 +510,7 @@ export default {
           });
         });
     },
+
     deleteComment(id) {
       this.comment
         .delete("/api/comment/" + id)
@@ -525,9 +529,11 @@ export default {
           });
         });
     },
+
     toggleComment(comment_section) {
       $("#CS-" + comment_section).slideToggle();
     },
+
     //Create Comment
     createComment(post_id) {
       let comment = document.querySelector("#C-" + post_id).value;
@@ -553,6 +559,7 @@ export default {
           });
         });
     },
+
     updatePost() {
       this.$Progress.start();
       this.postForm
@@ -574,6 +581,7 @@ export default {
           this.$Progress.fail();
         });
     },
+
     deletePost(id) {
       Swal.fire({
         title: "Are you sure?",
@@ -605,23 +613,27 @@ export default {
         }
       });
     },
+
     loadPosts() {
       axios.get("api/mypost").then(({ data }) => (this.posts = data));
     },
+
     loadUser() {
       axios.get("api/profile").then(({ data }) => this.userForm.fill(data));
     },
+
     cancelCrop() {
       this.croppie = false;
       $(".avatar").show();
-      file.target.value = null;
     },
+
     cropSave() {
       let options = {
         format: "jpeg",
         type: "canvas",
         size: "viewport"
       };
+
       this.$refs.croppieRef
         .result(options, output => {
           this.photo = output;
@@ -649,13 +661,17 @@ export default {
             });
         });
     },
+
     browseImage() {
       $("#image").click();
     },
+
     setUpCroppie(file) {
       $(".avatar").hide();
       this.croppie = true;
       let image = file.target.files[0];
+
+      console.log(image);
       // To check if file is an image
       if (!image.name.match(/.(jpg|jpeg|png|gif)$/i)) {
         Swal.fire({
@@ -676,6 +692,7 @@ export default {
         });
       };
     },
+
     updateInfo() {
       this.$Progress.start();
       if (this.userForm.password == "") {

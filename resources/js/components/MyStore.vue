@@ -484,9 +484,11 @@ export default {
             });
         });
     },
+
     browseCover() {
       $("#cover").click();
     },
+
     setUpCover(file) {
       $(".cover").hide();
       this.coverCroppie = true;
@@ -511,6 +513,7 @@ export default {
         });
       };
     },
+
     togglePublic(item) {
       axios
         .put("api/publicProducts", {
@@ -532,6 +535,7 @@ export default {
           });
         });
     },
+
     deleteItem(item) {
       Swal.fire({
         title: "Are you sure?",
@@ -560,6 +564,7 @@ export default {
         }
       });
     },
+
     updateProduct() {
       this.$Progress.start();
       this.newProduct
@@ -585,11 +590,13 @@ export default {
           });
         });
     },
+
     editItem(item) {
       this.dialog = true;
       this.editMode = true;
       this.newProduct.fill(item);
     },
+
     updateStore() {
       this.$Progress.start();
       axios
@@ -611,6 +618,7 @@ export default {
           });
         });
     },
+
     loadProducts() {
       axios
         .get("api/product")
@@ -619,11 +627,13 @@ export default {
         })
         .catch(() => {});
     },
+
     deletePhoto(photo) {
       let index = this.newProduct.photos.indexOf(photo);
       this.newProduct.photos.push({ remove: photo.file });
       this.newProduct.photos.splice(index, 1);
     },
+
     uploadFileReference(e) {
       if (!e.length) {
         this.newProduct.photos = [];
@@ -632,6 +642,7 @@ export default {
         this.showImage(e);
       }
     },
+
     showImage(files) {
       if (files.length > 1) {
         const test = Array.from(files).forEach((file, idx) => {
@@ -661,6 +672,7 @@ export default {
         fileReader.readAsDataURL(files[0]);
       }
     },
+
     addProduct() {
       this.$Progress.start();
       this.newProduct
@@ -682,6 +694,7 @@ export default {
           });
         });
     },
+
     close() {
       this.dialog = false;
       this.$refs.form.reset();
@@ -689,10 +702,12 @@ export default {
       this.editMode = false;
       this.loadProducts();
     },
+
     reset() {
       this.$refs.form.reset();
       this.newProduct.public = false;
     },
+
     cancelCrop() {
       this.croppie = false;
       this.coverCroppie = false;
@@ -701,6 +716,7 @@ export default {
       this.$refs.fileupload.value = "";
       this.$refs.coverUpload.value = "";
     },
+
     cropSave() {
       let options = {
         format: "jpeg",
@@ -733,9 +749,11 @@ export default {
             });
         });
     },
+
     browseImage() {
       $("#image").click();
     },
+
     setUpCroppie(file) {
       $(".avatar").hide();
       this.croppie = true;
