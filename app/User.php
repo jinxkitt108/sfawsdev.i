@@ -79,4 +79,11 @@ class User extends Authenticatable
         return $this->hasMany('App\Messageable', 'receiver_id')->where('receiver_deleted', 0)->orderBy('created_at', 'desc');
     }
 
+    public function expert_info() {
+        return $this->hasOne(ExpertInfo::class);
+    }
+
+    public function time_slots() {
+        return $this->hasMany(TimeSlot::class);
+    }
 }

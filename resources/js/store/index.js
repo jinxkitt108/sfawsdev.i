@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import messages from './modules/messages';
 import users from './modules/users';
 import experts from './modules/experts';
+import sessions from './modules/sessions';
 import posts from './modules/posts';
 import stores from './modules/stores';
 import products from './modules/products';
@@ -20,6 +21,7 @@ export default new Vuex.Store({
         messages,
         users,
         experts,
+        sessions,
         posts,
         stores,
         products,

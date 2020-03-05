@@ -56,6 +56,10 @@ Vue.filter("dateAtTime", function(created) {
     return moment(created).calendar();
 });
 
+Vue.filter("shortTime", function(created) {
+    return moment(created).format('LT');;
+});
+
 // Progress Bar
 Vue.use(VueProgressBar, {
     color: "rgb(143, 255, 199)",

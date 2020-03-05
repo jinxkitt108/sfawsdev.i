@@ -69,6 +69,13 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
+        <v-list-item :to="$gate.isAdmin() ? '/admin_session' : '/session'">
+          <v-list-item-icon>
+            <v-icon>mdi-video-input-antenna</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Sessions</v-list-item-title>
+        </v-list-item>
+
         <v-list-item to="/profile">
           <v-list-item-icon>
             <v-icon>mdi-account</v-icon>
@@ -99,7 +106,7 @@
           <v-list-item-title>Discussions</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="getCurrentUser.store ? '/mystore' : '/thestore'">
+        <v-list-item v-if="$gate.isFarmerOrSupplier()" :to="getCurrentUser.store ? '/mystore' : '/thestore'">
           <v-list-item-icon>
             <v-icon>mdi-storefront</v-icon>
           </v-list-item-icon>

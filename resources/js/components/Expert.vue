@@ -16,47 +16,52 @@
         <v-row>
           <v-col cols="12" v-for="expert in props.items" :key="expert.id">
             <v-hover v-slot:default="{ hover }">
-              <v-sheet :elevation="hover ? 9 : 1">
-                <v-list-item>
-                  <v-list-item-avatar size="100" color="teal">
-                    <v-img :src="'/storage/profile_photo/' + expert.profile.photo">
-                      <template v-slot:placeholder>
-                        <v-row class="fill-height ma-0" align="center" justify="center">
-                          <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
-                        </v-row>
-                      </template>
-                    </v-img>
-                  </v-list-item-avatar>
+              <v-card :elevation="hover ? 9 : 1">
+                <v-card-text>
+                  <v-list-item>
+                    <v-list-item-avatar size="100" color="teal">
+                      <v-img :src="'/storage/profile_photo/' + expert.profile.photo">
+                        <template v-slot:placeholder>
+                          <v-row class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="success lighten-5"></v-progress-circular>
+                          </v-row>
+                        </template>
+                      </v-img>
+                    </v-list-item-avatar>
 
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      <span class="font-weight-bold">{{expert.name}}</span>
-                      <div class="overline">{{expert.type}}</div>
-                    </v-list-item-title>
-                    <v-list-item-title>
-                      <p class="small">Member since {{expert.created_at | sinceDate}}</p>
-                    </v-list-item-title>
-                    <v-list-item-title>
-                      <v-icon left>mdi-account-multiple</v-icon>
-                      {{expert.followers.length}}
-                      <v-icon left class="ml-1">mdi-video</v-icon>15
-                      <v-btn text class="ml-1" small>Profile</v-btn>
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-sheet>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <span class="font-weight-bold">{{expert.name}}</span>
+                        <div class="overline">{{expert.type}}</div>
+                      </v-list-item-title>
+                      <v-list-item-title>
+                        <p class="small">Member since {{expert.created_at | sinceDate}}</p>
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        <v-icon left>mdi-account-multiple</v-icon>
+                        {{expert.followers.length}}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        <v-icon left>mdi-video</v-icon>15
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-card-text>
+                <v-divider class="my-0 py-0"></v-divider>
+                <v-card-actions class="ml-10">
+                  <v-btn @click="openProfile(expert)" text small>Profile</v-btn>
+                  <v-btn text small>Schedule</v-btn>
+                  <v-btn text small>Videos</v-btn>
+                </v-card-actions>
+              </v-card>
             </v-hover>
           </v-col>
         </v-row>
       </template>
     </v-data-iterator>
 
-    <v-dialog
-      v-model="dialog_new_expert"
-      fullscreen
-      transition="dialog-bottom-transition"
-      width="600"
-    >
+    <!-- Dialog for Adding an Expert -->
+    <v-dialog v-model="dialog_new_expert" fullscreen transition="dialog-bottom-transition">
       <v-card flat>
         <v-toolbar flat color="success" dark dense>
           <v-btn @click="close" icon>
@@ -143,8 +148,8 @@
                         <vue-croppie
                           ref="croppieRef"
                           :enableOrientation="true"
-                          :viewport="{ width: 164, height: 164, type: 'circle'}"
-                          :boundary="{ width: 164, height: 164}"
+                          :viewport="{ width: 164, height: 164, type: 'square'}"
+                          :boundary="{ width: 164, height: 250}"
                           :enableResize="false"
                           :showZoomer="false"
                         ></vue-croppie>
@@ -339,6 +344,104 @@
         </v-form>
       </v-card>
     </v-dialog>
+
+    <!-- Dialog for viewing Expert Profile -->
+    <v-dialog v-model="dialog_view_expert" transition="dialog-bottom-transition" fullscreen>
+      <v-card flat>
+        <v-toolbar flat dark color="success">
+          <v-btn @click="close" icon>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Expert Profile</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn @click="close" text>Close</v-btn>
+        </v-toolbar>
+
+        <v-card v-if="loaded_expert" flat>
+          <v-card-text>
+            <v-row dense justify="center">
+              <v-col cols="12" sm="12" md="2">
+                <v-avatar tile size="150">
+                  <v-img :src="'storage/profile_photo/' + getExpert.profile.photo"></v-img>
+                </v-avatar>
+              </v-col>
+              <v-col cols="12" sm="12" md="6">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline font-weight-bold">{{getExpert.name}}</v-list-item-title>
+                    <v-list-item-subtitle>{{getExpert.type}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      <span
+                        class="success--text"
+                        @click="openWebsite(getExpert.expert_info.website)"
+                      >{{getExpert.expert_info.website}}</span>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-col>
+            </v-row>
+
+            <v-row dense justify="center">
+              <v-subheader class="my-0">AREA OF EXPERTIES</v-subheader>
+              <v-col cols="12" sm="12" md="2">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title class="body-1 font-weight-bold">Categories</v-list-item-title>
+                    <v-list-item-subtitle
+                      class="body-2"
+                      v-for="(ctgory, index) in getExpert.expert_info.categories"
+                      :key="index"
+                    >{{ctgory}}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-col>
+
+              <v-col cols="12" sm="12" md="2">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title class="body-1 font-weight-bold">Jobs Covered</v-list-item-title>
+                    <v-list-item-subtitle
+                      class="body-2"
+                      v-for="(job, index) in getExpert.expert_info.jobs"
+                      :key="index"
+                    >{{job}}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-col>
+            </v-row>
+            <v-container>
+              <v-row dense justify="center">
+                <v-subheader class="my-0">CAREER INFO</v-subheader>
+                <v-col cols="12" sm="12" md="4">
+                  <v-text-field
+                    label="Company Name"
+                    :value="getExpert.expert_info.company_name"
+                    outlined
+                    rounded
+                    dense
+                    readonly
+                  ></v-text-field>
+                  <v-text-field label="Work" :value="getExpert.expert_info.work" dense readonly></v-text-field>
+                  <v-text-field
+                    label="Position"
+                    :value="getExpert.expert_info.position"
+                    dense
+                    readonly
+                  ></v-text-field>
+                  <v-textarea
+                    label="Work Description"
+                    :value="getExpert.expert_info.work_description"
+                    outlined
+                    dense
+                    readonly
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -350,13 +453,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["getAllExperts"])
+    ...mapGetters(["getAllExperts", "getExpert"])
   },
 
   data() {
     return {
       search: null,
       dialog_new_expert: false,
+      dialog_view_expert: false,
+      loaded_expert: false,
       showPassword: false,
       training: "",
       croppie: false,
@@ -502,14 +607,25 @@ export default {
   },
 
   methods: {
-    ...mapActions(["fetchAllExperts", "addExpert"]),
+    ...mapActions(["fetchAllExperts", "addExpert", "fetchExpert"]),
+
+    openWebsite(url) {
+      window.open(url, "_blank");
+    },
+
+    openProfile(expert) {
+      this.fetchExpert(expert.id).then(() => {
+        this.dialog_view_expert = true;
+        this.loaded_expert = true;
+      });
+    },
 
     saveCrop() {
       // Saving Croppie Result
       let options = {
         format: "jpeg",
         type: "canvas",
-        size: "boundary"
+        size: "viewport"
       };
 
       this.$refs.croppieRef
@@ -599,6 +715,7 @@ export default {
 
     close() {
       this.dialog_new_expert = false;
+      this.dialog_view_expert = false;
       this.expert_form.reset();
     },
 

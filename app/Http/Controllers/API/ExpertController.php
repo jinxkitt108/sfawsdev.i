@@ -24,6 +24,7 @@ class ExpertController extends Controller
         foreach ($experts as $expert) {
             $followers = $expert->followers()->get();
             $expert['followers'] = $followers;
+            $expert->expert_info;
         }
         return $experts;
     }
@@ -87,11 +88,11 @@ class ExpertController extends Controller
                         mkdir($dir);
                     }
 
-                    Storage::makeDirectory('public/expert_attachments/'.$user->id);
+                    Storage::makeDirectory('public/expert_attachments/' . $user->id);
                     $files = $request->attachments;
                     $attachments = [];
                     foreach ($files as $file) {
-                        $name = uniqid(). time() . '.' . explode('/', explode(':', substr($file['url'], 0, strpos($file['url'], ';')))[1])[1];
+                        $name = uniqid() . time() . '.' . explode('/', explode(':', substr($file['url'], 0, strpos($file['url'], ';')))[1])[1];
                         //Save without Resizing
                         \Image::make($file['url'])->save(public_path($dir . $user->id . '/') . $name);
 
@@ -142,7 +143,10 @@ class ExpertController extends Controller
      */
     public function show($id)
     {
-        //
+        $expert = User::findOrFail($id);
+        $expert->expert_info;
+
+        return $expert;
     }
 
     /**

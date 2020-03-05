@@ -563,10 +563,8 @@ export default {
 
     onFileImageChange(file) {
       let image = file.target.files[0];
-      console.log(image);
       let reader = new FileReader();
       reader.onloadend = image => {
-        //console.log('RESULT', reader.result)
         this.postForm.cover_image = reader.result;
       };
       reader.readAsDataURL(image);

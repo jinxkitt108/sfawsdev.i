@@ -15,6 +15,10 @@ let routes = [
     // Admin Routes
     { path: '/users', component: require('./components/User.vue').default },
     { path: '/experts', component: require('./components/Expert.vue').default },
+    { path: '/admin_session', component: require('./components/AdminSession.vue').default },
+
+    //Expert Routes
+    { path: '/session', component: require('./components/Session.vue').default },
 
     { path: '/search', component: require('./components/Search.vue').default },
     { path: '/view_user', component: require('./components/ViewUser.vue').default },

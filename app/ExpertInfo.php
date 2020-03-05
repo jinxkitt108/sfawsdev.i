@@ -33,4 +33,8 @@ class ExpertInfo extends Model
         'trainings' => 'array',
         'attachments' => 'array'
     ];
+
+    public function user() {
+        return $this->belongsTo(User::class)->where('type', 'Expert');
+    }
 }

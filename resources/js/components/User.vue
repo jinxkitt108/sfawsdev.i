@@ -215,7 +215,7 @@ export default {
       search: null,
       headers_user: [
         { text: "Name", value: "name", filterable: "true", align: "center" },
-        { text: "Type", value: "type", filterable: "true", align: "center" },
+        { text: "Type", value: "type", align: "center" },
         { text: "Email", value: "email", align: "center" },
         {
           text: "Registered",

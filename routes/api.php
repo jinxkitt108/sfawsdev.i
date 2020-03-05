@@ -29,6 +29,12 @@ Route::get('searchUser', 'API\UserController@search');
 //Expert Routes
 Route::apiResources(['expert' => 'API\ExpertController']);
 
+//Live Session and Time Slot Routes
+Route::apiResources(['session' => 'API\LiveSessionController']);
+Route::post('time_slot', 'API\LiveSessionController@storeTimeSlot');
+Route::get('time_slot', 'API\LiveSessionController@getTimeSlots');
+Route::delete('time_slot/{id}', 'API\LiveSessionController@destroyTimeSlot');
+
 //Follow and Commend Routes
 Route::apiResources(['follow' => 'API\FollowController']);
 Route::post('commend', 'API\FollowController@commend');
